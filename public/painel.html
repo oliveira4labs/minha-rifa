@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Minhas rifas</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div id="top"></div>
+  <main class="wrap stack">
+    <div class="row between">
+      <h1>Minhas rifas</h1>
+      <button class="btn primary" id="new-btn">+ Nova rifa</button>
+    </div>
+    <section class="card stack hidden" id="new-card">
+      <h2>Nova rifa</h2>
+      <form class="stack" id="new-form"></form>
+    </section>
+    <section class="stack" id="list"><p class="empty">Carregando…</p></section>
+  </main>
+  <script src="/common.js"></script>
+  <script>
+    (async () => {
+      const user = await requireUser();
+      $('#top').innerHTML = topbar(user); bindLogout();
+
+      const form = $('#new-form');
+      form.innerHTML = raffleFormHtml() + `<div class="row">
+        <button class="btn primary" type="submit">Criar rifa</button>
+        <button class="btn" type="button" id="new-cancel">Cancelar</button></div>`;
+      const getPhotos = bindPhotos(form);
+      const toggle = (show) => { $('#new-card').classList.toggle('hidden', !show); $('#new-btn').classList.toggle('hidden', show); };
+      $('#new-btn').addEventListener('click', () => { toggle(true); form.elements.title.focus(); });
+      $('#new-cancel').addEventListener('click', () => toggle(false));
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = form.querySelector('[type=submit]');
+        btn.disabled = true; btn.textContent = 'Criando…';
+        try {
+          const { id } = await api('POST', '/api/raffles', readRaffleForm(form, getPhotos));
+          location.href = `/gerenciar?id=${id}`;
+        } catch (err) { toast(err.message, true); btn.disabled = false; btn.textContent = 'Criar rifa'; }
+      });
+
+      const raffles = await api('GET', '/api/raffles');
+      if (!raffles.length) toggle(true);
+      $('#list').innerHTML = raffles.length ? raffles.map((r) => {
+        const free = r.total_numbers - r.paid - r.pending;
+        const tag = r.status === 'drawn' ? `<span class="tag done">Sorteada — nº ${pad(r.winner_number, r.total_numbers)}</span>`
+          : r.pending ? `<span class="tag pending">${r.pending} aguardando confirmação</span>` : '<span class="tag open">Aberta</span>';
+        return `<a class="card raffle-card" href="/gerenciar?id=${r.id}">
+          ${r.cover ? `<img class="cover" src="${esc(r.cover)}" alt="">` : '<div class="cover">🎟️</div>'}
+          <div class="grow stack-sm">
+            <div class="row between"><h3>${esc(r.title)}</h3>${tag}</div>
+            <div class="bar"><i style="width:${r.paid / r.total_numbers * 100}%"></i><i class="pend" style="width:${r.pending / r.total_numbers * 100}%"></i></div>
+            <p class="small muted num">${r.paid} pagos · ${r.pending} reservados · ${free} disponíveis · ${money(r.price_cents)} cada</p>
+          </div></a>`;
+      }).join('') : '<p class="empty">Você ainda não tem rifas. Preencha o formulário acima para criar a primeira.</p>';
+    })();
+  </script>
+</body>
+</html>

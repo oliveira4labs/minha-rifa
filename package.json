@@ -1,0 +1,12 @@
+{
+  "name": "sistema-de-rifas",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sistema de rifas com reserva de números, confirmação de pagamento e sorteio",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=22.13"
+  }
+}

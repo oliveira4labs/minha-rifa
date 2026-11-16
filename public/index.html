@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Minha Rifa</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="topbar"><div><a class="brand" href="/">minha<span>rifa</span></a></div></header>
+  <main class="wrap narrow stack">
+    <div class="stack-sm" style="margin-top:12px">
+      <h1>Crie sua rifa e compartilhe o link</h1>
+      <p class="muted">Cadastre o prêmio com fotos, defina os números e o valor, confirme os pagamentos e faça o sorteio.</p>
+    </div>
+    <div class="card stack">
+      <div class="tabs" role="tablist">
+        <button type="button" role="tab" data-mode="login" class="on">Entrar</button>
+        <button type="button" role="tab" data-mode="register">Criar conta</button>
+      </div>
+      <form class="stack" id="form">
+        <label id="name-field" class="hidden">Seu nome
+          <input name="name" maxlength="80" autocomplete="name">
+        </label>
+        <label>E-mail
+          <input name="email" type="email" required autocomplete="email">
+        </label>
+        <label>Senha <span class="hint hidden" id="pass-hint">Pelo menos 6 caracteres</span>
+          <input name="password" type="password" required minlength="6" autocomplete="current-password">
+        </label>
+        <button class="btn primary block" id="submit">Entrar</button>
+      </form>
+    </div>
+    <p class="small muted">Recebeu o link de uma rifa? Basta abrir o link — não precisa de conta para comprar.</p>
+  </main>
+  <script src="/common.js"></script>
+  <script>
+    let mode = 'login';
+    api('GET', '/api/me').then(({ user }) => { if (user) location.href = '/painel'; });
+
+    document.querySelectorAll('[data-mode]').forEach((b) => b.addEventListener('click', () => {
+      mode = b.dataset.mode;
+      document.querySelectorAll('[data-mode]').forEach((x) => x.classList.toggle('on', x === b));
+      const reg = mode === 'register';
+      $('#name-field').classList.toggle('hidden', !reg);
+      $('#pass-hint').classList.toggle('hidden', !reg);
+      $('#form').elements.name.required = reg;
+      $('#form').elements.password.autocomplete = reg ? 'new-password' : 'current-password';
+      $('#submit').textContent = reg ? 'Criar conta' : 'Entrar';
+    }));
+
+    $('#form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const el = e.target.elements;
+      $('#submit').disabled = true;
+      try {
+        await api('POST', mode === 'register' ? '/api/register' : '/api/login',
+          { name: el.name.value, email: el.email.value, password: el.password.value });
+        location.href = '/painel';
+      } catch (err) { toast(err.message, true); $('#submit').disabled = false; }
+    });
+  </script>
+</body>
+</html>
