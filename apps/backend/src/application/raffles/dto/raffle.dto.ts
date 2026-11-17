@@ -1,0 +1,114 @@
+import { MAX_NUMBERS } from '../../../domain/rules/raffle.rules.js';
+import {
+  asArray, IntInRange, OptionalIntInRange, OptionalText, Phone, Raw, RequiredText,
+} from '../../common/validation.js';
+
+// ---- entrada
+
+/** Foto existente (`id`) ou nova (`data`, data URL). */
+export interface PhotoInputDto {
+  id?: number | string | null;
+  data?: string;
+}
+
+/**
+ * Campos de criar/editar rifa (nomes iguais aos da API, em snake_case).
+ * `total_numbers`, `price_cents` e `photos` são validados no caso de uso,
+ * porque dependem do contexto (ex.: travados quando já há números vendidos).
+ */
+export class RaffleInputDto {
+  @RequiredText('Título', 120) title!: string;
+  @OptionalText('Descrição', 5000) description!: string;
+  @RequiredText('Chave PIX', 200) pix_key!: string;
+  @Phone('WhatsApp') whatsapp!: string;
+  @IntInRange('Tempo de reserva (minutos)', 5, 60 * 24 * 30) reserve_minutes!: number;
+  @OptionalIntInRange('Limite por comprador', 1, MAX_NUMBERS) max_per_buyer!: number | null;
+  @OptionalIntInRange('Data do sorteio', 0, 4102444800000) draw_date!: number | null;
+  @Raw() total_numbers?: unknown;
+  @Raw() price_cents?: unknown;
+  @Raw(asArray) photos!: PhotoInputDto[];
+}
+
+// ---- saída
+
+export interface RaffleSummaryDto {
+  id: number;
+  slug: string;
+  title: string;
+  total_numbers: number;
+  price_cents: number;
+  status: string;
+  draw_date: number | null;
+  winner_number: number | null;
+  paid: number;
+  pending: number;
+  cover: string | null;
+}
+
+export interface CreatedRaffleDto {
+  id: number;
+  slug: string;
+}
+
+export interface AdminRaffleDto {
+  id: number;
+  slug: string;
+  title: string;
+  description: string;
+  total_numbers: number;
+  price_cents: number;
+  pix_key: string;
+  whatsapp: string;
+  reserve_minutes: number;
+  max_per_buyer: number | null;
+  draw_date: number | null;
+  status: string;
+}
+
+export interface AdminOrderDto {
+  id: number;
+  buyer_name: string;
+  buyer_phone: string;
+  numbers: number[];
+  status: string;
+  created_at: number;
+  expires_at: number;
+  paid_at: number | null;
+}
+
+export interface WinnerDto {
+  number: number;
+  name: string;
+  phone: string;
+  drawn_at: number | null;
+}
+
+/** Tudo que a tela de gestão precisa. `taken` = [número, 'p' (pago) | 'r' (reservado)]. */
+export interface RaffleDetailsDto {
+  raffle: AdminRaffleDto;
+  photos: { id: number; url: string }[];
+  orders: AdminOrderDto[];
+  taken: [number, 'p' | 'r'][];
+  counts: { paid: number; pending: number };
+  can_draw: boolean;
+  winner: WinnerDto | null;
+}
+
+export interface DrawResultDto {
+  winner: WinnerDto | null;
+}
+
+/** Identifica a rifa e o administrador que está agindo. */
+export interface OwnedRaffleRefDto {
+  userId: number;
+  raffleId: number;
+}
+
+export interface CreateRaffleInputDto {
+  userId: number;
+  data: RaffleInputDto;
+}
+
+export interface UpdateRaffleInputDto extends OwnedRaffleRefDto {
+  data: RaffleInputDto;
+}

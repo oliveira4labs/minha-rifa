@@ -1,0 +1,36 @@
+{
+  "name": "@minha-rifa/backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "API do sistema de rifas (NestJS + PostgreSQL, arquitetura em camadas)",
+  "type": "module",
+  "scripts": {
+    "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
+    "build": "npm run clean && tsc -p tsconfig.build.json",
+    "start": "node dist/main.js",
+    "dev": "npm run build && concurrently -k -n tsc,api \"tsc -p tsconfig.build.json --watch --preserveWatchOutput\" \"node --watch dist/main.js\"",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint:arch": "node scripts/check-conventions.mjs && depcruise src --config .dependency-cruiser.cjs"
+  },
+  "engines": {
+    "node": ">=22.13"
+  },
+  "dependencies": {
+    "@nestjs/common": "^12.5.1",
+    "@nestjs/core": "^12.5.1",
+    "@nestjs/platform-express": "^12.5.1",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.15.1",
+    "express": "^5.3.0",
+    "pg": "^8.23.1",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.6.6",
+    "@types/pg": "^8.23.1",
+    "dependency-cruiser": "^18.8.0",
+    "typescript": "~6.0.2"
+  }
+}

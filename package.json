@@ -1,12 +1,26 @@
 {
-  "name": "sistema-de-rifas",
+  "name": "minha-rifa",
   "version": "1.0.0",
   "private": true,
   "description": "Sistema de rifas com reserva de números, confirmação de pagamento e sorteio",
+  "workspaces": [
+    "apps/*"
+  ],
   "scripts": {
-    "start": "node server.js"
+    "db:up": "docker compose up -d db",
+    "db:down": "docker compose stop db",
+    "dev": "npm run db:up && concurrently -k -n back,front -c green,blue \"npm run dev -w @minha-rifa/backend\" \"npm run dev -w @minha-rifa/frontend\"",
+    "build": "npm run build --workspaces",
+    "start": "npm run start -w @minha-rifa/backend",
+    "docker:up": "docker compose up -d --build",
+    "docker:down": "docker compose down",
+    "lint:arch": "npm run lint:arch -w @minha-rifa/backend"
   },
   "engines": {
     "node": ">=22.13"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.7",
+    "typescript": "~6.0.2"
   }
 }
