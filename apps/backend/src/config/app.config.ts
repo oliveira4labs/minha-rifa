@@ -8,6 +8,8 @@ export const appConfig = {
   port: Number(process.env.PORT) || 3000,
   /** Conexão com o Postgres (o docker-compose sobe um na porta 5433). */
   databaseUrl: process.env.DATABASE_URL || 'postgres://rifa:rifa@localhost:5433/minha_rifa',
+  /** Aplica as migrações pendentes ao subir. Use `false` se elas rodarem num passo separado do deploy. */
+  migrateOnBoot: process.env.MIGRATE_ON_BOOT !== 'false',
   /** Fotos enviadas (uploads/). Em produção, aponte para um disco/volume persistente. */
   dataDir: path.resolve(process.env.DATA_DIR || path.join(BACKEND_ROOT, 'data')),
   /** Build do front (React/Vite), servido pelo próprio backend. */

@@ -12,6 +12,10 @@
     "dev": "npm run db:up && concurrently -k -n back,front -c green,blue \"npm run dev -w @minha-rifa/backend\" \"npm run dev -w @minha-rifa/frontend\"",
     "build": "npm run build --workspaces",
     "start": "npm run start -w @minha-rifa/backend",
+    "migration:create": "npm run migration:create -w @minha-rifa/backend --",
+    "migration:run": "npm run migration:run -w @minha-rifa/backend --",
+    "migration:revert": "npm run migration:revert -w @minha-rifa/backend --",
+    "migration:status": "npm run migration:status -w @minha-rifa/backend --",
     "docker:up": "docker compose up -d --build",
     "docker:down": "docker compose down",
     "lint:arch": "npm run lint:arch -w @minha-rifa/backend"

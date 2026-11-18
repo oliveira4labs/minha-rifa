@@ -27,9 +27,13 @@ Requer Node.js **22.13+** e o Postgres no ar (`npm run db:up` na raiz sobe o do 
 | `docker compose up -d --build` | Postgres + aplicação em containers (porta 3000) |
 | `npm run typecheck -w @minha-rifa/backend` | Checagem de tipos |
 | `npm run lint:arch` | **Verifica as regras de arquitetura** |
+| `npm run migration:create -- <nome>` | Cria um arquivo de migração (veja [Migrações](#migrações)) |
+| `npm run migration:run` | Aplica as migrações pendentes |
+| `npm run migration:revert [-- n]` | Desfaz a última (ou as `n` últimas) |
+| `npm run migration:status` | Lista migrações aplicadas e pendentes |
 
 O build usa `tsc` direto (sem Nest CLI) para não depender do ambiente.
-As migrações do banco rodam sozinhas quando a aplicação sobe.
+As migrações pendentes também rodam sozinhas quando a aplicação sobe (desligue com `MIGRATE_ON_BOOT=false`).
 
 ### Variáveis de ambiente
 
@@ -37,6 +41,7 @@ As migrações do banco rodam sozinhas quando a aplicação sobe.
 |---|---|---|
 | `PORT` | `3000` | Porta HTTP |
 | `DATABASE_URL` | `postgres://rifa:rifa@localhost:5433/minha_rifa` | Conexão com o Postgres (o do docker-compose, na porta 5433) |
+| `MIGRATE_ON_BOOT` | `true` | `false` = a aplicação não migra ao subir (as migrações rodam num passo separado do deploy) |
 | `DATA_DIR` | `apps/backend/data` | Fotos (`uploads/`). Em produção, aponte para um disco/volume persistente |
 | `FRONTEND_DIR` | `apps/frontend/dist` | Build do front servido em produção |
 
@@ -167,8 +172,8 @@ apps/backend/
     │   ├── orders/                dto/ · order.helpers.ts · use-cases/ (approve, cancel, expire)
     │   └── public-raffle/         dto/ · use-cases/ (get-public-raffle, reserve-numbers, get-buyer-order)
     ├── infrastructure/
-    │   ├── database/              PostgresDatabase (pool, transação, migrações), PostgresUnitOfWork,
-    │   │                          migrations/ (001-initial-schema…), interfaces/ (UserRow, RaffleRow, OrderRow…)
+    │   ├── database/              PostgresDatabase (pool, transação), PostgresUnitOfWork, Migrator,
+    │   │                          migrations/ (001_initial_schema…), interfaces/ (UserRow, RaffleRow, OrderRow…)
     │   ├── repositories/          PostgresUser/Session/Raffle/Photo/OrderRepository (um por arquivo)
     │   ├── storage/               LocalPhotoStorage (DATA_DIR/uploads)
     │   └── infrastructure.module.ts  liga token (classe abstrata) → implementação
@@ -234,7 +239,7 @@ Expirar reservas fica **fora** dos casos de uso (interceptor + job) justamente p
 ## Como adicionar uma funcionalidade
 
 1. **Domínio**: regra nova vira função pura em `domain/rules`; modelo novo vai em `domain/interfaces`. Se precisar de dado novo, adicione o método na interface `IXxxRepository` **e** na classe abstrata `XxxRepository`.
-2. **Infraestrutura**: implemente o método no repositório Postgres (tipos de linha em `database/interfaces`). Mudou o esquema? Crie `database/migrations/00N-descricao.ts` e registre em `migrations/index.ts`; nunca edite uma migração já aplicada.
+2. **Infraestrutura**: implemente o método no repositório Postgres (tipos de linha em `database/interfaces`). Mudou o esquema? `npm run migration:create -- descricao` e escreva o `up`/`down` (veja [Migrações](#migrações)); nunca edite uma migração já aplicada.
 3. **Aplicação**: crie `application/<contexto>/dto/*.dto.ts` (entrada com decorators de `validation.ts`, saída como interface) e `application/<contexto>/use-cases/<acao>.use-case.ts` implementando `UseCase<Input, Output>`, recebendo repositórios com `@Inject(XxxRepository) private readonly x: IXxxRepository`. Registre em `application/index.ts`.
    Precisa reaproveitar lógica de outro caso de uso? Extraia para o domínio ou para `<contexto>.helpers.ts`; **não** injete o outro caso de uso.
 4. **Apresentação**: adicione o método no controller (ou um controller novo, registrado em `app.module.ts`). O controller só lê parâmetros, chama `useCase.execute(...)` e devolve o resultado.
@@ -262,7 +267,54 @@ users ─┬─< sessions
 
 - Ids `BIGINT GENERATED ALWAYS AS IDENTITY`; datas em ms como `BIGINT` (o driver converte `BIGINT` para `number`).
 - Exclusão em cascata de `photos`, `orders` e `tickets` ao apagar a rifa; `CHECK` nos campos `status`.
-- Esquema em [`migrations/001-initial-schema.ts`](src/infrastructure/database/migrations/001-initial-schema.ts). Migrações aplicadas ficam em `schema_migrations`; a aplicação usa `pg_advisory_lock` para que só uma instância migre por vez.
+- Esquema inicial em [`migrations/001_initial_schema.ts`](src/infrastructure/database/migrations/001_initial_schema.ts).
+
+### Migrações
+
+**Toda mudança no banco (tabela, coluna, índice, ajuste de dados) é feita por migração.** Nada de alterar pelo DBeaver: o que não está numa migração não existe nos outros ambientes.
+
+```bash
+npm run migration:create -- adiciona cpf no comprador
+```
+
+Cria `src/infrastructure/database/migrations/20261118143000_adiciona_cpf_no_comprador.ts`:
+
+```ts
+const migration: Migration = {
+  up: `ALTER TABLE orders ADD COLUMN buyer_cpf TEXT;`,   // aplica a mudança
+  down: `ALTER TABLE orders DROP COLUMN buyer_cpf;`,     // desfaz exatamente o que o up fez
+};
+export default migration;
+```
+
+```bash
+npm run migration:run       # aplica as pendentes
+npm run migration:status    # o que já foi aplicado e o que falta
+npm run migration:revert    # desfaz a última (npm run migration:revert -- 3 desfaz as 3 últimas)
+```
+
+Como funciona ([`migrator.ts`](src/infrastructure/database/migrator.ts) e CLI em [`migrate.ts`](src/migrate.ts)):
+
+- Os arquivos de `migrations/` são lidos automaticamente, em ordem de nome. O prefixo é data/hora (UTC), então duas pessoas criando migrações ao mesmo tempo não colidem. O nome do arquivo é o id gravado em `schema_migrations`.
+- Cada migração roda na sua **própria transação**: se uma linha do SQL falhar, nada daquela migração fica no banco e ela continua pendente.
+- `pg_advisory_lock`: só um processo migra por vez (várias instâncias subindo juntas, ou CLI + aplicação).
+- Migração com `up` vazio (só comentários) é recusada; sem `down`, ela não pode ser revertida.
+- `migration:status` avisa quando uma migração aplicada no banco não tem mais arquivo (alguém apagou ou renomeou).
+- Os comandos funcionam tanto na raiz do monorepo quanto em `apps/backend` (a raiz repassa para o workspace).
+- A aplicação aplica as pendentes ao subir (`npm run dev` também: salvou a migração, o backend reinicia e aplica). Em produção dá para desligar com `MIGRATE_ON_BOOT=false` e rodar `node apps/backend/dist/migrate.js up` como passo do deploy.
+
+Regras:
+
+1. **Nunca edite nem apague uma migração que já rodou** em algum ambiente compartilhado. Precisa corrigir? Crie outra.
+2. Teste o `down`: `migration:run`, `migration:revert`, `migration:run` de novo.
+3. Mudança que pode perder dados (apagar coluna, mudar tipo) merece backup antes (`pg_dump`, veja o [LEIA-ME](../../LEIA-ME.md)).
+4. Os scripts `migration:*` compilam com `tsc` antes de rodar (eles leem `dist/`). Se renomear ou apagar uma migração ainda não aplicada, rode `npm run build` para limpar o `dist/`.
+
+No Docker:
+
+```bash
+docker compose exec app node apps/backend/dist/migrate.js status
+```
 
 ### Conectar (DBeaver, psql)
 

@@ -1,8 +1,7 @@
 import type { Migration } from '../interfaces/migration.interface.js';
 
 /** Esquema inicial. Datas em milissegundos (BIGINT), valores em centavos. */
-export const initialSchema: Migration = {
-  id: '001_initial_schema',
+const migration: Migration = {
   up: `
     CREATE TABLE users (
       id          BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -71,4 +70,14 @@ export const initialSchema: Migration = {
     );
     CREATE INDEX idx_tickets_order ON tickets (order_id);
   `,
+  down: `
+    DROP TABLE tickets;
+    DROP TABLE orders;
+    DROP TABLE photos;
+    DROP TABLE raffles;
+    DROP TABLE sessions;
+    DROP TABLE users;
+  `,
 };
+
+export default migration;

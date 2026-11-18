@@ -42,6 +42,8 @@ Abra http://localhost:5173 (o Vite repassa `/api` e `/uploads` para o backend).
 | `npm start` | Backend servindo o front compilado (precisa do Postgres no ar) |
 | `npm run docker:up` / `npm run docker:down` | Mesmo que `docker compose up -d --build` / `down` |
 | `npm run lint:arch` | Verifica as regras de arquitetura do backend |
+| `npm run migration:create -- <nome>` | Cria uma migração (toda mudança no banco é por migração) |
+| `npm run migration:run` / `migration:revert` / `migration:status` | Aplica pendentes / desfaz a última / lista |
 
 Configuração: copie `.env.example` para `.env` se quiser mudar usuário, senha ou portas.
 
@@ -103,6 +105,7 @@ Em produção o backend serve `apps/frontend/dist` (configurável por `FRONTEND_
 | Fotos | `apps/backend/data/uploads/` | Volume `minha-rifa_uploads` (montado em `/data`) |
 
 As tabelas são criadas automaticamente na primeira vez que o backend sobe (migrações).
+Toda mudança no esquema é feita por migração; veja [Migrações no README do backend](apps/backend/README.md#migrações).
 `docker compose down` mantém os dados; `docker compose down -v` **apaga** banco e fotos.
 
 Backup do banco:
@@ -146,4 +149,4 @@ docker build -t SEU_REGISTRY/minha-rifa:1.0.0 .
 docker push SEU_REGISTRY/minha-rifa:1.0.0
 ```
 
-As migrações rodam sozinhas quando a aplicação sobe (com trava, então várias instâncias podem subir juntas).
+As migrações rodam sozinhas quando a aplicação sobe (com trava, então várias instâncias podem subir juntas). Se preferir rodá-las num passo separado do deploy: `MIGRATE_ON_BOOT=false` na aplicação e `node apps/backend/dist/migrate.js up` antes de subir.
