@@ -1,0 +1,7 @@
+.git
+.claude
+**/node_modules
+**/dist
+apps/backend/data
+.env
+*.log
