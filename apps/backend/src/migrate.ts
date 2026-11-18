@@ -1,9 +1,3 @@
-/**
- * CLI das migrações (roda sem subir a API):
- *   node dist/migrate.js up          aplica as pendentes
- *   node dist/migrate.js down [n]    desfaz as n últimas (padrão 1)
- *   node dist/migrate.js status      lista aplicadas e pendentes
- */
 import { appConfig } from './config/app.config.js';
 import { Migrator } from './infrastructure/database/migrator.js';
 

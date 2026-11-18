@@ -1,6 +1,5 @@
 import { http } from '../../../shared/api/httpClient';
 
-/** Rifas do administrador logado. */
 export const rafflesApi = {
   list: () => http.get('/api/raffles'),
   get: (id) => http.get(`/api/raffles/${id}`),

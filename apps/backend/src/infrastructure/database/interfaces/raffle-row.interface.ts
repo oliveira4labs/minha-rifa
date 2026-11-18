@@ -1,6 +1,5 @@
 import type { RaffleStatus } from '../../../domain/interfaces/raffle.interface.js';
 
-/** Linha da tabela `raffles`. */
 export interface RaffleRow {
   id: number;
   slug: string;
@@ -20,7 +19,6 @@ export interface RaffleRow {
   created_at: number;
 }
 
-/** Linha da tabela `photos`. */
 export interface PhotoRow {
   id: number;
   raffle_id: number;

@@ -14,7 +14,6 @@ import { ListMyRafflesUseCase } from '../../../application/raffles/use-cases/lis
 import { UpdateRaffleUseCase } from '../../../application/raffles/use-cases/update-raffle.use-case.js';
 import { AuthGuard, CurrentUser } from '../guards/auth.guard.js';
 
-/** Rifas do administrador logado. */
 @Controller('raffles')
 @UseGuards(AuthGuard)
 export class RafflesController {

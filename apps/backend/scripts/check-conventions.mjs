@@ -1,5 +1,3 @@
-// Convenções que o dependency-cruiser não enxerga (olha o conteúdo dos arquivos).
-// Rode: npm run lint:arch
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -17,7 +15,6 @@ const RULES = [
     name: 'no-inline-object-types',
     message: 'Tipo objeto escrito na hora: crie uma interface em dto/ ou interfaces/.',
     applies: (file) => !TYPE_HOME.test(file),
-    // `as { ... }`, `Promise<{ ... }>` ou anotação `: { a: x; b: y }`
     test: (line) => /\bas\s+(unknown\s+as\s+)?\{/.test(line) || /Promise<\{/.test(line) || /:\s*\{[^}]*\w\??:\s*[^,}]+;[^}]*\}/.test(line),
   },
   {

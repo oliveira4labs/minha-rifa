@@ -3,12 +3,10 @@ import { formatMoney, padNumbers } from '../../../shared/lib/format';
 import { Dialog } from '../../../shared/ui/feedback/Dialog';
 import { loadBuyer } from '../lib/buyerStorage';
 
-/** Pede nome e WhatsApp do comprador para confirmar a reserva. */
 export function ReserveDialog({ open, numbers, raffle, onClose, onConfirm }) {
   const [buyer, setBuyer] = useState({ name: '', phone: '' });
   const [submitting, setSubmitting] = useState(false);
 
-  // Ao abrir, preenche com os dados da última compra (sem sobrescrever o que já foi digitado).
   useEffect(() => {
     if (!open) return;
     const saved = loadBuyer();

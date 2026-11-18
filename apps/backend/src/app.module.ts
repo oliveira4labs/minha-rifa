@@ -1,4 +1,3 @@
-// Raiz de composição: único lugar que conhece todas as camadas e liga tudo.
 import { Module } from '@nestjs/common';
 import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { USE_CASES } from './application/index.js';

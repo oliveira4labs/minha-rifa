@@ -3,7 +3,6 @@ import { whatsappShareLink } from '../../../shared/lib/whatsapp';
 import { CopyBox, ExternalLink } from '../../../shared/ui/components';
 import { isLocalHost, publicRaffleUrl, shareMessage } from '../model/raffleRules';
 
-/** Link público da rifa e mensagem pronta para divulgar. */
 export function ShareSection({ raffle, taken }) {
   const copy = useCopy();
   const url = publicRaffleUrl(raffle.slug);

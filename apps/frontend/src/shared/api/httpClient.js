@@ -1,6 +1,5 @@
 const DEFAULT_ERROR = 'Não foi possível concluir. Tente novamente.';
 
-/** Erro devolvido pela API. `busy` lista números que outra pessoa reservou antes. */
 export class ApiError extends Error {
   constructor(message, { status, busy } = {}) {
     super(message);
@@ -20,9 +19,7 @@ async function request(method, url, body) {
   let data = {};
   try {
     data = await res.json();
-  } catch {
-    // resposta vazia
-  }
+  } catch {}
 
   if (!res.ok) throw new ApiError(data.error || DEFAULT_ERROR, { status: res.status, busy: data.busy });
   return data;

@@ -3,7 +3,6 @@ import { authApi } from '../api/authApi';
 
 const AuthContext = createContext(null);
 
-/** Guarda a conta logada (administrador). `user === undefined` enquanto carrega. */
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(undefined);
 

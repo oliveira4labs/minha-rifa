@@ -15,10 +15,6 @@ import { PostgresSessionRepository } from './repositories/postgres-session.repos
 import { PostgresUserRepository } from './repositories/postgres-user.repository.js';
 import { LocalPhotoStorage } from './storage/local-photo.storage.js';
 
-/**
- * Liga cada token (classe abstrata do domínio, que implementa a interface do repositório)
- * à implementação concreta.
- */
 const bindings = [
   { provide: UserRepository, useClass: PostgresUserRepository },
   { provide: SessionRepository, useClass: PostgresSessionRepository },

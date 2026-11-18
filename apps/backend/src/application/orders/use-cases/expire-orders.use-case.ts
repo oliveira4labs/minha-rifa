@@ -5,11 +5,6 @@ import type { IOrderRepository } from '../../../domain/repositories/interfaces/o
 import { UnitOfWork } from '../../../domain/repositories/unit-of-work.js';
 import type { IUnitOfWork } from '../../../domain/repositories/interfaces/unit-of-work.interface.js';
 
-/**
- * Libera os números de reservas pendentes cujo prazo acabou.
- * Disparado periodicamente e antes de cada requisição da API (camada de apresentação).
- * Devolve quantos pedidos expiraram.
- */
 @Injectable()
 export class ExpireOrdersUseCase implements UseCase<number, number> {
   constructor(

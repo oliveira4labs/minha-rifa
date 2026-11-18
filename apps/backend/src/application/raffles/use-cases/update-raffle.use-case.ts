@@ -17,10 +17,6 @@ import type { IRaffleRepository } from '../../../domain/repositories/interfaces/
 import { UnitOfWork } from '../../../domain/repositories/unit-of-work.js';
 import type { IUnitOfWork } from '../../../domain/repositories/interfaces/unit-of-work.interface.js';
 
-/**
- * Edita a rifa. Só enquanto aberta; com números reservados/pagos,
- * quantidade e valor são mantidos. Fotos removidas têm o arquivo apagado.
- */
 @Injectable()
 export class UpdateRaffleUseCase implements UseCase<UpdateRaffleInputDto, OkDto> {
   constructor(

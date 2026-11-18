@@ -7,7 +7,6 @@ import { GetSessionUserUseCase } from '../../../application/auth/use-cases/get-s
 import { readSessionToken } from '../session-cookie.js';
 import type { AuthenticatedRequest } from '../interfaces/authenticated-request.interface.js';
 
-/** Exige sessão válida (cookie `sid`) e disponibiliza o usuário via @CurrentUser(). */
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(private readonly getSessionUser: GetSessionUserUseCase) {}
@@ -21,12 +20,10 @@ export class AuthGuard implements CanActivate {
   }
 }
 
-/** Usuário logado (use em rotas protegidas pelo AuthGuard). */
 export const CurrentUser = createParamDecorator(
   (_: unknown, ctx: ExecutionContext): SessionUserDto => ctx.switchToHttp().getRequest<AuthenticatedRequest>().user!,
 );
 
-/** Token de sessão do cookie, ou null. */
 export const SessionToken = createParamDecorator(
   (_: unknown, ctx: ExecutionContext): string | null => readSessionToken(ctx.switchToHttp().getRequest<Request>()),
 );

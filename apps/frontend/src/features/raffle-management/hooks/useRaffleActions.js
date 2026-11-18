@@ -7,10 +7,6 @@ import { toPartialPayload } from '../../raffles/model/raffleFormModel';
 import { ordersApi } from '../api/ordersApi';
 import { drawConfirmText } from '../model/raffleRules';
 
-/**
- * Ações da tela de gestão. Cada uma confirma quando preciso, chama a API,
- * recarrega os dados e avisa o resultado. Em caso de erro: toast + recarrega.
- */
 export function useRaffleActions(id, data, refresh) {
   const toast = useToast();
   const { confirm } = useConfirm();
@@ -64,7 +60,6 @@ export function useRaffleActions(id, data, refresh) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 
-  /** Lança o erro para o formulário mostrar (ele mesmo exibe o toast). */
   const saveEdits = async (payload) => {
     await rafflesApi.update(id, payload);
     await refresh({ resetForm: true });

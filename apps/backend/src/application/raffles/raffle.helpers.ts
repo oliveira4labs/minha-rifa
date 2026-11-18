@@ -1,5 +1,3 @@
-// Funções compartilhadas pelos casos de uso de rifa.
-// Não são casos de uso: só montam dados e acessam repositórios recebidos por parâmetro.
 import type { TakenNumber } from '../../domain/interfaces/order.interface.js';
 import type {
   Photo, Raffle, RaffleDetails, RafflePricing,
@@ -19,10 +17,6 @@ export async function requireOwnedRaffle(raffles: IRaffleRepository, userId: num
   return raffle;
 }
 
-/**
- * Converte o DTO em dados da rifa.
- * Com `locked`, quantidade e valor não são validados e mantêm os valores atuais.
- */
 export function toRaffleDetails(input: RaffleInputDto, locked?: RafflePricing): RaffleDetails {
   return {
     title: input.title,
@@ -41,17 +35,12 @@ export function assertPhotoCount(photos: PhotoInputDto[]): void {
   if (photos.length > MAX_PHOTOS) throw new BusinessRuleError(`Envie no máximo ${MAX_PHOTOS} fotos.`);
 }
 
-/**
- * Resolve a lista final de arquivos: fotos existentes (por id) são mantidas,
- * novas (data URL) são validadas e gravadas.
- */
 export async function resolvePhotoFiles(
   inputs: PhotoInputDto[],
   storage: IPhotoStorage,
   existing: Photo[] = [],
 ): Promise<string[]> {
   const byId = new Map(existing.map((p) => [p.id, p.filename]));
-  // Valida tudo antes de gravar qualquer arquivo.
   const plan = inputs.map((p) => {
     if (p.id != null) {
       const filename = byId.get(Number(p.id));

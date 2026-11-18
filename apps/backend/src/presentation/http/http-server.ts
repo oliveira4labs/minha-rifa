@@ -10,7 +10,6 @@ import type { BodyParserError } from './interfaces/body-parser-error.interface.j
 export const API_PREFIX = 'api';
 const ONE_YEAR = 365 * 24 * 60 * 60 * 1000;
 
-/** Corpo JSON com limite de tamanho; erros de leitura no mesmo formato da API. */
 function configureBody(app: NestExpressApplication): void {
   app.use(express.json({ limit: appConfig.maxBodySize, type: () => true }));
   app.use((err: BodyParserError, _req: Request, res: Response, next: NextFunction) => {
@@ -20,13 +19,6 @@ function configureBody(app: NestExpressApplication): void {
   });
 }
 
-/**
- * Arquivos fora da API:
- * - /uploads/*  fotos das rifas (nome aleatório → cache de 1 ano)
- * - /assets/*   arquivos do Vite com hash no nome (cache de 1 ano)
- * - demais arquivos do build do front (no-cache)
- * - qualquer outra rota GET sem extensão → index.html (o React Router resolve)
- */
 function configureStaticFiles(app: NestExpressApplication): void {
   const { frontendDir } = appConfig;
   const immutable = { maxAge: ONE_YEAR, immutable: true, index: false, fallthrough: false } as const;
@@ -54,7 +46,6 @@ export function configureHttp(app: NestExpressApplication): void {
   app.setGlobalPrefix(API_PREFIX);
   app.disable('x-powered-by');
   app.set('etag', false);
-  // Respostas da API nunca vão para cache (dados mudam a todo momento).
   app.use(`/${API_PREFIX}`, (_req: Request, res: Response, next: NextFunction) => {
     res.setHeader('Cache-Control', 'no-store');
     next();

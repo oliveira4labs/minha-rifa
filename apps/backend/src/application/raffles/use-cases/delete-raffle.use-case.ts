@@ -13,7 +13,6 @@ import type { IPhotoStorage } from '../../../domain/repositories/interfaces/phot
 import { RaffleRepository } from '../../../domain/repositories/raffle.repository.js';
 import type { IRaffleRepository } from '../../../domain/repositories/interfaces/raffle.repository.interface.js';
 
-/** Exclui a rifa (com fotos e reservas). Proibido se houver número pago. */
 @Injectable()
 export class DeleteRaffleUseCase implements UseCase<OwnedRaffleRefDto, OkDto> {
   constructor(

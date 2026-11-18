@@ -8,7 +8,6 @@ import { GetBuyerOrderUseCase } from '../../../application/public-raffle/use-cas
 import { GetPublicRaffleUseCase } from '../../../application/public-raffle/use-cases/get-public-raffle.use-case.js';
 import { ReserveNumbersUseCase } from '../../../application/public-raffle/use-cases/reserve-numbers.use-case.js';
 
-/** Rotas abertas: página da rifa, reserva e consulta do pedido pelo comprador. */
 @Controller()
 export class PublicRaffleController {
   constructor(

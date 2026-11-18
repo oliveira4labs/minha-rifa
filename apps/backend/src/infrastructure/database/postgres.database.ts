@@ -6,8 +6,6 @@ import pg from 'pg';
 import { appConfig } from '../../config/app.config.js';
 import { Migrator } from './migrator.js';
 
-// BIGINT (ids, datas em ms, COUNT) volta como string por padrão; aqui vira number.
-// Seguro: nossos valores ficam muito abaixo de Number.MAX_SAFE_INTEGER.
 pg.types.setTypeParser(pg.types.builtins.INT8, (value) => Number(value));
 
 const SERIALIZATION_FAILURE = '40001';
@@ -17,12 +15,6 @@ const MAX_TRANSACTION_ATTEMPTS = 5;
 const isRetryable = (err: unknown) =>
   err instanceof Error && [SERIALIZATION_FAILURE, DEADLOCK_DETECTED].includes((err as pg.DatabaseError).code ?? '');
 
-/**
- * Pool de conexões com o Postgres.
- * - `query`/`one`: usam a conexão da transação em andamento, se houver (AsyncLocalStorage).
- * - `transaction`: SERIALIZABLE com nova tentativa automática em conflito de concorrência.
- * - Aplica as migrações pendentes ao iniciar (desligue com MIGRATE_ON_BOOT=false).
- */
 @Injectable()
 export class PostgresDatabase implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(PostgresDatabase.name);
@@ -48,7 +40,6 @@ export class PostgresDatabase implements OnModuleInit, OnModuleDestroy {
     return (await this.query<Row>(sql, params))[0] ?? null;
   }
 
-  /** Reentrante: dentro de uma transação, só executa `work` nela. */
   async transaction<T>(work: () => Promise<T>): Promise<T> {
     if (this.currentTransaction.getStore()) return work();
 
@@ -69,10 +60,6 @@ export class PostgresDatabase implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  /**
-   * Executa `work` num SAVEPOINT da transação atual: se falhar, desfaz só essa parte
-   * e a transação continua utilizável (ex.: tratar violação de chave e consultar de novo).
-   */
   async savepoint<T>(name: string, work: () => Promise<T>): Promise<T> {
     await this.query(`SAVEPOINT ${name}`);
     try {

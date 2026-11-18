@@ -1,6 +1,5 @@
 import type { Migration } from '../interfaces/migration.interface.js';
 
-/** Esquema inicial. Datas em milissegundos (BIGINT), valores em centavos. */
 const migration: Migration = {
   up: `
     CREATE TABLE users (
@@ -61,7 +60,6 @@ const migration: Migration = {
     CREATE INDEX idx_orders_raffle ON orders (raffle_id, status);
     CREATE INDEX idx_orders_pending_expiry ON orders (expires_at) WHERE status = 'pending';
 
-    -- Um número só pode pertencer a um pedido ativo (pendente ou pago) por vez.
     CREATE TABLE tickets (
       raffle_id  BIGINT  NOT NULL REFERENCES raffles(id) ON DELETE CASCADE,
       number     INTEGER NOT NULL,

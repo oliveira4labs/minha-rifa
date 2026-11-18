@@ -2,11 +2,6 @@ import type { NewOrder, Order, TakenNumber } from '../interfaces/order.interface
 import type { NumberCounts } from '../interfaces/raffle.interface.js';
 import type { IOrderRepository } from './interfaces/order.repository.interface.js';
 
-/**
- * Token de injeção do Nest para `IOrderRepository` (o contrato fica na interface).
- * Use case: `@Inject(OrderRepository) private readonly x: IOrderRepository`.
- * Implementação concreta: infrastructure/ (estende esta classe).
- */
 export abstract class OrderRepository implements IOrderRepository {
   abstract findById(id: number): Promise<Order | null>;
   abstract findByToken(token: string): Promise<Order | null>;

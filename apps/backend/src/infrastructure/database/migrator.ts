@@ -7,24 +7,17 @@ import type {
 } from './interfaces/migration.interface.js';
 
 const MIGRATIONS_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), 'migrations');
-/** `001_initial_schema.js`, `20261118143000_add_cpf.js`... (compilados; .d.ts e .map ficam de fora) */
 const MIGRATION_FILE = /^(\d+_[a-z0-9_]+)\.js$/;
-/** Trava global: se várias instâncias/CLIs rodarem juntas, só uma mexe no esquema por vez. */
 const MIGRATION_LOCK_KEY = 728_391;
 
 const isBlankSql = (sql: string) => sql.replace(/--.*$/gm, '').trim() === '';
 
-/**
- * Aplica e desfaz as migrações de `migrations/`, registrando em `schema_migrations`.
- * Cada migração roda na sua própria transação: ou entra inteira, ou não entra.
- */
 export class Migrator {
   constructor(
     private readonly connectionString: string,
     private readonly log: MigrationLogger = console.log,
   ) {}
 
-  /** Aplica todas as pendentes, em ordem. Retorna os ids aplicados. */
   async up(): Promise<string[]> {
     const migrations = await this.load();
     return this.withLock(async (client) => {
@@ -42,7 +35,6 @@ export class Migrator {
     });
   }
 
-  /** Desfaz as `steps` últimas migrações aplicadas. Retorna os ids desfeitos. */
   async down(steps = 1): Promise<string[]> {
     const migrations = new Map((await this.load()).map((m) => [m.id, m]));
     return this.withLock(async (client) => {
@@ -61,7 +53,6 @@ export class Migrator {
     });
   }
 
-  /** Todas as migrações (do disco e do banco), em ordem, com a data em que foram aplicadas. */
   async status(): Promise<MigrationStatus[]> {
     const files = new Set((await this.load()).map((m) => m.id));
     return this.withLock(async (client) => {

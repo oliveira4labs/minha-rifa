@@ -3,19 +3,11 @@ import {
   asArray, IntInRange, OptionalIntInRange, OptionalText, Phone, Raw, RequiredText,
 } from '../../common/validation.js';
 
-// ---- entrada
-
-/** Foto existente (`id`) ou nova (`data`, data URL). */
 export interface PhotoInputDto {
   id?: number | string | null;
   data?: string;
 }
 
-/**
- * Campos de criar/editar rifa (nomes iguais aos da API, em snake_case).
- * `total_numbers`, `price_cents` e `photos` são validados no caso de uso,
- * porque dependem do contexto (ex.: travados quando já há números vendidos).
- */
 export class RaffleInputDto {
   @RequiredText('Título', 120) title!: string;
   @OptionalText('Descrição', 5000) description!: string;
@@ -28,8 +20,6 @@ export class RaffleInputDto {
   @Raw() price_cents?: unknown;
   @Raw(asArray) photos!: PhotoInputDto[];
 }
-
-// ---- saída
 
 export interface RaffleSummaryDto {
   id: number;
@@ -83,7 +73,6 @@ export interface WinnerDto {
   drawn_at: number | null;
 }
 
-/** Tudo que a tela de gestão precisa. `taken` = [número, 'p' (pago) | 'r' (reservado)]. */
 export interface RaffleDetailsDto {
   raffle: AdminRaffleDto;
   photos: { id: number; url: string }[];
@@ -98,7 +87,6 @@ export interface DrawResultDto {
   winner: WinnerDto | null;
 }
 
-/** Identifica a rifa e o administrador que está agindo. */
 export interface OwnedRaffleRefDto {
   userId: number;
   raffleId: number;

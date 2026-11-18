@@ -7,7 +7,6 @@ import type { IOrderRepository } from '../../../domain/repositories/interfaces/o
 import { RaffleRepository } from '../../../domain/repositories/raffle.repository.js';
 import type { IRaffleRepository } from '../../../domain/repositories/interfaces/raffle.repository.interface.js';
 
-/** Comprador consulta o próprio pedido pelo token guardado no navegador. */
 @Injectable()
 export class GetBuyerOrderUseCase implements UseCase<string, BuyerOrderDto> {
   constructor(

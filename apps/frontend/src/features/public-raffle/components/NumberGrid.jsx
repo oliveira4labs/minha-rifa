@@ -3,7 +3,6 @@ import { padNumber } from '../../../shared/lib/format';
 
 const STATUS = { p: { cls: 'paid', label: 'pago' }, r: { cls: 'res', label: 'reservado' } };
 
-// Uma rifa pode ter até 5000 números: cada célula só re-renderiza se as props dela mudarem.
 const NumberCell = memo(function NumberCell({ n, total, owner, status, isSelected, isWinner, onClick }) {
   const text = padNumber(n, total);
   const cls = status ? STATUS[status].cls : isSelected ? 'sel' : '';
@@ -22,10 +21,6 @@ const NumberCell = memo(function NumberCell({ n, total, owner, status, isSelecte
   );
 });
 
-/**
- * Grade de números. `onPick(n, takenTitle)` — `takenTitle` vem preenchido
- * quando o número já é de alguém (para mostrar quem).
- */
 export function NumberGrid({ total, taken, selected, winnerNumber, onlyFree, onPick }) {
   const takenMap = useMemo(() => new Map(taken.map(([n, status, owner]) => [n, { status, owner }])), [taken]);
 

@@ -1,12 +1,4 @@
 #!/usr/bin/env node
-/**
- * Cria um arquivo de migração vazio:
- *   npm run migration:create -- adiciona cpf no comprador
- *   → src/infrastructure/database/migrations/20261118143000_adiciona_cpf_no_comprador.ts
- *
- * O prefixo é a data/hora (UTC), então migrações criadas por pessoas diferentes não colidem
- * e ficam na ordem em que foram escritas.
- */
 import { existsSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -33,13 +25,10 @@ if (existsSync(file)) {
 
 writeFileSync(file, `import type { Migration } from '../interfaces/migration.interface.js';
 
-/** TODO: descreva a mudança. */
 const migration: Migration = {
   up: \`
-    -- ALTER TABLE orders ADD COLUMN buyer_cpf TEXT;
   \`,
   down: \`
-    -- ALTER TABLE orders DROP COLUMN buyer_cpf;
   \`,
 };
 

@@ -4,7 +4,6 @@ const ToastContext = createContext(null);
 
 const DURATION = { info: 3000, error: 6000 };
 
-/** Mensagem curta no rodapé da tela. Só uma por vez: a nova substitui a anterior. */
 export function ToastProvider({ children }) {
   const [toast, setToast] = useState(null);
   const timer = useRef();
@@ -29,7 +28,6 @@ export function ToastProvider({ children }) {
   );
 }
 
-/** `toast(mensagem, éErro?)` */
 export function useToast() {
   const ctx = useContext(ToastContext);
   if (!ctx) throw new Error('useToast precisa estar dentro de <ToastProvider>.');

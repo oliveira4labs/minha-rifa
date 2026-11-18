@@ -1,4 +1,3 @@
-// Conversão entre a rifa da API e os campos do formulário de criar/editar.
 import {
   centsToInput, formatPhone, fromDateTimeInput, parseMoney, toDateTimeInput,
 } from '../../../shared/lib/format';
@@ -31,10 +30,8 @@ export function toFormValues(raffle = {}) {
   };
 }
 
-/** Fotos já salvas vão só com `id`; novas vão com o `data` (data URL). */
 const toPhotoPayload = (photos) => photos.map((p) => (p.id != null ? { id: p.id } : { data: p.data }));
 
-/** Monta o corpo da requisição. Lança Error com mensagem amigável se algo estiver inválido. */
 export function toPayload(values, photos, { locked = false } = {}) {
   const priceCents = parseMoney(values.price);
   if (!locked && !(priceCents > 0)) throw new Error('Informe o valor de cada número, por exemplo 10,00.');
@@ -52,7 +49,6 @@ export function toPayload(values, photos, { locked = false } = {}) {
   };
 }
 
-/** Corpo para salvar só uma mudança pontual (ex.: data do sorteio), mantendo o resto como está. */
 export function toPartialPayload(raffle, photos, changes) {
   return { ...raffle, photos: toPhotoPayload(photos), ...changes };
 }

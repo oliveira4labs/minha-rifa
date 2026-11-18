@@ -7,7 +7,6 @@ import { ApproveOrderUseCase } from '../../../application/orders/use-cases/appro
 import { CancelOrderUseCase } from '../../../application/orders/use-cases/cancel-order.use-case.js';
 import { AuthGuard, CurrentUser } from '../guards/auth.guard.js';
 
-/** Ações do administrador sobre pedidos (reservas). */
 @Controller('orders')
 @UseGuards(AuthGuard)
 export class OrdersController {

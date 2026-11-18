@@ -1,11 +1,8 @@
 import { NonEmptyList, Phone, RequiredText } from '../../common/validation.js';
 
-// ---- entrada
-
 export class ReserveNumbersDto {
   @RequiredText('Nome', 80) name!: string;
   @Phone('WhatsApp') phone!: string;
-  /** Cada número é validado no caso de uso (depende do total da rifa). */
   @NonEmptyList('Escolha pelo menos um número.') numbers!: unknown[];
 }
 
@@ -13,8 +10,6 @@ export interface ReserveNumbersInput {
   slug: string;
   data: ReserveNumbersDto;
 }
-
-// ---- saída
 
 export interface PublicRaffleInfoDto {
   slug: string;
@@ -30,10 +25,6 @@ export interface PublicRaffleInfoDto {
   status: string;
 }
 
-/**
- * Página pública. `taken` = [número, 'p' | 'r', nome abreviado].
- * Nunca inclui telefones de compradores.
- */
 export interface PublicRaffleDto {
   raffle: PublicRaffleInfoDto;
   photos: string[];
@@ -42,7 +33,6 @@ export interface PublicRaffleDto {
 }
 
 export interface ReservationDto {
-  /** Credencial do comprador para consultar o pedido depois. */
   token: string;
 }
 

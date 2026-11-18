@@ -3,13 +3,6 @@ import { useToast } from '../../../shared/ui/feedback/ToastProvider';
 import { toFormValues, toPayload } from '../model/raffleFormModel';
 import { PhotoPicker } from './PhotoPicker';
 
-/**
- * Formulário de criar/editar rifa.
- * - `locked`: quantidade e valor bloqueados (já há números reservados/pagos).
- * - `onSubmit(payload)`: pode lançar erro; a mensagem vira toast.
- * - `renderActions({ submitting })`: botões do rodapé.
- * - `onDirty()`: avisa na primeira alteração feita pela pessoa.
- */
 export function RaffleForm({
   raffle, photos: initialPhotos = [], locked = false, autoFocus = false, onSubmit, onDirty, renderActions,
 }) {

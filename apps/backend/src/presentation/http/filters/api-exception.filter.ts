@@ -6,7 +6,6 @@ import {
   BusinessRuleError, DomainError, NotFoundError, NumbersUnavailableError, UnauthenticatedError,
 } from '../../../domain/errors/domain.errors.js';
 
-/** Erro de negócio → status HTTP. */
 function statusOf(err: DomainError): number {
   if (err instanceof NumbersUnavailableError) return HttpStatus.CONFLICT;
   if (err instanceof NotFoundError) return HttpStatus.NOT_FOUND;
@@ -15,10 +14,6 @@ function statusOf(err: DomainError): number {
   return HttpStatus.BAD_REQUEST;
 }
 
-/**
- * Formato único de erro da API: `{ error: "mensagem" }` (+ `busy` na reserva).
- * Mensagens de negócio vêm prontas, em português.
- */
 @Catch()
 export class ApiExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger('API');
@@ -36,7 +31,6 @@ export class ApiExceptionFilter implements ExceptionFilter {
     if (exception instanceof HttpException) {
       const status = exception.getStatus();
       if (status === HttpStatus.NOT_FOUND) return void send(status, { error: 'Rota não encontrada.' });
-      // Validação dos DTOs (400) e AuthGuard (401) já lançam com a mensagem em português.
       return void send(status, { error: exception.message });
     }
 

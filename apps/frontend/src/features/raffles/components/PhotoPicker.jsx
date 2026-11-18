@@ -3,12 +3,8 @@ import { imageFileToDataUrl } from '../../../shared/lib/image';
 import { useToast } from '../../../shared/ui/feedback/ToastProvider';
 import { MAX_PHOTOS } from '../model/raffleFormModel';
 
-let nextLocalId = 0; // chave estável para fotos ainda não salvas
+let nextLocalId = 0;
 
-/**
- * Seletor de fotos controlado. Cada foto é `{ id, url }` (já salva) ou `{ data }` (nova).
- * A primeira da lista é a capa.
- */
 export function PhotoPicker({ photos, onChange }) {
   const inputRef = useRef(null);
   const toast = useToast();

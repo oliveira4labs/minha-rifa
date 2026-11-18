@@ -1,6 +1,5 @@
 import { useState } from 'react';
 
-/** Foto principal + miniaturas para trocar. */
 export function Gallery({ photos }) {
   const [index, setIndex] = useState(0);
   const current = index < photos.length ? index : 0;

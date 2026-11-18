@@ -3,10 +3,6 @@ import { Dialog } from './Dialog';
 
 const ConfirmContext = createContext(null);
 
-/**
- * Diálogo de confirmação reutilizável.
- * `await confirm({ title, text, ok, danger })` → true se a pessoa confirmar.
- */
 export function ConfirmProvider({ children }) {
   const [options, setOptions] = useState(null);
   const resolver = useRef(null);
