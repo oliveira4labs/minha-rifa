@@ -19,6 +19,7 @@ const toRaffle = (r: RaffleRow): Raffle => ({
   maxPerBuyer: r.max_per_buyer,
   drawDate: r.draw_date,
   status: r.status,
+  visibility: r.visibility,
   winnerNumber: r.winner_number,
   drawnAt: r.drawn_at,
   createdAt: r.created_at,
@@ -55,10 +56,10 @@ export class PostgresRaffleRepository extends RaffleRepository {
   async create(r: NewRaffle): Promise<number> {
     const row = await this.db.one<IdRow>(
       `INSERT INTO raffles (slug, user_id, title, description, total_numbers, price_cents, pix_key, whatsapp,
-         reserve_minutes, max_per_buyer, draw_date, created_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING id`,
+         reserve_minutes, max_per_buyer, draw_date, visibility, created_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING id`,
       [r.slug, r.userId, r.title, r.description, r.totalNumbers, r.priceCents, r.pixKey, r.whatsapp,
-        r.reserveMinutes, r.maxPerBuyer, r.drawDate, r.createdAt],
+        r.reserveMinutes, r.maxPerBuyer, r.drawDate, r.visibility, r.createdAt],
     );
     return row!.id;
   }
@@ -66,9 +67,9 @@ export class PostgresRaffleRepository extends RaffleRepository {
   async update(id: number, d: RaffleDetails): Promise<void> {
     await this.db.query(
       `UPDATE raffles SET title = $1, description = $2, pix_key = $3, whatsapp = $4, reserve_minutes = $5,
-         max_per_buyer = $6, draw_date = $7, total_numbers = $8, price_cents = $9 WHERE id = $10`,
+         max_per_buyer = $6, draw_date = $7, total_numbers = $8, price_cents = $9, visibility = $10 WHERE id = $11`,
       [d.title, d.description, d.pixKey, d.whatsapp, d.reserveMinutes, d.maxPerBuyer, d.drawDate,
-        d.totalNumbers, d.priceCents, id],
+        d.totalNumbers, d.priceCents, d.visibility, id],
     );
   }
 

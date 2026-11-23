@@ -18,7 +18,10 @@ export function RaffleCard({ raffle }) {
       <div className="grow stack-sm">
         <div className="row between">
           <h3>{raffle.title}</h3>
-          <StatusTag raffle={raffle} />
+          <span className="row" style={{ gap: 6 }}>
+            {raffle.visibility === 'private' && <Tag variant="private">Privada</Tag>}
+            <StatusTag raffle={raffle} />
+          </span>
         </div>
         <ProgressBar paid={raffle.paid} pending={raffle.pending} total={raffle.total_numbers} />
         <p className="small muted num">

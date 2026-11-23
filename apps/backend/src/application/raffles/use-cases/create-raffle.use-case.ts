@@ -24,7 +24,7 @@ export class CreateRaffleUseCase implements UseCase<CreateRaffleInputDto, Create
   async execute({ userId, data }: CreateRaffleInputDto): Promise<CreatedRaffleDto> {
     const details = toRaffleDetails(data);
     assertPhotoCount(data.photos);
-    const files = await resolvePhotoFiles(data.photos, this.storage);
+    const files = await resolvePhotoFiles(data.photos, this.storage, details.visibility);
     const slug = newRaffleSlug();
 
     const id = await this.unitOfWork.run(async () => {

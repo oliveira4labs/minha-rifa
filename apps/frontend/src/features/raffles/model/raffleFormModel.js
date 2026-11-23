@@ -27,6 +27,7 @@ export function toFormValues(raffle = {}) {
     reserve_unit: unit,
     max_per_buyer: raffle.max_per_buyer != null ? String(raffle.max_per_buyer) : '',
     draw_date: toDateTimeInput(raffle.draw_date),
+    visibility: raffle.visibility ?? 'public',
   };
 }
 
@@ -45,6 +46,7 @@ export function toPayload(values, photos, { locked = false } = {}) {
     reserve_minutes: Math.round(Number(values.reserve_value) * RESERVE_UNITS[values.reserve_unit]),
     max_per_buyer: values.max_per_buyer === '' ? null : Number(values.max_per_buyer),
     draw_date: fromDateTimeInput(values.draw_date),
+    visibility: values.visibility,
     photos: toPhotoPayload(photos),
   };
 }

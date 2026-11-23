@@ -1,6 +1,6 @@
 import type { TakenNumber } from '../../domain/interfaces/order.interface.js';
 import type {
-  Photo, Raffle, RaffleDetails, RafflePricing,
+  Photo, Raffle, RaffleDetails, RafflePricing, RaffleVisibility,
 } from '../../domain/interfaces/raffle.interface.js';
 import { BusinessRuleError, NotFoundError } from '../../domain/errors/domain.errors.js';
 import { decodePhotoDataUrl } from '../../domain/rules/photo.rules.js';
@@ -26,6 +26,7 @@ export function toRaffleDetails(input: RaffleInputDto, locked?: RafflePricing): 
     reserveMinutes: input.reserve_minutes,
     maxPerBuyer: input.max_per_buyer,
     drawDate: input.draw_date,
+    visibility: input.visibility,
     totalNumbers: locked?.totalNumbers ?? assertIntInRange(input.total_numbers, 2, MAX_NUMBERS, 'Quantidade de números'),
     priceCents: locked?.priceCents ?? assertIntInRange(input.price_cents, 1, MAX_PRICE_CENTS, 'Valor de cada número'),
   };
@@ -38,6 +39,7 @@ export function assertPhotoCount(photos: PhotoInputDto[]): void {
 export async function resolvePhotoFiles(
   inputs: PhotoInputDto[],
   storage: IPhotoStorage,
+  visibility: RaffleVisibility,
   existing: Photo[] = [],
 ): Promise<string[]> {
   const byId = new Map(existing.map((p) => [p.id, p.filename]));
@@ -51,7 +53,7 @@ export async function resolvePhotoFiles(
   });
   const files: string[] = [];
   for (const item of plan) {
-    files.push(item.filename ?? await storage.save(item.content!.bytes, item.content!.extension));
+    files.push(item.filename ?? await storage.save(item.content!.bytes, item.content!.extension, visibility));
   }
   return files;
 }

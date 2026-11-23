@@ -1,5 +1,7 @@
 export type RaffleStatus = 'open' | 'drawn';
 
+export type RaffleVisibility = 'public' | 'private';
+
 export interface Raffle {
   id: number;
   slug: string;
@@ -14,6 +16,7 @@ export interface Raffle {
   maxPerBuyer: number | null;
   drawDate: number | null;
   status: RaffleStatus;
+  visibility: RaffleVisibility;
   winnerNumber: number | null;
   drawnAt: number | null;
   createdAt: number;
@@ -29,6 +32,7 @@ export interface RaffleDetails {
   reserveMinutes: number;
   maxPerBuyer: number | null;
   drawDate: number | null;
+  visibility: RaffleVisibility;
 }
 
 export type NewRaffle = RaffleDetails & { slug: string; userId: number; createdAt: number };

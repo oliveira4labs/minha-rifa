@@ -4,6 +4,7 @@ import { USE_CASES } from './application/index.js';
 import { InfrastructureModule } from './infrastructure/infrastructure.module.js';
 import { AuthController } from './presentation/http/controllers/auth.controller.js';
 import { OrdersController } from './presentation/http/controllers/orders.controller.js';
+import { PrivatePhotosController } from './presentation/http/controllers/private-photos.controller.js';
 import { PublicRaffleController } from './presentation/http/controllers/public-raffle.controller.js';
 import { RafflesController } from './presentation/http/controllers/raffles.controller.js';
 import { ApiExceptionFilter } from './presentation/http/filters/api-exception.filter.js';
@@ -14,7 +15,7 @@ import { ExpireOrdersJob } from './presentation/jobs/expire-orders.job.js';
 
 @Module({
   imports: [InfrastructureModule],
-  controllers: [AuthController, RafflesController, OrdersController, PublicRaffleController],
+  controllers: [AuthController, RafflesController, OrdersController, PublicRaffleController, PrivatePhotosController],
   providers: [
     ...USE_CASES,
     AuthGuard,

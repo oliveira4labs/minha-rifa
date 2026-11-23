@@ -4,6 +4,10 @@ import { PhotoRepository } from '../../domain/repositories/photo.repository.js';
 import type { PhotoRow } from '../database/interfaces/raffle-row.interface.js';
 import { PostgresDatabase } from '../database/postgres.database.js';
 
+const toPhoto = (p: PhotoRow): Photo => ({
+  id: p.id, raffleId: p.raffle_id, filename: p.filename, position: p.position,
+});
+
 @Injectable()
 export class PostgresPhotoRepository extends PhotoRepository {
   constructor(private readonly db: PostgresDatabase) {
@@ -12,7 +16,12 @@ export class PostgresPhotoRepository extends PhotoRepository {
 
   async listByRaffle(raffleId: number): Promise<Photo[]> {
     const rows = await this.db.query<PhotoRow>('SELECT * FROM photos WHERE raffle_id = $1 ORDER BY position', [raffleId]);
-    return rows.map((p) => ({ id: p.id, raffleId: p.raffle_id, filename: p.filename, position: p.position }));
+    return rows.map(toPhoto);
+  }
+
+  async findByFilename(filename: string): Promise<Photo | null> {
+    const row = await this.db.one<PhotoRow>('SELECT * FROM photos WHERE filename = $1 LIMIT 1', [filename]);
+    return row ? toPhoto(row) : null;
   }
 
   async replaceAll(raffleId: number, filenames: string[]): Promise<void> {

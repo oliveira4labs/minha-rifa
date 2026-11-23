@@ -12,6 +12,9 @@ export const appConfig = {
   maxBodySize: '40mb',
   expireOrdersEveryMs: 30_000,
   sessionMaxAgeSeconds: 60 * 60 * 24 * 30,
+  privateUploadsAccelPath: process.env.PRIVATE_UPLOADS_ACCEL_PATH || '',
 };
 
 export const uploadDir = path.join(appConfig.dataDir, 'uploads');
+export const publicUploadDir = path.join(uploadDir, 'public');
+export const privateUploadDir = path.join(uploadDir, 'private');

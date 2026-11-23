@@ -1,9 +1,13 @@
-import type { NumberCounts, Raffle } from '../interfaces/raffle.interface.js';
+import type { NumberCounts, Raffle, RaffleVisibility } from '../interfaces/raffle.interface.js';
 import { BusinessRuleError } from '../errors/domain.errors.js';
 
 export const MAX_NUMBERS = 5000;
 export const MAX_PHOTOS = 8;
 export const MAX_PRICE_CENTS = 100_000_00;
+export const RAFFLE_VISIBILITIES: readonly RaffleVisibility[] = ['public', 'private'];
+
+export const canView = (raffle: Raffle, viewerId: number | null): boolean =>
+  raffle.visibility === 'public' || raffle.userId === viewerId;
 
 export function assertIntInRange(value: unknown, min: number, max: number, label: string): number {
   const n = Number(value);

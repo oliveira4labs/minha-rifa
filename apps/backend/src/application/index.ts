@@ -2,6 +2,7 @@ import { GetSessionUserUseCase } from './auth/use-cases/get-session-user.use-cas
 import { LoginUseCase } from './auth/use-cases/login.use-case.js';
 import { LogoutUseCase } from './auth/use-cases/logout.use-case.js';
 import { RegisterUseCase } from './auth/use-cases/register.use-case.js';
+import { AuthorizePrivatePhotoUseCase } from './photos/use-cases/authorize-private-photo.use-case.js';
 import { ApproveOrderUseCase } from './orders/use-cases/approve-order.use-case.js';
 import { CancelOrderUseCase } from './orders/use-cases/cancel-order.use-case.js';
 import { ExpireOrdersUseCase } from './orders/use-cases/expire-orders.use-case.js';
@@ -32,4 +33,5 @@ export const USE_CASES = [
   GetPublicRaffleUseCase,
   ReserveNumbersUseCase,
   GetBuyerOrderUseCase,
+  AuthorizePrivatePhotoUseCase,
 ];
