@@ -1,15 +1,23 @@
 import { useState } from 'react';
+import { Lightbox } from '../../../shared/ui/media/Lightbox';
+import { SlideArrows, SlideTrack } from '../../../shared/ui/media/SlideTrack';
 
 export function Gallery({ photos }) {
   const [index, setIndex] = useState(0);
+  const [zoomIndex, setZoomIndex] = useState(null);
   const current = index < photos.length ? index : 0;
+  const count = photos.length;
 
   return (
     <div>
       <div className="gallery-main">
-        <img src={photos[current]} alt="Foto do prêmio" />
+        <SlideTrack photos={photos} index={current} onIndexChange={setIndex} onSlideClick={setZoomIndex} altPrefix="Foto do prêmio" />
+        <SlideArrows count={count} index={current} onIndexChange={setIndex} />
+        <span className="gallery-badge num" aria-hidden="true">
+          {count > 1 ? `${current + 1} / ${count} · ` : ''}⤢ ampliar
+        </span>
       </div>
-      {photos.length > 1 && (
+      {count > 1 && (
         <div className="gallery-thumbs">
           {photos.map((url, i) => (
             <button
@@ -24,6 +32,7 @@ export function Gallery({ photos }) {
           ))}
         </div>
       )}
+      <Lightbox photos={photos} startIndex={zoomIndex} onClose={() => setZoomIndex(null)} />
     </div>
   );
 }

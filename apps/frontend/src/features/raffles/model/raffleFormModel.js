@@ -1,6 +1,5 @@
-import {
-  centsToInput, formatPhone, fromDateTimeInput, parseMoney, toDateTimeInput,
-} from '../../../shared/lib/format';
+import { fromDateTimeInput, parseMoney, toDateTimeInput } from '../../../shared/lib/format';
+import { formatMoneyInput, maskPhone } from '../../../shared/lib/masks';
 
 export const MAX_PHOTOS = 8;
 export const RESERVE_UNITS = { min: 1, h: 60, d: 1440 };
@@ -20,9 +19,9 @@ export function toFormValues(raffle = {}) {
     title: raffle.title ?? '',
     description: raffle.description ?? '',
     total_numbers: String(raffle.total_numbers ?? DEFAULT_TOTAL_NUMBERS),
-    price: centsToInput(raffle.price_cents),
+    price: raffle.price_cents != null ? formatMoneyInput(raffle.price_cents) : '',
     pix_key: raffle.pix_key ?? '',
-    whatsapp: raffle.whatsapp ? formatPhone(raffle.whatsapp) : '',
+    whatsapp: maskPhone(raffle.whatsapp),
     reserve_value: String(minutes / RESERVE_UNITS[unit]),
     reserve_unit: unit,
     max_per_buyer: raffle.max_per_buyer != null ? String(raffle.max_per_buyer) : '',
@@ -35,7 +34,7 @@ const toPhotoPayload = (photos) => photos.map((p) => (p.id != null ? { id: p.id 
 
 export function toPayload(values, photos, { locked = false } = {}) {
   const priceCents = parseMoney(values.price);
-  if (!locked && !(priceCents > 0)) throw new Error('Informe o valor de cada número, por exemplo 10,00.');
+  if (!locked && !(priceCents > 0)) throw new Error('Informe o valor de cada número, por exemplo R$ 10,00.');
   return {
     title: values.title,
     description: values.description,

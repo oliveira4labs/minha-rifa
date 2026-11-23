@@ -41,8 +41,6 @@ export function parseMoney(text) {
   return Number.isFinite(v) ? v : NaN;
 }
 
-export const centsToInput = (cents) => (cents != null ? (cents / 100).toFixed(2).replace('.', ',') : '');
-
 export function toDateTimeInput(ms) {
   if (ms == null) return '';
   const d = new Date(ms - new Date(ms).getTimezoneOffset() * 60000);

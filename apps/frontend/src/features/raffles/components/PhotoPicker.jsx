@@ -1,6 +1,7 @@
-import { useRef } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { imageFileToDataUrl } from '../../../shared/lib/image';
 import { useToast } from '../../../shared/ui/feedback/ToastProvider';
+import { Lightbox } from '../../../shared/ui/media/Lightbox';
 import { MAX_PHOTOS } from '../model/raffleFormModel';
 
 let nextLocalId = 0;
@@ -8,6 +9,8 @@ let nextLocalId = 0;
 export function PhotoPicker({ photos, onChange }) {
   const inputRef = useRef(null);
   const toast = useToast();
+  const [zoomIndex, setZoomIndex] = useState(null);
+  const closeZoom = useCallback(() => setZoomIndex(null), []);
 
   const remove = (index) => onChange(photos.filter((_, i) => i !== index));
 
@@ -32,13 +35,15 @@ export function PhotoPicker({ photos, onChange }) {
   return (
     <div className="stack-sm">
       <span style={{ fontWeight: 600, fontSize: '.92rem' }}>
-        Fotos <span className="hint muted" style={{ fontWeight: 400 }}>até {MAX_PHOTOS} — a primeira é a capa</span>
+        Fotos <span className="hint muted" style={{ fontWeight: 400 }}>até {MAX_PHOTOS} — a primeira é a capa. Clique numa foto para ampliar</span>
       </span>
       <div className="thumbs">
         {photos.map((photo, i) => (
           <div className="thumb" key={photo.id ?? `new-${photo.localId}`}>
-            <img src={photo.url || photo.data} alt={`Foto ${i + 1}`} />
-            <button type="button" onClick={() => remove(i)} aria-label={`Remover foto ${i + 1}`}>×</button>
+            <button type="button" className="thumb-open" onClick={() => setZoomIndex(i)} aria-label={`Ampliar foto ${i + 1}`}>
+              <img src={photo.url || photo.data} alt={`Foto ${i + 1}`} />
+            </button>
+            <button type="button" className="thumb-remove" onClick={() => remove(i)} aria-label={`Remover foto ${i + 1}`}>×</button>
           </div>
         ))}
         {photos.length < MAX_PHOTOS && (
@@ -48,6 +53,7 @@ export function PhotoPicker({ photos, onChange }) {
         )}
       </div>
       <input ref={inputRef} type="file" accept="image/*" multiple className="hidden" onChange={addFiles} />
+      <Lightbox photos={photos.map((p) => p.url || p.data)} startIndex={zoomIndex} onClose={closeZoom} />
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { MoneyInput, PhoneInput } from '../../../shared/ui/components/MaskedInputs';
 import { useToast } from '../../../shared/ui/feedback/ToastProvider';
 import { toFormValues, toPayload } from '../model/raffleFormModel';
 import { PhotoPicker } from './PhotoPicker';
@@ -11,13 +12,21 @@ export function RaffleForm({
   const [photos, setPhotos] = useState(initialPhotos);
   const [submitting, setSubmitting] = useState(false);
 
+  const setField = (name, value) => {
+    setValues((v) => ({ ...v, [name]: value }));
+    onDirty?.();
+  };
+
   const field = (name) => ({
     name,
     value: values[name],
-    onChange: (e) => {
-      setValues((v) => ({ ...v, [name]: e.target.value }));
-      onDirty?.();
-    },
+    onChange: (e) => setField(name, e.target.value),
+  });
+
+  const maskedField = (name) => ({
+    name,
+    value: values[name],
+    onValueChange: (value) => setField(name, value),
   });
 
   const changePhotos = (next) => {
@@ -52,8 +61,8 @@ export function RaffleForm({
         <label>Quantidade de números
           <input {...field('total_numbers')} type="number" inputMode="numeric" min={2} max={5000} required disabled={locked} />
         </label>
-        <label>Valor de cada número (R$)
-          <input {...field('price')} inputMode="decimal" required placeholder="10,00" disabled={locked} />
+        <label>Valor de cada número
+          <MoneyInput {...maskedField('price')} required disabled={locked} />
         </label>
       </div>
       {locked && (
@@ -65,7 +74,7 @@ export function RaffleForm({
           <input {...field('pix_key')} maxLength={200} required placeholder="CPF, celular, e-mail ou chave aleatória" />
         </label>
         <label>Seu WhatsApp (com DDD) <span className="hint">Para onde os compradores enviam o comprovante</span>
-          <input {...field('whatsapp')} type="tel" inputMode="tel" required placeholder="(11) 91234-5678" />
+          <PhoneInput {...maskedField('whatsapp')} required />
         </label>
       </div>
 
