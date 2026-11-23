@@ -16,9 +16,9 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 24
           cache: npm
@@ -80,7 +80,7 @@ jobs:
 
           $COMPOSE build app
           $COMPOSE up -d db
-          $COMPOSE run --rm app node apps/backend/dist/migrate.js up
+          $COMPOSE run --rm -T app node apps/backend/dist/migrate.js up < /dev/null
           $COMPOSE up -d --remove-orphans
 
           docker image prune -f
