@@ -45,8 +45,6 @@ export function parseMoney(text) {
   return Number.isFinite(v) ? v : NaN;
 }
 
-export const centsToInput = (cents) => (cents != null ? (cents / 100).toFixed(2).replace('.', ',') : '');
-
 /** Timestamp → valor de <input type="datetime-local"> no fuso local. */
 export function toDateTimeInput(ms) {
   if (ms == null) return '';

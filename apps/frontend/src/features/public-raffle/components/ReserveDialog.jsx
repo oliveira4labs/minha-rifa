@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { formatMoney, padNumbers } from '../../../shared/lib/format';
+import { maskPhone } from '../../../shared/lib/masks';
+import { PhoneInput } from '../../../shared/ui/components/MaskedInputs';
 import { Dialog } from '../../../shared/ui/feedback/Dialog';
 import { loadBuyer } from '../lib/buyerStorage';
 
@@ -12,7 +14,7 @@ export function ReserveDialog({ open, numbers, raffle, onClose, onConfirm }) {
   useEffect(() => {
     if (!open) return;
     const saved = loadBuyer();
-    setBuyer((b) => ({ name: b.name || saved.name || '', phone: b.phone || saved.phone || '' }));
+    setBuyer((b) => ({ name: b.name || saved.name || '', phone: b.phone || maskPhone(saved.phone) }));
   }, [open]);
 
   const update = (field) => (e) => setBuyer((b) => ({ ...b, [field]: e.target.value }));
@@ -38,15 +40,12 @@ export function ReserveDialog({ open, numbers, raffle, onClose, onConfirm }) {
           <input name="name" maxLength={80} required autoComplete="name" value={buyer.name} onChange={update('name')} />
         </label>
         <label>Seu WhatsApp (com DDD)
-          <input
+          <PhoneInput
             name="phone"
-            type="tel"
-            inputMode="tel"
             required
             autoComplete="tel"
-            placeholder="(11) 91234-5678"
             value={buyer.phone}
-            onChange={update('phone')}
+            onValueChange={(phone) => setBuyer((b) => ({ ...b, phone }))}
           />
         </label>
         <div className="actions">
