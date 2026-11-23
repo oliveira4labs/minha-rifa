@@ -15,6 +15,7 @@ export function AuthForm({ onSuccess }) {
   const canRegister = isEnabled('createUser');
   const [selectedMode, setMode] = useState('login');
   const mode = canRegister ? selectedMode : 'login';
+  const tabs = Object.entries(MODES).filter(([key]) => canRegister || key === 'login');
   const [form, setForm] = useState({ name: '', email: '', password: '' });
   const [submitting, setSubmitting] = useState(false);
   const isRegister = mode === 'register';
@@ -35,24 +36,20 @@ export function AuthForm({ onSuccess }) {
 
   return (
     <div className="card stack">
-      {canRegister ? (
-        <div className="tabs" role="tablist">
-          {Object.entries(MODES).map(([key, { tab }]) => (
-            <button
-              key={key}
-              type="button"
-              role="tab"
-              aria-selected={mode === key}
-              className={mode === key ? 'on' : undefined}
-              onClick={() => setMode(key)}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
-      ) : (
-        <h2>Entrar</h2>
-      )}
+      <div className="tabs" role="tablist" style={{ gridTemplateColumns: `repeat(${tabs.length}, 1fr)` }}>
+        {tabs.map(([key, { tab }]) => (
+          <button
+            key={key}
+            type="button"
+            role="tab"
+            aria-selected={mode === key}
+            className={mode === key ? 'on' : undefined}
+            onClick={() => setMode(key)}
+          >
+            {tab}
+          </button>
+        ))}
+      </div>
       <form className="stack" onSubmit={handleSubmit}>
         {isRegister && (
           <label>Seu nome
