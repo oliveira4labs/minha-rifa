@@ -4,8 +4,9 @@
 
 services:
   db:
-    # Banco não fica exposto pra fora da VPS; só o container app acessa pela rede interna.
-    ports: !reset []
+    # Banco só no localhost da VPS (acesso externo via túnel SSH, ex: DBeaver).
+    ports: !override
+      - "127.0.0.1:${POSTGRES_HOST_PORT:-5433}:5432"
 
   app:
     # App escuta só em localhost; o proxy reverso (Nginx/Caddy) da VPS faz o HTTPS na frente.
