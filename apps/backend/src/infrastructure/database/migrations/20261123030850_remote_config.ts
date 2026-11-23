@@ -11,7 +11,7 @@ const migration: Migration = {
     );
 
     INSERT INTO remote_config (key, value, description)
-    VALUES ('createUser', 'enabled', 'enabled | disabled: tela e API de criar conta');
+    VALUES ('createUser', 'enabled', 'enabled | disabled: mostra ou esconde a aba de criar conta');
   `,
   down: `
     DROP TABLE remote_config;
