@@ -12,7 +12,6 @@ import type { IPhotoStorage } from '../../../domain/repositories/interfaces/phot
 import { RaffleRepository } from '../../../domain/repositories/raffle.repository.js';
 import type { IRaffleRepository } from '../../../domain/repositories/interfaces/raffle.repository.interface.js';
 
-/** Visão completa da rifa para o administrador (inclui telefones dos compradores). */
 @Injectable()
 export class GetRaffleDetailsUseCase implements UseCase<OwnedRaffleRefDto, RaffleDetailsDto> {
   constructor(

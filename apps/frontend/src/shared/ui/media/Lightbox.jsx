@@ -2,11 +2,6 @@ import { useEffect, useState } from 'react';
 import { Dialog } from '../feedback/Dialog';
 import { SlideArrows, SlideTrack } from './SlideTrack';
 
-/**
- * Visualizador de fotos em tela cheia, em slides.
- * Abre quando `startIndex` não é null; fecha com o X, Esc ou clique fora da foto.
- * Setas do teclado e arrastar o dedo trocam de foto.
- */
 export function Lightbox({ photos, startIndex, onClose }) {
   const open = startIndex != null;
   const [index, setIndex] = useState(startIndex ?? 0);
@@ -16,7 +11,6 @@ export function Lightbox({ photos, startIndex, onClose }) {
     if (open) setIndex(Math.min(startIndex, count - 1));
   }, [open, startIndex, count]);
 
-  // Se a foto aberta for removida, fecha quando não sobrar nenhuma.
   useEffect(() => {
     if (open && count === 0) onClose();
   }, [open, count, onClose]);
@@ -28,7 +22,6 @@ export function Lightbox({ photos, startIndex, onClose }) {
   }
 
   function handleClick(e) {
-    // Clique no fundo (fora da foto e dos botões) fecha.
     if (e.target === e.currentTarget || e.target.classList.contains('slide')) onClose();
   }
 

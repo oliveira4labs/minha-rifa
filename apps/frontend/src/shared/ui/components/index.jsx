@@ -1,13 +1,10 @@
-// Componentes visuais pequenos e sem regra de negócio.
 import { formatCountdown } from '../../lib/format';
 import { useNow } from '../../hooks/useNow';
 
-/** variant: open | pending | done */
 export function Tag({ variant, children }) {
   return <span className={`tag ${variant}`}>{children}</span>;
 }
 
-/** Barra com a fatia paga (verde) e a reservada (amarela). */
 export function ProgressBar({ paid, pending, total, label }) {
   return (
     <div className="bar" role={label ? 'img' : undefined} aria-label={label}>
@@ -25,7 +22,6 @@ export function Chips({ items }) {
   );
 }
 
-/** Caixa tracejada com um texto copiável (link, chave PIX…) e ações ao lado. */
 export function CopyBox({ value, children }) {
   return (
     <div className="pixbox">
@@ -35,7 +31,6 @@ export function CopyBox({ value, children }) {
   );
 }
 
-/** Tempo restante até `to` (timestamp), atualizado a cada segundo. */
 export function Countdown({ to }) {
   const now = useNow();
   return <>{formatCountdown(to - now)}</>;
@@ -54,7 +49,6 @@ export function Loading() {
   return <p className="empty">Carregando…</p>;
 }
 
-/** Cartão de erro de página inteira. */
 export function ErrorCard({ title, children }) {
   return (
     <div className="card empty">

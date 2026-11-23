@@ -57,7 +57,6 @@ function InactiveOrder({ order, numbers, onForget }) {
   );
 }
 
-/** Pedido do comprador, conforme o status: pago, aguardando pagamento ou encerrado. */
 export function BuyerOrderCard({ order, raffle, onForget }) {
   const numbers = padNumbers(order.numbers, raffle.total_numbers);
   if (order.status === 'paid') return <PaidOrder order={order} numbers={numbers} />;

@@ -1,7 +1,3 @@
-# Imagem única: backend (NestJS) servindo o front (React) já compilado.
-# Banco: Postgres externo, via DATABASE_URL. Fotos: volume em /data.
-
-# ---------------------------------------------------------------- build
 FROM node:24-alpine AS build
 WORKDIR /app
 
@@ -13,7 +9,6 @@ RUN npm ci
 COPY apps ./apps
 RUN npm run build
 
-# ---------------------------------------------------------------- runtime
 FROM node:24-alpine AS runtime
 ENV NODE_ENV=production \
     PORT=3000 \

@@ -2,12 +2,10 @@ import { useEffect, useState } from 'react';
 import { toDateTimeInput } from '../../../shared/lib/format';
 import { drawStatus } from '../model/raffleRules';
 
-/** Data do sorteio (editável aqui mesmo) e botão de sortear. */
 export function DrawSection({ raffle, counts, canDraw, onSaveDate, onDraw }) {
   const [date, setDate] = useState(() => toDateTimeInput(raffle.draw_date));
   const status = drawStatus(raffle, counts, canDraw);
 
-  // Acompanha a data salva no servidor, sem atrapalhar enquanto a pessoa digita.
   useEffect(() => {
     setDate(toDateTimeInput(raffle.draw_date));
   }, [raffle.draw_date]);

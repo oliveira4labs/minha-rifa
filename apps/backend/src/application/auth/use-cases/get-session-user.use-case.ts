@@ -4,7 +4,6 @@ import type { SessionUserDto } from '../dto/auth.dto.js';
 import { SessionRepository } from '../../../domain/repositories/session.repository.js';
 import type { ISessionRepository } from '../../../domain/repositories/interfaces/session.repository.interface.js';
 
-/** Usuário dono da sessão, ou null se não houver sessão válida. */
 @Injectable()
 export class GetSessionUserUseCase implements UseCase<string | null, SessionUserDto | null> {
   constructor(@Inject(SessionRepository) private readonly sessions: ISessionRepository) {}

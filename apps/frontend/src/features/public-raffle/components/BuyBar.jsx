@@ -1,6 +1,5 @@
 import { formatMoney } from '../../../shared/lib/format';
 
-/** Barra fixa no rodapé com o total escolhido. */
 export function BuyBar({ count, priceCents, onClear, onReserve }) {
   return (
     <div className="buybar">

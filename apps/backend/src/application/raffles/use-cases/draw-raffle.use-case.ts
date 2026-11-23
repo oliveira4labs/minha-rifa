@@ -12,10 +12,6 @@ import type { IRaffleRepository } from '../../../domain/repositories/interfaces/
 import { UnitOfWork } from '../../../domain/repositories/unit-of-work.js';
 import type { IUnitOfWork } from '../../../domain/repositories/interfaces/unit-of-work.interface.js';
 
-/**
- * Sorteia um número entre os PAGOS. Reservas pendentes são canceladas
- * e a rifa fica encerrada. Irreversível.
- */
 @Injectable()
 export class DrawRaffleUseCase implements UseCase<OwnedRaffleRefDto, DrawResultDto> {
   constructor(

@@ -1,6 +1,5 @@
 import { OrderCard } from './OrderCard';
 
-/** Lista de pedidos com título e contagem; mostra `emptyText` quando vazia. */
 export function OrdersSection({ title, orders, emptyText, raffle, onApprove, onCancel }) {
   return (
     <section className="stack-sm">

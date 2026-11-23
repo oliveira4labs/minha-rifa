@@ -1,10 +1,21 @@
-/** Migração de esquema. `id` define a ordem e é gravado em `schema_migrations`. */
 export interface Migration {
-  id: string;
   up: string;
+  down: string;
 }
 
-/** Linha de `schema_migrations`. */
-export interface AppliedMigrationRow {
+export interface LoadedMigration extends Migration {
   id: string;
 }
+
+export interface AppliedMigrationRow {
+  id: string;
+  applied_at: Date;
+}
+
+export interface MigrationStatus {
+  id: string;
+  appliedAt: Date | null;
+  missingFile: boolean;
+}
+
+export type MigrationLogger = (message: string) => void;

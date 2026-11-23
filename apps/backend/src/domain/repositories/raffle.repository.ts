@@ -1,11 +1,6 @@
 import type { NewRaffle, Raffle, RaffleDetails } from '../interfaces/raffle.interface.js';
 import type { IRaffleRepository } from './interfaces/raffle.repository.interface.js';
 
-/**
- * Token de injeção do Nest para `IRaffleRepository` (o contrato fica na interface).
- * Use case: `@Inject(RaffleRepository) private readonly x: IRaffleRepository`.
- * Implementação concreta: infrastructure/ (estende esta classe).
- */
 export abstract class RaffleRepository implements IRaffleRepository {
   abstract findById(id: number): Promise<Raffle | null>;
   abstract findByIdAndOwner(id: number, userId: number): Promise<Raffle | null>;

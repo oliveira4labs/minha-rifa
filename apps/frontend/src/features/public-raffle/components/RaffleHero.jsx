@@ -2,7 +2,6 @@ import { formatDate, formatMoney } from '../../../shared/lib/format';
 import { ProgressBar, Tag } from '../../../shared/ui/components';
 import { Gallery } from './Gallery';
 
-/** Topo da página pública: fotos, título, preço, progresso e descrição. */
 export function RaffleHero({ raffle, photos, taken }) {
   const total = raffle.total_numbers;
   const paid = taken.filter(([, status]) => status === 'p').length;

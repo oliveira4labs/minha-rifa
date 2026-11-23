@@ -5,7 +5,6 @@ import { uploadDir } from '../../config/app.config.js';
 import { randomHex } from '../../domain/rules/security.rules.js';
 import { PhotoStorage } from '../../domain/repositories/photo-storage.js';
 
-/** Fotos em disco, em DATA_DIR/uploads, servidas em /uploads/<arquivo>. */
 @Injectable()
 export class LocalPhotoStorage extends PhotoStorage {
   async save(bytes: Buffer, extension: string): Promise<string> {

@@ -10,7 +10,6 @@ function StatusTag({ raffle }) {
   return <Tag variant="open">Aberta</Tag>;
 }
 
-/** Item da lista "Minhas rifas". */
 export function RaffleCard({ raffle }) {
   const free = raffle.total_numbers - raffle.paid - raffle.pending;
   return (

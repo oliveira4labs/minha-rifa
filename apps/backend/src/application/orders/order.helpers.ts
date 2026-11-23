@@ -4,7 +4,6 @@ import { assertOpen } from '../../domain/rules/raffle.rules.js';
 import type { IOrderRepository } from '../../domain/repositories/interfaces/order.repository.interface.js';
 import type { IRaffleRepository } from '../../domain/repositories/interfaces/raffle.repository.interface.js';
 
-/** Pedido de uma rifa do administrador, ainda aberta. */
 export async function requireManageableOrder(
   orders: IOrderRepository,
   raffles: IRaffleRepository,

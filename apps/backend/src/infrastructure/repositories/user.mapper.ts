@@ -1,7 +1,6 @@
 import type { User } from '../../domain/interfaces/user.interface.js';
 import type { UserRow } from '../database/interfaces/user-row.interface.js';
 
-/** Linha do banco → modelo do domínio. */
 export const toUser = (r: UserRow): User => ({
   id: r.id,
   name: r.name,

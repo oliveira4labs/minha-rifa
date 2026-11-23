@@ -1,4 +1,3 @@
-/** Linha da tabela `users` (snake_case, como no banco). */
 export interface UserRow {
   id: number;
   name: string;

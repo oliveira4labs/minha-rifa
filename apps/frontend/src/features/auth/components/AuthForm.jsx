@@ -7,7 +7,6 @@ const MODES = {
   register: { tab: 'Criar conta', submit: 'Criar conta' },
 };
 
-/** Formulário com abas "Entrar" / "Criar conta". */
 export function AuthForm({ onSuccess }) {
   const { login, register } = useAuth();
   const toast = useToast();

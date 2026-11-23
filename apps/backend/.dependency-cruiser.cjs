@@ -1,16 +1,7 @@
-/**
- * Regras de arquitetura (onion básica). Rode: npm run lint:arch
- *
- *   presentation (controllers, guards, jobs)  ─┐
- *   infrastructure (repositórios concretos)  ──┼──▶ application (use cases, DTOs) ──▶ domain
- *                                              │
- *   app.module.ts = raiz de composição (único que conhece tudo)
- */
 const USE_CASE = '\\.use-case\\.ts$';
 
 module.exports = {
   forbidden: [
-    // ---------------------------------------------------------------- domínio
     {
       name: 'domain-is-the-core',
       comment: 'O domínio não depende de nenhuma outra camada.',
@@ -26,7 +17,6 @@ module.exports = {
       to: { dependencyTypes: ['npm', 'npm-dev', 'npm-peer', 'npm-optional'] },
     },
 
-    // ---------------------------------------------------------------- aplicação
     {
       name: 'application-only-knows-domain',
       comment: 'Casos de uso e DTOs não conhecem banco, HTTP nem configuração.',
@@ -72,7 +62,6 @@ module.exports = {
       to: { path: [USE_CASE, '^src/domain/repositories/'] },
     },
 
-    // ---------------------------------------------------------------- apresentação
     {
       name: 'presentation-only-calls-use-cases',
       comment: 'Controllers, guards, interceptors e jobs só chamam casos de uso: nunca repositórios.',
@@ -88,7 +77,6 @@ module.exports = {
       to: { path: '^src/application/.*\\.helpers\\.ts$' },
     },
 
-    // ---------------------------------------------------------------- infraestrutura
     {
       name: 'infrastructure-implements-domain-only',
       comment: 'Repositórios concretos implementam portas do domínio; não conhecem casos de uso nem HTTP.',
@@ -97,7 +85,6 @@ module.exports = {
       to: { path: '^src/(application|presentation)/' },
     },
 
-    // ---------------------------------------------------------------- geral
     {
       name: 'no-circular',
       severity: 'error',

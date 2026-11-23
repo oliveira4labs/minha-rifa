@@ -1,4 +1,3 @@
-// Lista de todos os casos de uso, para registro no módulo do Nest.
 import { GetSessionUserUseCase } from './auth/use-cases/get-session-user.use-case.js';
 import { LoginUseCase } from './auth/use-cases/login.use-case.js';
 import { LogoutUseCase } from './auth/use-cases/logout.use-case.js';

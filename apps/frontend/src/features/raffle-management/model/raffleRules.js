@@ -1,11 +1,9 @@
-// Regras e textos da tela de gestão, sem dependência de React.
 import { formatDate, formatMoney, padNumber, padNumbers } from '../../../shared/lib/format';
 
 export const publicRaffleUrl = (slug) => `${window.location.origin}/r/${slug}`;
 
 export const isLocalHost = () => /^(localhost|127\.|\[::1\])/.test(window.location.host);
 
-/** Quantidade e valor ficam travados quando já há números reservados ou pagos. */
 export const isLocked = (counts) => counts.paid + counts.pending > 0;
 
 export const isComplete = (raffle, counts) => counts.paid === raffle.total_numbers;
@@ -17,7 +15,6 @@ export function freeNumbers(raffle, taken) {
   return free;
 }
 
-/** Mensagem de divulgação para WhatsApp, com os números ainda disponíveis. */
 export function shareMessage(raffle, taken) {
   const free = freeNumbers(raffle, taken);
   return `🎟️ *${raffle.title}*\n${formatMoney(raffle.price_cents)} cada número` +
@@ -28,7 +25,6 @@ export function shareMessage(raffle, taken) {
     `\n\nEscolha o seu aqui: ${publicRaffleUrl(raffle.slug)}`;
 }
 
-/** Texto explicando se o sorteio está liberado. `highlight` = mostrar como aviso. */
 export function drawStatus(raffle, counts, canDraw) {
   const complete = isComplete(raffle, counts);
   if (complete) return { highlight: false, text: 'Todos os números estão pagos. Você já pode sortear.' };

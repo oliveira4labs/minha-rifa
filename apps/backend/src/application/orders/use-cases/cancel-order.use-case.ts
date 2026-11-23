@@ -9,7 +9,6 @@ import type { IOrderRepository } from '../../../domain/repositories/interfaces/o
 import { RaffleRepository } from '../../../domain/repositories/raffle.repository.js';
 import type { IRaffleRepository } from '../../../domain/repositories/interfaces/raffle.repository.interface.js';
 
-/** Recusa uma reserva pendente ou desfaz uma venda paga. Os números voltam a ficar livres. */
 @Injectable()
 export class CancelOrderUseCase implements UseCase<OwnedOrderRefDto, OkDto> {
   constructor(

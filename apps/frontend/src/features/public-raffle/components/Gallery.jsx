@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Lightbox } from '../../../shared/ui/media/Lightbox';
 import { SlideArrows, SlideTrack } from '../../../shared/ui/media/SlideTrack';
 
-/** Carrossel de fotos do prêmio. Clicar na foto abre em tela cheia. */
 export function Gallery({ photos }) {
   const [index, setIndex] = useState(0);
   const [zoomIndex, setZoomIndex] = useState(null);

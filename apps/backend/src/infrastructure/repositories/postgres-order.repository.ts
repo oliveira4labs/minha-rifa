@@ -108,7 +108,6 @@ export class PostgresOrderRepository extends OrderRepository {
       );
       const id = row!.id;
       try {
-        // Se outra reserva pegou algum número no meio tempo, a PK de tickets barra.
         await this.db.savepoint('reserve_tickets', () => this.db.query(
           'INSERT INTO tickets (raffle_id, number, order_id) SELECT $1, n, $3 FROM unnest($2::int[]) AS n',
           [order.raffleId, order.numbers, id],

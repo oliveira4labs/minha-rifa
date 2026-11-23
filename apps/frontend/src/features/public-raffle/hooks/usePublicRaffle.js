@@ -9,10 +9,6 @@ const fetchOrders = (slug) => Promise.all(
   loadOrderTokens(slug).map((token) => publicRaffleApi.getOrder(token).catch(() => null)),
 ).then((orders) => orders.filter(Boolean));
 
-/**
- * Dados da página pública + pedidos deste navegador.
- * Atualiza a cada 20s (exceto com `paused`) e logo que uma reserva vence.
- */
 export function usePublicRaffle(slug, { paused = false } = {}) {
   const [data, setData] = useState(null);
   const [orders, setOrders] = useState([]);

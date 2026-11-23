@@ -1,7 +1,6 @@
 const MAX_SIDE = 1400;
 const JPEG_QUALITY = 0.85;
 
-/** Reduz a foto no navegador antes de enviar (máx. 1400px, JPEG) e devolve um data URL. */
 export function imageFileToDataUrl(file) {
   return new Promise((resolve, reject) => {
     const url = URL.createObjectURL(file);

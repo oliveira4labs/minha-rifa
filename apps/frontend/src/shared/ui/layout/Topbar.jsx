@@ -4,10 +4,6 @@ function Brand() {
   return <>minha<span>rifa</span></>;
 }
 
-/**
- * Barra do topo. Sem `brandTo`, a marca não é link (página pública da rifa).
- * Com `user`, mostra o nome e o botão "Sair".
- */
 export function Topbar({ brandTo, user, onLogout }) {
   return (
     <header className="topbar">

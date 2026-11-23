@@ -8,7 +8,6 @@ import type { ISessionRepository } from '../../../domain/repositories/interfaces
 import { UserRepository } from '../../../domain/repositories/user.repository.js';
 import type { IUserRepository } from '../../../domain/repositories/interfaces/user.repository.interface.js';
 
-/** Cria a conta e já abre uma sessão. */
 @Injectable()
 export class RegisterUseCase implements UseCase<RegisterDto, AuthSessionDto> {
   constructor(

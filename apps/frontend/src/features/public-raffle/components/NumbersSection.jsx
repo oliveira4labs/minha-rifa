@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { formatDuration } from '../../../shared/lib/format';
 import { NumberGrid } from './NumberGrid';
 
-/** Card "Escolha seus números": filtro, legenda, grade e regras de reserva. */
 export function NumbersSection({ raffle, taken, selected, winnerNumber, onPick }) {
   const [onlyFree, setOnlyFree] = useState(false);
   const open = raffle.status === 'open';

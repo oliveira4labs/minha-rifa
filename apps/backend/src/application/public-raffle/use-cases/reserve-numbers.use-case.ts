@@ -11,10 +11,6 @@ import type { IRaffleRepository } from '../../../domain/repositories/interfaces/
 import { UnitOfWork } from '../../../domain/repositories/unit-of-work.js';
 import type { IUnitOfWork } from '../../../domain/repositories/interfaces/unit-of-work.interface.js';
 
-/**
- * Comprador reserva números (sem conta). Os números ficam pendentes pelo
- * tempo de reserva da rifa. Respeita o limite por WhatsApp.
- */
 @Injectable()
 export class ReserveNumbersUseCase implements UseCase<ReserveNumbersInput, ReservationDto> {
   constructor(

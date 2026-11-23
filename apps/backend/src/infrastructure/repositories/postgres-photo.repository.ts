@@ -15,7 +15,6 @@ export class PostgresPhotoRepository extends PhotoRepository {
     return rows.map((p) => ({ id: p.id, raffleId: p.raffle_id, filename: p.filename, position: p.position }));
   }
 
-  /** Mantém o id das fotos que continuam (só muda a posição), apaga as removidas e insere as novas. */
   async replaceAll(raffleId: number, filenames: string[]): Promise<void> {
     await this.db.transaction(async () => {
       await this.db.query('DELETE FROM photos WHERE raffle_id = $1 AND NOT (filename = ANY($2::text[]))', [raffleId, filenames]);

@@ -1,6 +1,5 @@
 import type { OrderStatus } from '../../../domain/interfaces/order.interface.js';
 
-/** Linha da tabela `orders` (`numbers` é JSONB, já vem como array). */
 export interface OrderRow {
   id: number;
   raffle_id: number;
@@ -14,7 +13,6 @@ export interface OrderRow {
   paid_at: number | null;
 }
 
-/** Número ocupado + dados do pedido (tickets JOIN orders). */
 export interface TakenNumberRow {
   number: number;
   status: 'pending' | 'paid';

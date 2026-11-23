@@ -1,9 +1,6 @@
-// Formatação de valores para exibição (pt-BR).
-
 export const formatMoney = (cents) =>
   (cents / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
-/** Número da rifa com zeros à esquerda, conforme o total (ex.: 007 de 100). */
 export const padNumber = (n, total) => String(n).padStart(String(total).length, '0');
 
 export const padNumbers = (list, total) => list.map((n) => padNumber(n, total));
@@ -35,7 +32,6 @@ export function formatCountdown(ms) {
   return `${m}min ${String(sec).padStart(2, '0')}s`;
 }
 
-/** "Valor" digitado pela pessoa (ex.: "1.234,50") → centavos. NaN se inválido. */
 export function parseMoney(text) {
   const clean = String(text)
     .replace(/[^\d,.]/g, '')
@@ -45,7 +41,6 @@ export function parseMoney(text) {
   return Number.isFinite(v) ? v : NaN;
 }
 
-/** Timestamp → valor de <input type="datetime-local"> no fuso local. */
 export function toDateTimeInput(ms) {
   if (ms == null) return '';
   const d = new Date(ms - new Date(ms).getTimezoneOffset() * 60000);

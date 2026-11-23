@@ -18,7 +18,6 @@ function OrderActions({ order, onApprove, onCancel }) {
   );
 }
 
-/** Pedido visto pelo administrador. Ações só aparecem com a rifa aberta. */
 export function OrderCard({ order, raffle, onApprove, onCancel }) {
   const isPending = order.status === 'pending';
   return (

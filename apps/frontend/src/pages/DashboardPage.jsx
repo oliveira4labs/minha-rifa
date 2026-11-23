@@ -7,7 +7,6 @@ import { rafflesApi } from '../features/raffles/api/rafflesApi';
 import { RaffleCard } from '../features/raffles/components/RaffleCard';
 import { RaffleForm } from '../features/raffles/components/RaffleForm';
 
-/** "Minhas rifas": lista + criação de nova rifa. */
 export function DashboardPage() {
   useDocumentTitle('Minhas rifas');
   const navigate = useNavigate();

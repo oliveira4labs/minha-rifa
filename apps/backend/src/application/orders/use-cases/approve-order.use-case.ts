@@ -9,7 +9,6 @@ import type { IOrderRepository } from '../../../domain/repositories/interfaces/o
 import { RaffleRepository } from '../../../domain/repositories/raffle.repository.js';
 import type { IRaffleRepository } from '../../../domain/repositories/interfaces/raffle.repository.interface.js';
 
-/** Administrador confirma o pagamento de uma reserva pendente. */
 @Injectable()
 export class ApproveOrderUseCase implements UseCase<OwnedOrderRefDto, OkDto> {
   constructor(

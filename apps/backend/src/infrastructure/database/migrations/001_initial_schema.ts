@@ -1,8 +1,6 @@
 import type { Migration } from '../interfaces/migration.interface.js';
 
-/** Esquema inicial. Datas em milissegundos (BIGINT), valores em centavos. */
-export const initialSchema: Migration = {
-  id: '001_initial_schema',
+const migration: Migration = {
   up: `
     CREATE TABLE users (
       id          BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -62,7 +60,6 @@ export const initialSchema: Migration = {
     CREATE INDEX idx_orders_raffle ON orders (raffle_id, status);
     CREATE INDEX idx_orders_pending_expiry ON orders (expires_at) WHERE status = 'pending';
 
-    -- Um número só pode pertencer a um pedido ativo (pendente ou pago) por vez.
     CREATE TABLE tickets (
       raffle_id  BIGINT  NOT NULL REFERENCES raffles(id) ON DELETE CASCADE,
       number     INTEGER NOT NULL,
@@ -71,4 +68,14 @@ export const initialSchema: Migration = {
     );
     CREATE INDEX idx_tickets_order ON tickets (order_id);
   `,
+  down: `
+    DROP TABLE tickets;
+    DROP TABLE orders;
+    DROP TABLE photos;
+    DROP TABLE raffles;
+    DROP TABLE sessions;
+    DROP TABLE users;
+  `,
 };
+
+export default migration;

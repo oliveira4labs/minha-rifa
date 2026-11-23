@@ -2,13 +2,6 @@ import { useRef } from 'react';
 
 const SWIPE_MIN_PX = 40;
 
-/**
- * Fileira de fotos que desliza para os lados (slides).
- * - `index` / `onIndexChange`: foto atual (controlado).
- * - `fit`: 'cover' (preenche, corta as bordas) ou 'contain' (mostra a foto inteira).
- * - `onSlideClick(index)`: opcional, clique na foto.
- * Arrastar o dedo para os lados troca de foto no celular.
- */
 export function SlideTrack({ photos, index, onIndexChange, fit = 'cover', onSlideClick, altPrefix = 'Foto' }) {
   const touchStartX = useRef(null);
   const count = photos.length;
@@ -58,7 +51,6 @@ export function SlideTrack({ photos, index, onIndexChange, fit = 'cover', onSlid
   );
 }
 
-/** Setas de anterior/próxima sobre os slides. Só aparecem com mais de uma foto. */
 export function SlideArrows({ count, index, onIndexChange }) {
   if (count < 2) return null;
   const go = (step) => onIndexChange((index + step + count) % count);

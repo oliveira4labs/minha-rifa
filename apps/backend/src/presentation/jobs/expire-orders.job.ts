@@ -4,7 +4,6 @@ import {
 import { ExpireOrdersUseCase } from '../../application/orders/use-cases/expire-orders.use-case.js';
 import { appConfig } from '../../config/app.config.js';
 
-/** Ponto de entrada agendado (como um controller, mas disparado por tempo). */
 @Injectable()
 export class ExpireOrdersJob implements OnApplicationBootstrap, OnApplicationShutdown {
   private readonly logger = new Logger(ExpireOrdersJob.name);

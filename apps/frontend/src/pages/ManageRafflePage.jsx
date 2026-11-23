@@ -11,7 +11,6 @@ import { WinnerCard } from '../features/raffle-management/components/WinnerCard'
 import { useManagedRaffle } from '../features/raffle-management/hooks/useManagedRaffle';
 import { useRaffleActions } from '../features/raffle-management/hooks/useRaffleActions';
 
-/** Gestão de uma rifa: divulgação, números, pedidos, sorteio e edição. */
 export function ManageRafflePage() {
   const [params] = useSearchParams();
   const id = params.get('id');

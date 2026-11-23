@@ -12,7 +12,6 @@ import type { IPhotoStorage } from '../../../domain/repositories/interfaces/phot
 import { RaffleRepository } from '../../../domain/repositories/raffle.repository.js';
 import type { IRaffleRepository } from '../../../domain/repositories/interfaces/raffle.repository.interface.js';
 
-/** Dados que qualquer pessoa com o link pode ver. */
 @Injectable()
 export class GetPublicRaffleUseCase implements UseCase<string, PublicRaffleDto> {
   constructor(

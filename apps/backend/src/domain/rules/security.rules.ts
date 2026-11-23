@@ -1,4 +1,3 @@
-// Senhas e identificadores aleatórios. Usa só node:crypto (sem estado, sem I/O).
 import crypto from 'node:crypto';
 import type { PasswordHash } from '../interfaces/password-hash.interface.js';
 
@@ -15,12 +14,10 @@ export function createPasswordHash(password: string): PasswordHash {
   return { hash: hashPassword(password, salt), salt };
 }
 
-/** Comparação em tempo constante. */
 export function verifyPassword(password: string, salt: string, expectedHash: string): boolean {
   return crypto.timingSafeEqual(Buffer.from(hashPassword(password, salt), 'hex'), Buffer.from(expectedHash, 'hex'));
 }
 
-/** Índice aleatório criptograficamente seguro (sorteio). */
 export const secureRandomIndex = (length: number): number => crypto.randomInt(length);
 
 export const newSessionToken = (): string => randomHex(32);

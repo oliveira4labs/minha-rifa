@@ -1,10 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useToast } from '../../../shared/ui/feedback/ToastProvider';
 
-/**
- * Números escolhidos pelo comprador antes de reservar.
- * Se outra pessoa reservar um deles nesse meio tempo, ele sai da seleção com aviso.
- */
 export function useNumberSelection(taken, maxPerBuyer) {
   const toast = useToast();
   const [selected, setSelected] = useState(() => new Set());
@@ -16,7 +12,6 @@ export function useNumberSelection(taken, maxPerBuyer) {
     if (!lost.length) return;
     setSelected((prev) => new Set([...prev].filter((n) => !takenSet.has(n))));
     toast(`O número ${lost.join(', ')} acabou de ser reservado por outra pessoa.`, true);
-    // só reage quando a grade muda (não a cada clique), por isso `selected` fica fora das dependências
   }, [taken]);
 
   const toggle = useCallback((n) => {

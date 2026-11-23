@@ -19,7 +19,6 @@ const scrollToPendingOrder = () => requestAnimationFrame(() => {
   document.querySelector('.order.pending')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
 });
 
-/** Página que o comprador abre pelo link: escolhe números, reserva e paga. */
 export function PublicRafflePage() {
   const { slug } = useParams();
   const toast = useToast();
