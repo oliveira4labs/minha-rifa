@@ -1,6 +1,7 @@
-import { MAX_NUMBERS } from '../../../domain/rules/raffle.rules.js';
+import type { RaffleVisibility } from '../../../domain/interfaces/raffle.interface.js';
+import { MAX_NUMBERS, RAFFLE_VISIBILITIES } from '../../../domain/rules/raffle.rules.js';
 import {
-  asArray, IntInRange, OptionalIntInRange, OptionalText, Phone, Raw, RequiredText,
+  asArray, IntInRange, OneOf, OptionalIntInRange, OptionalText, Phone, Raw, RequiredText,
 } from '../../common/validation.js';
 
 export interface PhotoInputDto {
@@ -16,6 +17,7 @@ export class RaffleInputDto {
   @IntInRange('Tempo de reserva (minutos)', 5, 60 * 24 * 30) reserve_minutes!: number;
   @OptionalIntInRange('Limite por comprador', 1, MAX_NUMBERS) max_per_buyer!: number | null;
   @OptionalIntInRange('Data do sorteio', 0, 4102444800000) draw_date!: number | null;
+  @OneOf('Visibilidade', RAFFLE_VISIBILITIES, 'public') visibility!: RaffleVisibility;
   @Raw() total_numbers?: unknown;
   @Raw() price_cents?: unknown;
   @Raw(asArray) photos!: PhotoInputDto[];
@@ -28,6 +30,7 @@ export interface RaffleSummaryDto {
   total_numbers: number;
   price_cents: number;
   status: string;
+  visibility: string;
   draw_date: number | null;
   winner_number: number | null;
   paid: number;
@@ -53,6 +56,7 @@ export interface AdminRaffleDto {
   max_per_buyer: number | null;
   draw_date: number | null;
   status: string;
+  visibility: string;
 }
 
 export interface AdminOrderDto {

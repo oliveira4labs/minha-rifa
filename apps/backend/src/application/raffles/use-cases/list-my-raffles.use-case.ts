@@ -31,11 +31,12 @@ export class ListMyRafflesUseCase implements UseCase<number, RaffleSummaryDto[]>
         total_numbers: r.totalNumbers,
         price_cents: r.priceCents,
         status: r.status,
+        visibility: r.visibility,
         draw_date: r.drawDate,
         winner_number: r.winnerNumber,
         paid: counts.paid,
         pending: counts.pending,
-        cover: cover ? this.storage.publicUrl(cover.filename) : null,
+        cover: cover ? this.storage.url(cover.filename, r.visibility) : null,
       };
     }));
   }

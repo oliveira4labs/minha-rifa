@@ -1,5 +1,8 @@
+import type { RaffleVisibility } from '../../interfaces/raffle.interface.js';
+
 export interface IPhotoStorage {
-  save(bytes: Buffer, extension: string): Promise<string>;
+  save(bytes: Buffer, extension: string, visibility: RaffleVisibility): Promise<string>;
   remove(filename: string): Promise<void>;
-  publicUrl(filename: string): string;
+  setVisibility(filenames: string[], visibility: RaffleVisibility): Promise<void>;
+  url(filename: string, visibility: RaffleVisibility): string;
 }

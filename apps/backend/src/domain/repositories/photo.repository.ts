@@ -3,5 +3,6 @@ import type { IPhotoRepository } from './interfaces/photo.repository.interface.j
 
 export abstract class PhotoRepository implements IPhotoRepository {
   abstract listByRaffle(raffleId: number): Promise<Photo[]>;
+  abstract findByFilename(filename: string): Promise<Photo | null>;
   abstract replaceAll(raffleId: number, filenames: string[]): Promise<void>;
 }

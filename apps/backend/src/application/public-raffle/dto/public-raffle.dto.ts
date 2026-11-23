@@ -11,6 +11,11 @@ export interface ReserveNumbersInput {
   data: ReserveNumbersDto;
 }
 
+export interface GetPublicRaffleInput {
+  slug: string;
+  viewerId: number | null;
+}
+
 export interface PublicRaffleInfoDto {
   slug: string;
   title: string;
@@ -23,6 +28,7 @@ export interface PublicRaffleInfoDto {
   max_per_buyer: number | null;
   draw_date: number | null;
   status: string;
+  visibility: string;
 }
 
 export interface PublicRaffleDto {

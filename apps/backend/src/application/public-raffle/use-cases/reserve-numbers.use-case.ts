@@ -22,6 +22,7 @@ export class ReserveNumbersUseCase implements UseCase<ReserveNumbersInput, Reser
   async execute({ slug, data }: ReserveNumbersInput): Promise<ReservationDto> {
     const raffle = await this.raffles.findBySlug(slug);
     if (!raffle) throw new NotFoundError('Rifa não encontrada.');
+    if (raffle.visibility === 'private') throw new BusinessRuleError('Esta rifa está privada e não aceita reservas.');
     assertOpen(raffle, 'Esta rifa já foi encerrada.');
 
     const numbers = [...new Set(data.numbers.map((n) => assertIntInRange(n, 1, raffle.totalNumbers, 'Número')))]

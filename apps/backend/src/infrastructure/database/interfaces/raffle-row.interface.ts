@@ -1,4 +1,4 @@
-import type { RaffleStatus } from '../../../domain/interfaces/raffle.interface.js';
+import type { RaffleStatus, RaffleVisibility } from '../../../domain/interfaces/raffle.interface.js';
 
 export interface RaffleRow {
   id: number;
@@ -14,6 +14,7 @@ export interface RaffleRow {
   max_per_buyer: number | null;
   draw_date: number | null;
   status: RaffleStatus;
+  visibility: RaffleVisibility;
   winner_number: number | null;
   drawn_at: number | null;
   created_at: number;

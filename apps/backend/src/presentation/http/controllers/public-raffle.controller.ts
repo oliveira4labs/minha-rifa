@@ -4,9 +4,11 @@ import {
 import {
   type BuyerOrderDto, type PublicRaffleDto, type ReservationDto, ReserveNumbersDto,
 } from '../../../application/public-raffle/dto/public-raffle.dto.js';
+import { GetSessionUserUseCase } from '../../../application/auth/use-cases/get-session-user.use-case.js';
 import { GetBuyerOrderUseCase } from '../../../application/public-raffle/use-cases/get-buyer-order.use-case.js';
 import { GetPublicRaffleUseCase } from '../../../application/public-raffle/use-cases/get-public-raffle.use-case.js';
 import { ReserveNumbersUseCase } from '../../../application/public-raffle/use-cases/reserve-numbers.use-case.js';
+import { SessionToken } from '../guards/auth.guard.js';
 
 @Controller()
 export class PublicRaffleController {
@@ -14,11 +16,13 @@ export class PublicRaffleController {
     private readonly getPublicRaffle: GetPublicRaffleUseCase,
     private readonly reserveNumbers: ReserveNumbersUseCase,
     private readonly getBuyerOrder: GetBuyerOrderUseCase,
+    private readonly getSessionUser: GetSessionUserUseCase,
   ) {}
 
   @Get('r/:slug')
-  raffle(@Param('slug') slug: string): Promise<PublicRaffleDto> {
-    return this.getPublicRaffle.execute(slug);
+  async raffle(@Param('slug') slug: string, @SessionToken() token: string | null): Promise<PublicRaffleDto> {
+    const viewer = await this.getSessionUser.execute(token);
+    return this.getPublicRaffle.execute({ slug, viewerId: viewer?.id ?? null });
   }
 
   @Post('r/:slug/reserve')

@@ -44,8 +44,9 @@ export class GetRaffleDetailsUseCase implements UseCase<OwnedRaffleRefDto, Raffl
         max_per_buyer: r.maxPerBuyer,
         draw_date: r.drawDate,
         status: r.status,
+        visibility: r.visibility,
       },
-      photos: photos.map((p) => ({ id: p.id, url: this.storage.publicUrl(p.filename) })),
+      photos: photos.map((p) => ({ id: p.id, url: this.storage.url(p.filename, r.visibility) })),
       orders: orders.map((o) => ({
         id: o.id,
         buyer_name: o.buyerName,

@@ -3,6 +3,8 @@ import type { PhotoContent } from '../interfaces/photo-content.interface.js';
 
 export const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
 
+export const isPhotoFilename = (name: string): boolean => /^[a-f0-9]{8,64}\.(jpg|png|webp)$/.test(name);
+
 export function decodePhotoDataUrl(dataUrl: unknown): PhotoContent {
   const match = /^data:image\/(jpeg|png|webp);base64,([A-Za-z0-9+/=]+)$/.exec(typeof dataUrl === 'string' ? dataUrl : '');
   if (!match) throw new BusinessRuleError('Foto inválida. Use imagens JPG, PNG ou WebP.');

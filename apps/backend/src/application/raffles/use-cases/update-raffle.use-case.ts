@@ -36,12 +36,14 @@ export class UpdateRaffleUseCase implements UseCase<UpdateRaffleInputDto, OkDto>
     assertPhotoCount(data.photos);
 
     const current = await this.photos.listByRaffle(raffle.id);
-    const files = await resolvePhotoFiles(data.photos, this.storage, current);
+    const files = await resolvePhotoFiles(data.photos, this.storage, details.visibility, current);
 
     await this.unitOfWork.run(async () => {
       await this.raffles.update(raffle.id, details);
       await this.photos.replaceAll(raffle.id, files);
     });
+
+    if (raffle.visibility !== details.visibility) await this.storage.setVisibility(files, details.visibility);
 
     const removed = current.filter((p) => !files.includes(p.filename));
     await Promise.all(removed.map((p) => this.storage.remove(p.filename)));

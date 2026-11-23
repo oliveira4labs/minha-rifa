@@ -70,6 +70,9 @@ export const Password = (minLength: number) =>
 export const NonEmptyList = (message: string) =>
   Field('nonEmptyList', (v) => v, (v) => (Array.isArray(v) && v.length > 0 ? null : message));
 
+export const OneOf = <T extends string>(label: string, options: readonly T[], fallback: T) =>
+  Field('oneOf', (v) => (isEmpty(v) ? fallback : v), (v) => (options.includes(v as T) ? null : `Valor inválido para "${label}".`));
+
 export const Raw = (normalize: FieldNormalizer = (v) => v) => Field('raw', normalize);
 
 export const asArray: FieldNormalizer = (v) => (Array.isArray(v) ? v : []);

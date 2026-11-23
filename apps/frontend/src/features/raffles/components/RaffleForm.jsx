@@ -89,6 +89,13 @@ export function RaffleForm({
         <input {...field('draw_date')} type="datetime-local" />
       </label>
 
+      <label>Visibilidade <span className="hint">Privada: só você vê a página e as fotos, e ninguém consegue reservar números</span>
+        <select {...field('visibility')}>
+          <option value="public">Pública — qualquer pessoa com o link</option>
+          <option value="private">Privada — só você</option>
+        </select>
+      </label>
+
       {renderActions({ submitting })}
     </form>
   );

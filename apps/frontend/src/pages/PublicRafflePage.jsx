@@ -30,7 +30,7 @@ export function PublicRafflePage() {
 
   const pick = useCallback((n, takenTitle) => {
     if (takenTitle) return toast(takenTitle);
-    if (raffle.status !== 'open') return undefined;
+    if (raffle.status !== 'open' || raffle.visibility === 'private') return undefined;
     return toggle(n);
   }, [raffle, toggle, toast]);
 
@@ -61,6 +61,9 @@ export function PublicRafflePage() {
   } else {
     content = (
       <>
+        {raffle.visibility === 'private' && (
+          <p className="notice">Rifa privada: só você está vendo esta página. Ninguém mais consegue abrir o link nem reservar números.</p>
+        )}
         {data.winner && <WinnerBanner winner={data.winner} total={raffle.total_numbers} />}
         <RaffleHero raffle={raffle} photos={data.photos} taken={data.taken} />
         {orders.length > 0 && (

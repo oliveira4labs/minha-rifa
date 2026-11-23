@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { NotFoundError } from '../../../domain/errors/domain.errors.js';
-import { shortName } from '../../../domain/rules/raffle.rules.js';
+import { canView, shortName } from '../../../domain/rules/raffle.rules.js';
 import type { UseCase } from '../../common/interfaces/use-case.interface.js';
-import type { PublicRaffleDto } from '../dto/public-raffle.dto.js';
+import type { GetPublicRaffleInput, PublicRaffleDto } from '../dto/public-raffle.dto.js';
 import { OrderRepository } from '../../../domain/repositories/order.repository.js';
 import type { IOrderRepository } from '../../../domain/repositories/interfaces/order.repository.interface.js';
 import { PhotoRepository } from '../../../domain/repositories/photo.repository.js';
@@ -13,7 +13,7 @@ import { RaffleRepository } from '../../../domain/repositories/raffle.repository
 import type { IRaffleRepository } from '../../../domain/repositories/interfaces/raffle.repository.interface.js';
 
 @Injectable()
-export class GetPublicRaffleUseCase implements UseCase<string, PublicRaffleDto> {
+export class GetPublicRaffleUseCase implements UseCase<GetPublicRaffleInput, PublicRaffleDto> {
   constructor(
     @Inject(RaffleRepository) private readonly raffles: IRaffleRepository,
     @Inject(OrderRepository) private readonly orders: IOrderRepository,
@@ -21,9 +21,9 @@ export class GetPublicRaffleUseCase implements UseCase<string, PublicRaffleDto> 
     @Inject(PhotoStorage) private readonly storage: IPhotoStorage,
   ) {}
 
-  async execute(slug: string): Promise<PublicRaffleDto> {
+  async execute({ slug, viewerId }: GetPublicRaffleInput): Promise<PublicRaffleDto> {
     const r = await this.raffles.findBySlug(slug);
-    if (!r) throw new NotFoundError('Rifa não encontrada.');
+    if (!r || !canView(r, viewerId)) throw new NotFoundError('Rifa não encontrada.');
     const [taken, photos] = await Promise.all([this.orders.listTakenNumbers(r.id), this.photos.listByRaffle(r.id)]);
     const winnerOwner = r.status === 'drawn' ? taken.find((t) => t.number === r.winnerNumber) : undefined;
 
@@ -40,8 +40,9 @@ export class GetPublicRaffleUseCase implements UseCase<string, PublicRaffleDto> 
         max_per_buyer: r.maxPerBuyer,
         draw_date: r.drawDate,
         status: r.status,
+        visibility: r.visibility,
       },
-      photos: photos.map((p) => this.storage.publicUrl(p.filename)),
+      photos: photos.map((p) => this.storage.url(p.filename, r.visibility)),
       taken: taken.map((t) => [t.number, t.status === 'paid' ? 'p' : 'r', shortName(t.buyerName)]),
       winner: r.status === 'drawn' && r.winnerNumber != null
         ? { number: r.winnerNumber, name: shortName(winnerOwner?.buyerName ?? '') }
