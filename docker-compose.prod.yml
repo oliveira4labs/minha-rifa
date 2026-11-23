@@ -1,0 +1,13 @@
+# Override de produção. Uso na VPS:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+# Requer Docker Compose >= 2.24 (suporte a !reset).
+
+services:
+  db:
+    # Banco não fica exposto pra fora da VPS; só o container app acessa pela rede interna.
+    ports: !reset []
+
+  app:
+    # App escuta só em localhost; o proxy reverso (Nginx/Caddy) da VPS faz o HTTPS na frente.
+    ports: !override
+      - "127.0.0.1:${APP_HOST_PORT:-3000}:3000"
