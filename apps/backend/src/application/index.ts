@@ -9,6 +9,7 @@ import { ExpireOrdersUseCase } from './orders/use-cases/expire-orders.use-case.j
 import { GetBuyerOrderUseCase } from './public-raffle/use-cases/get-buyer-order.use-case.js';
 import { GetPublicRaffleUseCase } from './public-raffle/use-cases/get-public-raffle.use-case.js';
 import { ReserveNumbersUseCase } from './public-raffle/use-cases/reserve-numbers.use-case.js';
+import { GetPublicConfigUseCase } from './remote-config/use-cases/get-public-config.use-case.js';
 import { CreateRaffleUseCase } from './raffles/use-cases/create-raffle.use-case.js';
 import { DeleteRaffleUseCase } from './raffles/use-cases/delete-raffle.use-case.js';
 import { DrawRaffleUseCase } from './raffles/use-cases/draw-raffle.use-case.js';
@@ -34,4 +35,5 @@ export const USE_CASES = [
   ReserveNumbersUseCase,
   GetBuyerOrderUseCase,
   AuthorizePrivatePhotoUseCase,
+  GetPublicConfigUseCase,
 ];

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useToast } from '../../../shared/ui/feedback/ToastProvider';
+import { useRemoteConfig } from '../../remote-config/context/RemoteConfigContext';
 import { useAuth } from '../context/AuthContext';
 
 const MODES = {
@@ -10,7 +11,10 @@ const MODES = {
 export function AuthForm({ onSuccess }) {
   const { login, register } = useAuth();
   const toast = useToast();
-  const [mode, setMode] = useState('login');
+  const { isEnabled } = useRemoteConfig();
+  const canRegister = isEnabled('createUser');
+  const [selectedMode, setMode] = useState('login');
+  const mode = canRegister ? selectedMode : 'login';
   const [form, setForm] = useState({ name: '', email: '', password: '' });
   const [submitting, setSubmitting] = useState(false);
   const isRegister = mode === 'register';
@@ -31,20 +35,24 @@ export function AuthForm({ onSuccess }) {
 
   return (
     <div className="card stack">
-      <div className="tabs" role="tablist">
-        {Object.entries(MODES).map(([key, { tab }]) => (
-          <button
-            key={key}
-            type="button"
-            role="tab"
-            aria-selected={mode === key}
-            className={mode === key ? 'on' : undefined}
-            onClick={() => setMode(key)}
-          >
-            {tab}
-          </button>
-        ))}
-      </div>
+      {canRegister ? (
+        <div className="tabs" role="tablist">
+          {Object.entries(MODES).map(([key, { tab }]) => (
+            <button
+              key={key}
+              type="button"
+              role="tab"
+              aria-selected={mode === key}
+              className={mode === key ? 'on' : undefined}
+              onClick={() => setMode(key)}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+      ) : (
+        <h2>Entrar</h2>
+      )}
       <form className="stack" onSubmit={handleSubmit}>
         {isRegister && (
           <label>Seu nome
