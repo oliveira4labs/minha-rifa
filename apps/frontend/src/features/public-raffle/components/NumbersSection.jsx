@@ -38,8 +38,8 @@ export function NumbersSection({ raffle, taken, selected, winnerNumber, onPick }
       />
       {open && (
         <p className="small muted">
-          Ao reservar, os números ficam guardados para você por {formatDuration(raffle.reserve_minutes)}, até o
-          organizador confirmar o pagamento.
+          Ao clicar num número, ele fica guardado para você por {formatDuration(raffle.reserve_minutes)}. Nesse tempo,
+          informe seus dados, faça o PIX e envie o comprovante; se não der tempo, o número volta a ficar disponível.
           {raffle.max_per_buyer ? ` Limite de ${raffle.max_per_buyer} número(s) por pessoa.` : ''}
         </p>
       )}

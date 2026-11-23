@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useDocumentTitle } from '../shared/hooks/useDocumentTitle';
 import { ErrorCard, Loading } from '../shared/ui/components';
@@ -11,8 +11,8 @@ import { NumbersSection } from '../features/public-raffle/components/NumbersSect
 import { RaffleHero } from '../features/public-raffle/components/RaffleHero';
 import { ReserveDialog } from '../features/public-raffle/components/ReserveDialog';
 import { WinnerBanner } from '../features/public-raffle/components/WinnerBanner';
+import { useCart } from '../features/public-raffle/hooks/useCart';
 import { usePublicRaffle } from '../features/public-raffle/hooks/usePublicRaffle';
-import { useNumberSelection } from '../features/public-raffle/hooks/useNumberSelection';
 import { addOrderToken, saveBuyer } from '../features/public-raffle/lib/buyerStorage';
 
 const scrollToPendingOrder = () => requestAnimationFrame(() => {
@@ -25,32 +25,44 @@ export function PublicRafflePage() {
   const [reserving, setReserving] = useState(false);
   const { data, orders, error, refresh, forgetOrder } = usePublicRaffle(slug, { paused: reserving });
   const raffle = data?.raffle;
-  const { selected, sorted, toggle, clear } = useNumberSelection(data?.taken, raffle?.max_per_buyer);
+  const cart = useCart(slug, { maxPerBuyer: raffle?.max_per_buyer, onSynced: refresh });
   useDocumentTitle(raffle?.title ?? 'Rifa');
+
+  const takenByOthers = useMemo(
+    () => (data ? data.taken.filter(([n]) => !cart.selected.has(n)) : []),
+    [data, cart.selected],
+  );
 
   const pick = useCallback((n, takenTitle) => {
     if (takenTitle) return toast(takenTitle);
     if (raffle.status !== 'open' || raffle.visibility === 'private') return undefined;
-    return toggle(n);
-  }, [raffle, toggle, toast]);
+    return cart.toggle(n);
+  }, [raffle, cart, toast]);
 
   async function reserve(buyer) {
     try {
-      const { token } = await publicRaffleApi.reserve(slug, { ...buyer, numbers: sorted });
+      const { token } = await publicRaffleApi.reserve(slug, { ...buyer, token: cart.token });
       addOrderToken(slug, token);
       saveBuyer(buyer);
-      clear();
+      cart.forget();
       setReserving(false);
       await refresh();
-      toast('Números reservados! Agora faça o pagamento.');
+      toast('Dados confirmados! Agora faça o PIX e envie o comprovante antes do tempo acabar.');
       scrollToPendingOrder();
     } catch (err) {
       toast(err.message, true);
-      if (err.busy) {
-        setReserving(false);
-        await refresh();
-      }
+      setReserving(false);
+      await refresh();
     }
+  }
+
+  async function sendProof(token) {
+    try {
+      await publicRaffleApi.proofSent(token);
+    } catch (err) {
+      toast(err.message, true);
+    }
+    await refresh();
   }
 
   let content;
@@ -69,13 +81,15 @@ export function PublicRafflePage() {
         {orders.length > 0 && (
           <section className="stack-sm">
             <h2>Seus pedidos</h2>
-            {orders.map((o) => <BuyerOrderCard key={o.token} order={o} raffle={raffle} onForget={forgetOrder} />)}
+            {orders.map((o) => (
+              <BuyerOrderCard key={o.token} order={o} raffle={raffle} onForget={forgetOrder} onProofSent={sendProof} />
+            ))}
           </section>
         )}
         <NumbersSection
           raffle={raffle}
-          taken={data.taken}
-          selected={selected}
+          taken={takenByOthers}
+          selected={cart.selected}
           winnerNumber={data.winner?.number}
           onPick={pick}
         />
@@ -87,14 +101,21 @@ export function PublicRafflePage() {
     <>
       <Topbar />
       <main className="wrap stack">{content}</main>
-      {raffle?.status === 'open' && selected.size > 0 && (
-        <BuyBar count={selected.size} priceCents={raffle.price_cents} onClear={clear} onReserve={() => setReserving(true)} />
+      {raffle?.status === 'open' && cart.numbers.length > 0 && (
+        <BuyBar
+          count={cart.numbers.length}
+          priceCents={raffle.price_cents}
+          expiresAt={cart.expiresAt}
+          onClear={cart.releaseAll}
+          onReserve={() => setReserving(true)}
+        />
       )}
       {raffle && (
         <ReserveDialog
-          open={reserving}
-          numbers={sorted}
+          open={reserving && cart.numbers.length > 0}
+          numbers={cart.numbers}
           raffle={raffle}
+          expiresAt={cart.expiresAt}
           onClose={() => setReserving(false)}
           onConfirm={reserve}
         />

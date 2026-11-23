@@ -1,4 +1,4 @@
-import type { RaffleVisibility } from '../../../domain/interfaces/raffle.interface.js';
+import type { NumberCounts, RaffleVisibility } from '../../../domain/interfaces/raffle.interface.js';
 import { MAX_NUMBERS, RAFFLE_VISIBILITIES } from '../../../domain/rules/raffle.rules.js';
 import {
   asArray, IntInRange, OneOf, OptionalIntInRange, OptionalText, Phone, Raw, RequiredText,
@@ -35,6 +35,7 @@ export interface RaffleSummaryDto {
   winner_number: number | null;
   paid: number;
   pending: number;
+  awaiting: number;
   cover: string | null;
 }
 
@@ -61,12 +62,13 @@ export interface AdminRaffleDto {
 
 export interface AdminOrderDto {
   id: number;
-  buyer_name: string;
-  buyer_phone: string;
+  buyer_name: string | null;
+  buyer_phone: string | null;
   numbers: number[];
   status: string;
   created_at: number;
   expires_at: number;
+  proof_sent_at: number | null;
   paid_at: number | null;
 }
 
@@ -82,7 +84,7 @@ export interface RaffleDetailsDto {
   photos: { id: number; url: string }[];
   orders: AdminOrderDto[];
   taken: [number, 'p' | 'r'][];
-  counts: { paid: number; pending: number };
+  counts: NumberCounts;
   can_draw: boolean;
   winner: WinnerDto | null;
 }

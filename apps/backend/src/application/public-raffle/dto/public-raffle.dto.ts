@@ -1,9 +1,32 @@
-import { NonEmptyList, Phone, RequiredText } from '../../common/validation.js';
+import { MAX_NUMBERS } from '../../../domain/rules/raffle.rules.js';
+import {
+  IntInRange, OptionalText, Phone, RequiredText,
+} from '../../common/validation.js';
+
+export class HoldNumberDto {
+  @OptionalText('Carrinho', 64) token!: string;
+  @IntInRange('Número', 1, MAX_NUMBERS) number!: number;
+}
+
+export class ReleaseNumberDto {
+  @RequiredText('Carrinho', 64) token!: string;
+  @IntInRange('Número', 1, MAX_NUMBERS) number!: number;
+}
 
 export class ReserveNumbersDto {
+  @RequiredText('Carrinho', 64) token!: string;
   @RequiredText('Nome', 80) name!: string;
   @Phone('WhatsApp') phone!: string;
-  @NonEmptyList('Escolha pelo menos um número.') numbers!: unknown[];
+}
+
+export interface HoldNumberInput {
+  slug: string;
+  data: HoldNumberDto;
+}
+
+export interface ReleaseNumberInput {
+  slug: string;
+  data: ReleaseNumberDto;
 }
 
 export interface ReserveNumbersInput {
@@ -38,6 +61,12 @@ export interface PublicRaffleDto {
   winner: { number: number; name: string } | null;
 }
 
+export interface CartDto {
+  token: string | null;
+  numbers: number[];
+  expires_at: number | null;
+}
+
 export interface ReservationDto {
   token: string;
 }
@@ -45,8 +74,9 @@ export interface ReservationDto {
 export interface BuyerOrderDto {
   token: string;
   status: string;
-  buyer_name: string;
+  buyer_name: string | null;
   numbers: number[];
   total_cents: number;
   expires_at: number;
+  proof_sent_at: number | null;
 }

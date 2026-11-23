@@ -118,9 +118,10 @@ docker compose exec db pg_dump -U rifa minha_rifa > backup.sql
 
 - Qualquer pessoa cria uma conta e vira administradora das rifas que criar.
 - Comprador não precisa de conta: abre o link, escolhe os números, informa nome e WhatsApp.
-- Número reservado fica **pendente** pelo tempo definido na rifa. Nesse prazo ninguém mais consegue pegá-lo.
-  Sem confirmação até o fim do prazo, ele volta a ficar disponível sozinho.
-- O comprador vê a chave PIX e um botão para enviar o comprovante pelo WhatsApp do administrador.
+- O número fica ocupado **já no clique**, pelo tempo definido na rifa. Nesse prazo ninguém mais consegue pegá-lo,
+  e o comprador precisa informar os dados, pagar e enviar o comprovante. Se não der tempo, o número volta a ficar disponível sozinho.
+- O comprador vê a chave PIX e um botão para enviar o comprovante pelo WhatsApp do administrador. Ao clicar nele,
+  o relógio para e o número fica guardado até o administrador confirmar ou recusar (sem prazo).
 - O administrador confirma (ou recusa) cada reserva no painel. Também pode desfazer uma venda já confirmada.
 - Limite de números por pessoa é opcional, por rifa (controlado pelo WhatsApp informado).
 - Sorteio: liberado quando todos os números estão pagos **ou** quando chega a data do sorteio.

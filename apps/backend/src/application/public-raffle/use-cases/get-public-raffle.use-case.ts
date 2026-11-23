@@ -43,7 +43,7 @@ export class GetPublicRaffleUseCase implements UseCase<GetPublicRaffleInput, Pub
         visibility: r.visibility,
       },
       photos: photos.map((p) => this.storage.url(p.filename, r.visibility)),
-      taken: taken.map((t) => [t.number, t.status === 'paid' ? 'p' : 'r', shortName(t.buyerName)]),
+      taken: taken.map((t) => [t.number, t.status === 'paid' ? 'p' : 'r', t.buyerName ? shortName(t.buyerName) : '']),
       winner: r.status === 'drawn' && r.winnerNumber != null
         ? { number: r.winnerNumber, name: shortName(winnerOwner?.buyerName ?? '') }
         : null,

@@ -6,7 +6,7 @@ const STATUS = { p: { cls: 'paid', label: 'pago' }, r: { cls: 'res', label: 'res
 const NumberCell = memo(function NumberCell({ n, total, owner, status, isSelected, isWinner, onClick }) {
   const text = padNumber(n, total);
   const cls = status ? STATUS[status].cls : isSelected ? 'sel' : '';
-  const title = status ? `${text} — ${STATUS[status].label} por ${owner}` : `Número ${text}`;
+  const title = status ? `${text} — ${STATUS[status].label}${owner ? ` por ${owner}` : ''}` : `Número ${text}`;
   return (
     <button
       type="button"

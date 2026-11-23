@@ -170,7 +170,7 @@ apps/backend/
     │   ├── raffles/               dto/ · raffle.helpers.ts · use-cases/ (list, create, get-details,
     │   │                          update, delete, draw)
     │   ├── orders/                dto/ · order.helpers.ts · use-cases/ (approve, cancel, expire)
-    │   └── public-raffle/         dto/ · use-cases/ (get-public-raffle, reserve-numbers, get-buyer-order)
+    │   └── public-raffle/         dto/ · use-cases/ (get-public-raffle, hold-number, release-number, reserve-numbers, mark-proof-sent, get-buyer-order)
     ├── infrastructure/
     │   ├── database/              PostgresDatabase (pool, transação), PostgresUnitOfWork, Migrator,
     │   │                          migrations/ (001_initial_schema…), interfaces/ (UserRow, RaffleRow, OrderRow…)
@@ -208,8 +208,11 @@ apps/backend/
 | | `CancelOrderUseCase` | `POST /api/orders/:id/cancel` |
 | | `ExpireOrdersUseCase` | `ExpireOrdersInterceptor` (toda requisição) e `ExpireOrdersJob` (30 s) |
 | public-raffle | `GetPublicRaffleUseCase` | `GET /api/r/:slug` |
+| | `HoldNumberUseCase` | `POST /api/r/:slug/hold` |
+| | `ReleaseNumberUseCase` | `POST /api/r/:slug/release` |
 | | `ReserveNumbersUseCase` | `POST /api/r/:slug/reserve` |
 | | `GetBuyerOrderUseCase` | `GET /api/pedido/:token` |
+| | `MarkProofSentUseCase` | `POST /api/pedido/:token/comprovante` |
 
 ### Ciclo de uma requisição
 
@@ -262,8 +265,8 @@ users ─┬─< sessions
 | `sessions` | `token` (PK), `user_id` | Token aleatório de 32 bytes, enviado no cookie `sid` |
 | `raffles` | `slug` (único), `user_id`, `title`, `description`, `total_numbers`, `price_cents`, `pix_key`, `whatsapp`, `reserve_minutes`, `max_per_buyer`, `draw_date`, `status` (`open`/`drawn`), `winner_number`, `drawn_at` | Datas em ms (epoch). Valores em centavos |
 | `photos` | `raffle_id`, `filename`, `position` | Arquivo em `DATA_DIR/uploads`; `position` 0 = capa |
-| `orders` | `raffle_id`, `token` (único), `buyer_name`, `buyer_phone`, `numbers` (JSONB), `status`, `created_at`, `expires_at`, `paid_at` | `status`: `pending`, `paid`, `expired`, `cancelled` |
-| `tickets` | PK `(raffle_id, number)`, `order_id` | **Garante que um número só pertence a um pedido ativo.** Linhas existem só para pedidos `pending`/`paid` |
+| `orders` | `raffle_id`, `token` (único), `buyer_name`, `buyer_phone`, `numbers` (JSONB), `status`, `created_at`, `expires_at`, `proof_sent_at`, `paid_at` | `status`: `held`, `pending`, `proof_sent`, `paid`, `expired`, `cancelled`. Nome e telefone são vazios só em `held` (e nos expirados/cancelados que vieram dele) |
+| `tickets` | PK `(raffle_id, number)`, `order_id` | **Garante que um número só pertence a um pedido ativo.** Linhas existem só para pedidos `held`/`pending`/`proof_sent`/`paid` |
 
 - Ids `BIGINT GENERATED ALWAYS AS IDENTITY`; datas em ms como `BIGINT` (o driver converte `BIGINT` para `number`).
 - Exclusão em cascata de `photos`, `orders` e `tickets` ao apagar a rifa; `CHECK` nos campos `status`.
@@ -354,16 +357,19 @@ Todas as respostas são JSON (`Cache-Control: no-store`). Erros: `{ "error": "me
 
 | Método | Rota | Regras |
 |---|---|---|
-| `POST` | `/api/orders/:id/approve` | Só pedido `pending` → `paid` |
-| `POST` | `/api/orders/:id/cancel` | Pedido `pending` ou `paid` → `cancelled`, libera os números |
+| `POST` | `/api/orders/:id/approve` | Pedido `pending` ou `proof_sent` → `paid` |
+| `POST` | `/api/orders/:id/cancel` | Pedido `pending`, `proof_sent` ou `paid` → `cancelled`, libera os números |
 
 ### Público (sem login)
 
 | Método | Rota | Corpo | Resposta |
 |---|---|---|---|
 | `GET` | `/api/r/:slug` | — | `{ raffle, photos, taken, winner }`. `taken` = `[número, 'p'\|'r', nome abreviado]`. Sem telefones |
-| `POST` | `/api/r/:slug/reserve` | `{ name, phone, numbers }` | `{ token }`. 409 + `busy` se algum número já foi pego |
-| `GET` | `/api/pedido/:token` | — | `{ token, status, buyer_name, numbers, total_cents, expires_at }` |
+| `POST` | `/api/r/:slug/hold` | `{ token?, number }` | `{ token, numbers, expires_at }`. Ocupa o número no carrinho (cria o carrinho `held` se não houver). 409 + `busy` se já foi pego |
+| `POST` | `/api/r/:slug/release` | `{ token, number }` | `{ token, numbers, expires_at }`. Solta o número do carrinho; carrinho vazio vira `cancelled` |
+| `POST` | `/api/r/:slug/reserve` | `{ token, name, phone }` | `{ token }`. Carrinho `held` → `pending` (mesmo prazo). Erro se o prazo acabou |
+| `GET` | `/api/pedido/:token` | — | `{ token, status, buyer_name, numbers, total_cents, expires_at, proof_sent_at }` |
+| `POST` | `/api/pedido/:token/comprovante` | — | `{ ok }`. `pending` → `proof_sent` (para o prazo). Erro se ainda for `held` ou se o prazo acabou |
 
 O `token` do pedido (16 bytes aleatórios) é a única "credencial" do comprador e fica no `localStorage` dele.
 
@@ -388,16 +394,16 @@ O `token` do pedido (16 bytes aleatórios) é a única "credencial" do comprador
 
 ### Reserva
 
-1. Rifa precisa estar `open`; nome 1–80 caracteres; telefone 10–13 dígitos; pelo menos 1 número; números entre 1 e `total_numbers` (duplicados são removidos).
-2. Limite por comprador: soma os números já em pedidos ativos com o mesmo telefone.
-3. Números ocupados → 409 com `busy`.
-4. Cria o pedido com `expires_at = agora + reserve_minutes`.
+1. **Clique** (`hold`): rifa `open` e pública; número entre 1 e `total_numbers`. Sem carrinho ativo, cria um pedido `held` com `expires_at = agora + reserve_minutes`; com carrinho, só adiciona o número (o prazo não muda). Limite por comprador conta os números do carrinho. Número ocupado → 409 com `busy`.
+2. **Dados** (`reserve`): carrinho `held` dentro do prazo; nome 1–80 caracteres; telefone 10–13 dígitos. Limite por comprador soma os números de outros pedidos com o mesmo telefone. Vira `pending`, mantendo o prazo.
+3. **Comprovante** (`comprovante`): pedido `pending` dentro do prazo → `proof_sent`, que não expira mais.
+4. `held` e `pending` vencidos são liberados (`expired`).
 
 ### Sorteio
 
 - `canDraw`: rifa `open`, pelo menos 1 pago, e (todos pagos **ou** `agora ≥ draw_date`).
 - Ganhador: `crypto.randomInt` sobre a lista de números pagos.
-- Na mesma transação: cancela pedidos pendentes, grava `status = 'drawn'`, `winner_number`, `drawn_at`.
+- Na mesma transação: cancela pedidos não pagos (`held`, `pending`, `proof_sent`), grava `status = 'drawn'`, `winner_number`, `drawn_at`.
 - Depois disso, edição, aprovação e cancelamento retornam erro.
 
 ### Privacidade

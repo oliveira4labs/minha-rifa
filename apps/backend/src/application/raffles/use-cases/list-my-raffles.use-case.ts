@@ -36,6 +36,7 @@ export class ListMyRafflesUseCase implements UseCase<number, RaffleSummaryDto[]>
         winner_number: r.winnerNumber,
         paid: counts.paid,
         pending: counts.pending,
+        awaiting: counts.awaiting,
         cover: cover ? this.storage.url(cover.filename, r.visibility) : null,
       };
     }));

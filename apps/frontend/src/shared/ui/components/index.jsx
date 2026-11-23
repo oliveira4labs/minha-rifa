@@ -58,6 +58,6 @@ export function ErrorCard({ title, children }) {
   );
 }
 
-export function ExternalLink({ href, className, children }) {
-  return <a className={className} href={href} target="_blank" rel="noopener noreferrer">{children}</a>;
+export function ExternalLink({ href, className, onClick, children }) {
+  return <a className={className} href={href} onClick={onClick} target="_blank" rel="noopener noreferrer">{children}</a>;
 }

@@ -6,7 +6,8 @@ function StatusTag({ raffle }) {
   if (raffle.status === 'drawn') {
     return <Tag variant="done">Sorteada — nº {padNumber(raffle.winner_number, raffle.total_numbers)}</Tag>;
   }
-  if (raffle.pending) return <Tag variant="pending">{raffle.pending} aguardando confirmação</Tag>;
+  if (raffle.awaiting) return <Tag variant="pending">{raffle.awaiting} com comprovante para confirmar</Tag>;
+  if (raffle.pending) return <Tag variant="pending">{raffle.pending} reservado{raffle.pending === 1 ? '' : 's'}</Tag>;
   return <Tag variant="open">Aberta</Tag>;
 }
 

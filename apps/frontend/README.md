@@ -66,32 +66,42 @@ Restrições de edição:
 
 ### Números e reservas (pedidos)
 
-Cada reserva é um **pedido** com um ou mais números, nome e WhatsApp do comprador.
+Cada reserva é um **pedido** com um ou mais números. O número fica ocupado **já no clique**, e o prazo
+(tempo de reserva da rifa) corre para o **comprador**: nele, ele informa nome e WhatsApp, paga e envia o comprovante.
 
 ```
-            reservar                 admin confirma
- (livre) ───────────▶ pendente ───────────────────▶ pago
-                        │  │                         │
-     prazo acabou ──────┘  └── admin recusa          └── admin desfaz venda
-            ▼                     ▼                         ▼
-        expirado              cancelado                 cancelado
+        clica no número        informa nome e WhatsApp     clica em "Enviar comprovante"     admin confirma
+ (livre) ─────────────▶ guardado ───────────────────────▶ pendente ──────────────────────────▶ comprovante enviado ─────────────▶ pago
+                          │                                  │                                  │  (sem prazo)                    │
+           prazo acabou ──┤                   prazo acabou ──┤                    admin recusa ──┤                admin desfaz ──┘
+                          ▼                                  ▼                                  ▼                                  ▼
+                       expirado                           expirado                          cancelado                          cancelado
      (números voltam a ficar disponíveis em todos esses casos)
 ```
 
-- Um número pertence a **no máximo um pedido ativo** (pendente ou pago) por vez.
-- Se dois compradores tentam o mesmo número, o segundo recebe erro com a lista dos números ocupados; a tela mostra o aviso, fecha o diálogo e atualiza a grade.
-- O **limite por comprador** é contado pelo WhatsApp, somando os números de pedidos pendentes e pagos daquela pessoa. A grade também impede selecionar além do limite.
-- Pedido **pendente** expira sozinho após o tempo de reserva da rifa. O servidor libera os números a cada 30s e antes de toda requisição.
-- No sorteio, todos os pedidos ainda pendentes são **cancelados**.
+| Status | Quem vê | O que significa |
+|---|---|---|
+| `held` (guardado) | Só o próprio comprador (os outros veem "reservado") | Clicou nos números, ainda não informou os dados. Pode soltar um número clicando de novo |
+| `pending` (pendente) | Comprador e admin ("Aguardando pagamento do comprador") | Dados informados; falta pagar e enviar o comprovante |
+| `proof_sent` (comprovante enviado) | Comprador e admin ("Comprovante enviado — confirme o pagamento") | O relógio parou; o número fica ocupado até o admin confirmar ou recusar |
+| `paid` (pago) | Todos | Pagamento confirmado |
+
+- O prazo é contado **a partir do primeiro clique** e vale para todos os números do mesmo carrinho.
+- Um número pertence a **no máximo um pedido ativo** por vez. Se dois compradores clicam no mesmo número, o segundo recebe aviso e a grade é atualizada.
+- O **limite por comprador** vale no carrinho (não deixa clicar além do limite) e, ao informar os dados, também soma os pedidos que aquele WhatsApp já tem na rifa.
+- Pedidos `held` e `pending` expiram sozinhos ao fim do prazo. O servidor libera os números a cada 30s e antes de toda requisição.
+- O sistema não consegue ver se a mensagem foi realmente enviada no WhatsApp: o que para o relógio é o clique no botão. Se o comprovante não chegar, o admin **recusa** o pedido.
+- No sorteio, todos os pedidos ainda não pagos são **cancelados**.
 
 ### Pagamento
 
 Não há integração com meio de pagamento. O fluxo é manual:
 
-1. O comprador reserva e vê o pedido "Aguardando pagamento", com contagem regressiva do prazo.
-2. Copia a chave PIX e paga fora do sistema.
-3. Toca em "Enviar comprovante pelo WhatsApp": abre conversa com o administrador já com a mensagem pronta (números, nome e total).
-4. O administrador confere e clica em **Confirmar pagamento** no painel (ou **Recusar**). Uma venda paga ainda pode ser **desfeita** enquanto a rifa estiver aberta.
+1. O comprador clica nos números: eles ficam guardados e a barra de baixo mostra o tempo restante.
+2. Em **Continuar**, informa nome e WhatsApp e vê o pedido "Faça o pagamento", com a mesma contagem regressiva.
+3. Copia a chave PIX e paga fora do sistema.
+4. Toca em "Enviar comprovante pelo WhatsApp": o pedido passa a "Comprovante enviado" (o relógio para) e abre a conversa com o administrador já com a mensagem pronta (números, nome e total).
+5. O administrador confere e clica em **Confirmar pagamento** no painel (ou **Recusar**). Uma venda paga ainda pode ser **desfeita** enquanto a rifa estiver aberta.
 
 ### Sorteio
 
@@ -110,7 +120,7 @@ Não há integração com meio de pagamento. O fluxo é manual:
 
 ### Comprador sem conta
 
-- Os pedidos do comprador ficam guardados **no próprio navegador** (`localStorage`, chave `rifa:<slug>:pedidos`). Em outro aparelho ele não verá a seção "Seus pedidos".
+- Os pedidos do comprador ficam guardados **no próprio navegador** (`localStorage`, chave `rifa:<slug>:pedidos`), e o carrinho com os números guardados em `rifa:<slug>:carrinho` (recarregar a página não perde a seleção). Em outro aparelho ele não verá a seção "Seus pedidos".
 - Nome e WhatsApp da última reserva são lembrados (`rifa:comprador`) e preenchem o formulário da próxima.
 - Pedidos expirados ou cancelados podem ser **dispensados** da lista.
 
@@ -126,10 +136,10 @@ Não há integração com meio de pagamento. O fluxo é manual:
 |---|---|---|
 | Gestão da rifa (`/gerenciar`) | 15 s | Há diálogo de confirmação aberto |
 | Página pública (`/r/:slug`) | 20 s | O diálogo de reserva está aberto |
-| Página pública, pedido vencido | 1 s | — (atualiza assim que a contagem chega a zero) |
+| Página pública, pedido ou carrinho vencido | 1 s | — (atualiza assim que a contagem chega a zero) |
 
 Na gestão, a atualização **não apaga o que o administrador está digitando** no formulário de edição nem na data do sorteio (ver [Estado do formulário de edição](#estado-do-formulário-de-edição)).
-Na página pública, se um número que o comprador selecionou for reservado por outra pessoa, ele sai da seleção com aviso.
+Na página pública, cada clique num número já ocupa (ou solta) o número no servidor. Se outra pessoa pegou antes, aparece o aviso e a grade é atualizada.
 
 ### Formatação
 
@@ -244,7 +254,7 @@ Dentro de cada feature, a mesma divisão:
 
 | Arquivo | Papel |
 |---|---|
-| `api/publicRaffleApi.js` | `get(slug)`, `reserve(slug, …)`, `getOrder(token)` |
+| `api/publicRaffleApi.js` | `get(slug)`, `hold`/`release(slug, { token, number })`, `reserve(slug, { token, name, phone })`, `getOrder(token)`, `proofSent(token)` |
 | `lib/buyerStorage.js` | Tokens de pedidos e dados do comprador no `localStorage` |
 | `hooks/usePublicRaffle.js` | Dados da rifa + pedidos do navegador, polling, `forgetOrder` |
 | `hooks/useNumberSelection.js` | Números selecionados, limite por pessoa, remoção de números "perdidos" |

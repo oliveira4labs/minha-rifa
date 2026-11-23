@@ -172,6 +172,7 @@ dialog.lightbox::backdrop { background: rgba(14, 12, 9, .6); }
 
 .order { border: 1px solid var(--line); border-radius: 12px; padding: 14px; display: grid; gap: 10px; background: #fff; }
 .order.pending { border-color: #e7b24a; background: #fffaf0; }
+.order.proof_sent { border-color: #e7b24a; background: #fffaf0; box-shadow: inset 4px 0 0 #e7b24a; }
 .order.paid { border-color: #a9d3c7; background: #f3faf7; }
 .chips { display: flex; gap: 5px; flex-wrap: wrap; }
 .chip { background: #efeae0; border-radius: 7px; padding: 2px 8px; font-weight: 700; font-size: .85rem; font-variant-numeric: tabular-nums; }

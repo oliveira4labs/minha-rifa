@@ -25,6 +25,7 @@ export class GetBuyerOrderUseCase implements UseCase<string, BuyerOrderDto> {
       numbers: order.numbers,
       total_cents: order.numbers.length * raffle.priceCents,
       expires_at: order.expiresAt,
+      proof_sent_at: order.proofSentAt,
     };
   }
 }

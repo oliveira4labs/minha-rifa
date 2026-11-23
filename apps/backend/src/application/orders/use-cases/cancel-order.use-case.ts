@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { BusinessRuleError } from '../../../domain/errors/domain.errors.js';
+import { MANAGEABLE_STATUSES } from '../../../domain/rules/order.rules.js';
 import type { UseCase } from '../../common/interfaces/use-case.interface.js';
 import { OK, type OkDto } from '../../common/dto/ok.dto.js';
 import type { OwnedOrderRefDto } from '../dto/order.dto.js';
@@ -18,7 +19,7 @@ export class CancelOrderUseCase implements UseCase<OwnedOrderRefDto, OkDto> {
 
   async execute({ userId, orderId }: OwnedOrderRefDto): Promise<OkDto> {
     const order = await requireManageableOrder(this.orders, this.raffles, userId, orderId);
-    if (order.status !== 'pending' && order.status !== 'paid') {
+    if (!MANAGEABLE_STATUSES.includes(order.status)) {
       throw new BusinessRuleError('Este pedido já não está ativo.');
     }
     await this.orders.release(order.id, 'cancelled');
