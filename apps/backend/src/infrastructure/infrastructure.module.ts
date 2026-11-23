@@ -2,6 +2,7 @@ import { Global, Module } from '@nestjs/common';
 import { OrderRepository } from '../domain/repositories/order.repository.js';
 import { PhotoStorage } from '../domain/repositories/photo-storage.js';
 import { PhotoRepository } from '../domain/repositories/photo.repository.js';
+import { RemoteConfigRepository } from '../domain/repositories/remote-config.repository.js';
 import { RaffleRepository } from '../domain/repositories/raffle.repository.js';
 import { SessionRepository } from '../domain/repositories/session.repository.js';
 import { UnitOfWork } from '../domain/repositories/unit-of-work.js';
@@ -11,6 +12,7 @@ import { PostgresDatabase } from './database/postgres.database.js';
 import { PostgresOrderRepository } from './repositories/postgres-order.repository.js';
 import { PostgresPhotoRepository } from './repositories/postgres-photo.repository.js';
 import { PostgresRaffleRepository } from './repositories/postgres-raffle.repository.js';
+import { PostgresRemoteConfigRepository } from './repositories/postgres-remote-config.repository.js';
 import { PostgresSessionRepository } from './repositories/postgres-session.repository.js';
 import { PostgresUserRepository } from './repositories/postgres-user.repository.js';
 import { LocalPhotoStorage } from './storage/local-photo.storage.js';
@@ -22,6 +24,7 @@ const bindings = [
   { provide: PhotoRepository, useClass: PostgresPhotoRepository },
   { provide: OrderRepository, useClass: PostgresOrderRepository },
   { provide: PhotoStorage, useClass: LocalPhotoStorage },
+  { provide: RemoteConfigRepository, useClass: PostgresRemoteConfigRepository },
   { provide: UnitOfWork, useClass: PostgresUnitOfWork },
 ];
 
