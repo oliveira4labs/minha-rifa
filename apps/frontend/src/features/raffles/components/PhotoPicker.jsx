@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from 'react';
-import { imageFileToDataUrl } from '../../../shared/lib/image';
+import { imageFileToDataUrl, MAX_PHOTO_SIDE } from '../../../shared/lib/image';
 import { useToast } from '../../../shared/ui/feedback/ToastProvider';
 import { Lightbox } from '../../../shared/ui/media/Lightbox';
 import { MAX_PHOTOS } from '../model/raffleFormModel';
@@ -35,7 +35,7 @@ export function PhotoPicker({ photos, onChange }) {
   return (
     <div className="stack-sm">
       <span style={{ fontWeight: 600, fontSize: '.92rem' }}>
-        Fotos <span className="hint muted" style={{ fontWeight: 400 }}>até {MAX_PHOTOS} — a primeira é a capa. Clique numa foto para ampliar</span>
+        Fotos <span className="hint muted" style={{ fontWeight: 400 }}>até {MAX_PHOTOS} — a primeira é a capa. Fotos grandes são reduzidas para até {MAX_PHOTO_SIDE} px, sem cortar. Clique numa foto para ampliar</span>
       </span>
       <div className="thumbs">
         {photos.map((photo, i) => (

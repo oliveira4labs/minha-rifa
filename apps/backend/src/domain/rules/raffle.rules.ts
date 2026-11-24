@@ -28,8 +28,3 @@ export function canDraw(raffle: Raffle, counts: NumberCounts, now = Date.now()):
   if (counts.paid === raffle.totalNumbers) return true;
   return raffle.drawDate != null && now >= raffle.drawDate;
 }
-
-export function shortName(name: string): string {
-  const parts = name.trim().split(/\s+/);
-  return parts.length > 1 ? `${parts[0]} ${parts[parts.length - 1][0].toUpperCase()}.` : parts[0];
-}

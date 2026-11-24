@@ -5,7 +5,7 @@ export function WinnerBanner({ winner, total }) {
     <div className="winner">
       <p><b>Rifa sorteada!</b> Número ganhador:</p>
       <div className="big">{padNumber(winner.number, total)}</div>
-      <p>{winner.name} 🎉</p>
+      <p>Parabéns ao ganhador! 🎉</p>
     </div>
   );
 }

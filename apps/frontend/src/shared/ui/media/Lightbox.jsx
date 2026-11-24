@@ -2,6 +2,17 @@ import { useEffect, useState } from 'react';
 import { Dialog } from '../feedback/Dialog';
 import { SlideArrows, SlideTrack } from './SlideTrack';
 
+function isOutsidePhoto(target, { clientX, clientY }) {
+  if (!target.classList.contains('slide-photo') || !target.naturalWidth) return false;
+  const box = target.getBoundingClientRect();
+  const scale = Math.min(box.width / target.naturalWidth, box.height / target.naturalHeight);
+  const width = target.naturalWidth * scale;
+  const height = target.naturalHeight * scale;
+  const x = clientX - box.left - (box.width - width) / 2;
+  const y = clientY - box.top - (box.height - height) / 2;
+  return x < 0 || y < 0 || x > width || y > height;
+}
+
 export function Lightbox({ photos, startIndex, onClose }) {
   const open = startIndex != null;
   const [index, setIndex] = useState(startIndex ?? 0);
@@ -22,7 +33,8 @@ export function Lightbox({ photos, startIndex, onClose }) {
   }
 
   function handleClick(e) {
-    if (e.target === e.currentTarget || e.target.classList.contains('slide')) onClose();
+    const { target } = e;
+    if (target === e.currentTarget || target.classList.contains('lightbox-stage') || isOutsidePhoto(target, e)) onClose();
   }
 
   return (

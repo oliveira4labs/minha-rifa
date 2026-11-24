@@ -2,7 +2,9 @@ import { useRef } from 'react';
 
 const SWIPE_MIN_PX = 40;
 
-export function SlideTrack({ photos, index, onIndexChange, fit = 'cover', onSlideClick, altPrefix = 'Foto' }) {
+export function SlideTrack({
+  photos, index, onIndexChange, fit = 'contain', backdrop = false, onSlideClick, altPrefix = 'Foto',
+}) {
   const touchStartX = useRef(null);
   const count = photos.length;
 
@@ -22,13 +24,12 @@ export function SlideTrack({ photos, index, onIndexChange, fit = 'cover', onSlid
     >
       <div className="slides-track" style={{ transform: `translateX(-${index * 100}%)` }}>
         {photos.map((url, i) => {
+          const loading = Math.abs(i - index) <= 1 ? 'eager' : 'lazy';
           const img = (
-            <img
-              src={url}
-              alt={`${altPrefix} ${i + 1} de ${count}`}
-              loading={Math.abs(i - index) <= 1 ? 'eager' : 'lazy'}
-              draggable={false}
-            />
+            <>
+              {backdrop && <img className="slide-backdrop" src={url} alt="" aria-hidden="true" loading={loading} draggable={false} />}
+              <img className="slide-photo" src={url} alt={`${altPrefix} ${i + 1} de ${count}`} loading={loading} draggable={false} />
+            </>
           );
           return (
             <div className="slide" key={`${i}-${url.slice(-24)}`} aria-hidden={i !== index}>
