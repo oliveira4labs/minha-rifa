@@ -5,7 +5,7 @@ import type { SessionUserDto } from '../dto/auth.dto.js';
 import { SessionRepository } from '../../../domain/repositories/session.repository.js';
 import type { ISessionRepository } from '../../../domain/repositories/interfaces/session.repository.interface.js';
 
-/** Valida a sessão (expira após 30 dias sem uso) e renova a validade a cada uso. */
+/** Valida a sessão (expira após 1 dia sem uso) e renova a validade a cada uso. */
 @Injectable()
 export class GetSessionUserUseCase implements UseCase<string | null, SessionUserDto | null> {
   constructor(@Inject(SessionRepository) private readonly sessions: ISessionRepository) {}
