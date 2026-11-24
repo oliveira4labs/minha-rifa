@@ -1,25 +1,22 @@
 import crypto from 'node:crypto';
-import type { PasswordHash } from '../interfaces/password-hash.interface.js';
 
-export const MIN_PASSWORD_LENGTH = 6;
+export const MAX_NAME_LENGTH = 80;
 
 export const randomHex = (bytes: number): string => crypto.randomBytes(bytes).toString('hex');
-
-export function hashPassword(password: string, salt: string): string {
-  return crypto.scryptSync(password, salt, 64).toString('hex');
-}
-
-export function createPasswordHash(password: string): PasswordHash {
-  const salt = randomHex(16);
-  return { hash: hashPassword(password, salt), salt };
-}
-
-export function verifyPassword(password: string, salt: string, expectedHash: string): boolean {
-  return crypto.timingSafeEqual(Buffer.from(hashPassword(password, salt), 'hex'), Buffer.from(expectedHash, 'hex'));
-}
 
 export const secureRandomIndex = (length: number): number => crypto.randomInt(length);
 
 export const newSessionToken = (): string => randomHex(32);
 export const newOrderToken = (): string => randomHex(16);
 export const newRaffleSlug = (): string => randomHex(5);
+
+export const newOAuthState = (): string => randomHex(16);
+export const newCodeVerifier = (): string => crypto.randomBytes(32).toString('base64url');
+export const codeChallengeFor = (verifier: string): string =>
+  crypto.createHash('sha256').update(verifier).digest('base64url');
+
+export function sameToken(a: string, b: string): boolean {
+  const left = Buffer.from(a);
+  const right = Buffer.from(b);
+  return left.length === right.length && crypto.timingSafeEqual(left, right);
+}

@@ -1,41 +1,60 @@
 import {
-  Body, Controller, Get, HttpCode, Post, Res,
+  Controller, Get, HttpCode, Post, Query, Req, Res,
 } from '@nestjs/common';
-import type { Response } from 'express';
-import {
-  type AuthUserDto, LoginDto, type MeDto, RegisterDto,
-} from '../../../application/auth/dto/auth.dto.js';
+import type { Request, Response } from 'express';
+import type { MeDto } from '../../../application/auth/dto/auth.dto.js';
 import { GetSessionUserUseCase } from '../../../application/auth/use-cases/get-session-user.use-case.js';
-import { LoginUseCase } from '../../../application/auth/use-cases/login.use-case.js';
+import { GoogleLoginUseCase } from '../../../application/auth/use-cases/google-login.use-case.js';
 import { LogoutUseCase } from '../../../application/auth/use-cases/logout.use-case.js';
-import { RegisterUseCase } from '../../../application/auth/use-cases/register.use-case.js';
+import { StartGoogleLoginUseCase } from '../../../application/auth/use-cases/start-google-login.use-case.js';
 import type { OkDto } from '../../../application/common/dto/ok.dto.js';
+import { DomainError } from '../../../domain/errors/domain.errors.js';
 import { SessionToken } from '../guards/auth.guard.js';
-import { clearSessionCookie, setSessionCookie } from '../session-cookie.js';
+import {
+  clearSessionCookie, setOAuthCookie, setSessionCookie, takeOAuthCookie,
+} from '../session-cookie.js';
+
+const AFTER_LOGIN = '/painel';
+const LOGIN_PAGE = '/';
+const GENERIC_ERROR = 'Não foi possível entrar com o Google. Tente novamente.';
 
 @Controller()
 export class AuthController {
   constructor(
-    private readonly register: RegisterUseCase,
-    private readonly login: LoginUseCase,
+    private readonly startGoogleLogin: StartGoogleLoginUseCase,
+    private readonly googleLogin: GoogleLoginUseCase,
     private readonly logout: LogoutUseCase,
     private readonly getSessionUser: GetSessionUserUseCase,
   ) {}
 
-  @Post('register')
-  @HttpCode(200)
-  async registerAccount(@Body() body: RegisterDto, @Res({ passthrough: true }) res: Response): Promise<AuthUserDto> {
-    const { user, sessionToken } = await this.register.execute(body);
-    setSessionCookie(res, sessionToken);
-    return user;
+  @Get('auth/google')
+  async google(@Res() res: Response): Promise<void> {
+    try {
+      const { authorizationUrl, state, codeVerifier } = await this.startGoogleLogin.execute();
+      setOAuthCookie(res, state, codeVerifier);
+      res.redirect(302, authorizationUrl);
+    } catch (err) {
+      this.backToLogin(res, err);
+    }
   }
 
-  @Post('login')
-  @HttpCode(200)
-  async signIn(@Body() body: LoginDto, @Res({ passthrough: true }) res: Response): Promise<AuthUserDto> {
-    const { user, sessionToken } = await this.login.execute(body);
-    setSessionCookie(res, sessionToken);
-    return user;
+  @Get('auth/google/callback')
+  async googleCallback(
+    @Query('code') code: string | undefined,
+    @Query('state') state: string | undefined,
+    @Req() req: Request,
+    @Res() res: Response,
+  ): Promise<void> {
+    const [expectedState, codeVerifier] = takeOAuthCookie(req, res);
+    try {
+      const { sessionToken } = await this.googleLogin.execute({
+        code: String(code ?? ''), state: String(state ?? ''), expectedState, codeVerifier,
+      });
+      setSessionCookie(res, sessionToken);
+      res.redirect(302, AFTER_LOGIN);
+    } catch (err) {
+      this.backToLogin(res, err);
+    }
   }
 
   @Post('logout')
@@ -50,5 +69,11 @@ export class AuthController {
   async me(@SessionToken() token: string | null): Promise<MeDto> {
     const user = await this.getSessionUser.execute(token);
     return { user: user ? { name: user.name, email: user.email } : null };
+  }
+
+  private backToLogin(res: Response, err: unknown): void {
+    if (!(err instanceof DomainError)) console.error('Login com Google falhou:', err);
+    const message = err instanceof DomainError ? err.message : GENERIC_ERROR;
+    res.redirect(302, `${LOGIN_PAGE}?erro=${encodeURIComponent(message)}`);
   }
 }

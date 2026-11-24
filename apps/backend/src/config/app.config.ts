@@ -13,7 +13,14 @@ export const appConfig = {
   expireOrdersEveryMs: 30_000,
   sessionMaxAgeSeconds: 60 * 60 * 24 * 30,
   privateUploadsAccelPath: process.env.PRIVATE_UPLOADS_ACCEL_PATH || '',
+  appUrl: (process.env.APP_URL || `http://localhost:${Number(process.env.PORT) || 3000}`).replace(/\/+$/, ''),
+  googleClientId: process.env.GOOGLE_CLIENT_ID || '',
+  googleClientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
+  oauthStateMaxAgeSeconds: 10 * 60,
 };
+
+export const googleRedirectUri = `${appConfig.appUrl}/api/auth/google/callback`;
+export const secureCookies = appConfig.appUrl.startsWith('https://');
 
 export const uploadDir = path.join(appConfig.dataDir, 'uploads');
 export const publicUploadDir = path.join(uploadDir, 'public');

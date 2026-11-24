@@ -26,6 +26,9 @@ services:
       PORT: 3000
       DATABASE_URL: postgres://${POSTGRES_USER:-rifa}:${POSTGRES_PASSWORD:-rifa}@db:5432/${POSTGRES_DB:-minha_rifa}
       DATA_DIR: /data
+      APP_URL: ${APP_URL:-http://localhost:3000}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
     ports:
       - "${APP_HOST_PORT:-3000}:3000"
     volumes:
