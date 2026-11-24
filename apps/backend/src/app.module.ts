@@ -13,6 +13,7 @@ import { AuthGuard } from './presentation/http/guards/auth.guard.js';
 import { ExpireOrdersInterceptor } from './presentation/http/interceptors/expire-orders.interceptor.js';
 import { dtoValidationPipe } from './presentation/http/pipes/dto-validation.pipe.js';
 import { ExpireOrdersJob } from './presentation/jobs/expire-orders.job.js';
+import { PurgeIdleSessionsJob } from './presentation/jobs/purge-idle-sessions.job.js';
 
 @Module({
   imports: [InfrastructureModule],
@@ -21,6 +22,7 @@ import { ExpireOrdersJob } from './presentation/jobs/expire-orders.job.js';
     ...USE_CASES,
     AuthGuard,
     ExpireOrdersJob,
+    PurgeIdleSessionsJob,
     { provide: APP_PIPE, useValue: dtoValidationPipe },
     { provide: APP_FILTER, useClass: ApiExceptionFilter },
     { provide: APP_INTERCEPTOR, useClass: ExpireOrdersInterceptor },
