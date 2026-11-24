@@ -15,14 +15,41 @@ export function freeNumbers(raffle, taken) {
   return free;
 }
 
+const PRIZE_PREVIEW_MAX = 140;
+const LAST_NUMBERS_LISTED = 10;
+
+function prizePreview(description) {
+  const firstLine = (description ?? '').trim().split(/\n/)[0].trim();
+  if (!firstLine) return '';
+  const sentence = firstLine.match(/^.*?[.!?](?=\s|$)/)?.[0] ?? firstLine;
+  if (sentence.length <= PRIZE_PREVIEW_MAX) return sentence;
+  const cut = sentence.slice(0, PRIZE_PREVIEW_MAX);
+  const lastSpace = cut.lastIndexOf(' ');
+  return `${(lastSpace > 0 ? cut.slice(0, lastSpace) : cut).replace(/[\s,;:.-]+$/, '')}…`;
+}
+
+function availabilityLine(raffle, free) {
+  const total = raffle.total_numbers;
+  if (free.length === 0) return '✅ Todos os números já foram escolhidos!';
+  if (free.length <= LAST_NUMBERS_LISTED) {
+    const which = free.length === 1 ? 'Último número' : `Últimos ${free.length} números`;
+    return `⚡ *${which}:* ${padNumbers(free, total).join(', ')}`;
+  }
+  if (free.length === total) return `🔥 Todos os ${total} números ainda estão disponíveis`;
+  return `🔥 Restam *${free.length}* de ${total} números`;
+}
+
 export function shareMessage(raffle, taken) {
   const free = freeNumbers(raffle, taken);
-  return `🎟️ *${raffle.title}*\n${formatMoney(raffle.price_cents)} cada número` +
-    (raffle.draw_date ? `\nSorteio: ${formatDate(raffle.draw_date)}` : '') +
-    (free.length
-      ? `\n\nNúmeros disponíveis (${free.length}):\n${padNumbers(free, raffle.total_numbers).join(', ')}`
-      : '\n\nTodos os números já foram escolhidos!') +
-    `\n\nEscolha o seu aqui: ${publicRaffleUrl(raffle.slug)}`;
+  const prize = prizePreview(raffle.description);
+  const details = [
+    prize ? `🎁 ${prize}` : null,
+    `💰 Apenas *${formatMoney(raffle.price_cents)}* por número`,
+    availabilityLine(raffle, free),
+    raffle.draw_date ? `🗓️ Sorteio: ${formatDate(raffle.draw_date).replace(', ', ' às ')}` : null,
+  ].filter(Boolean);
+  const call = free.length ? '👉 Escolha seus números da sorte:' : '👉 Acompanhe a rifa:';
+  return [`🎟️ *${raffle.title}*`, details.join('\n'), `${call}\n${publicRaffleUrl(raffle.slug)}`].join('\n\n');
 }
 
 export function drawStatus(raffle, counts, canDraw) {

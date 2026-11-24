@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { NotFoundError } from '../../../domain/errors/domain.errors.js';
-import { canView, shortName } from '../../../domain/rules/raffle.rules.js';
+import { canView } from '../../../domain/rules/raffle.rules.js';
 import type { UseCase } from '../../common/interfaces/use-case.interface.js';
 import type { GetPublicRaffleInput, PublicRaffleDto } from '../dto/public-raffle.dto.js';
 import { OrderRepository } from '../../../domain/repositories/order.repository.js';
@@ -25,7 +25,6 @@ export class GetPublicRaffleUseCase implements UseCase<GetPublicRaffleInput, Pub
     const r = await this.raffles.findBySlug(slug);
     if (!r || !canView(r, viewerId)) throw new NotFoundError('Rifa não encontrada.');
     const [taken, photos] = await Promise.all([this.orders.listTakenNumbers(r.id), this.photos.listByRaffle(r.id)]);
-    const winnerOwner = r.status === 'drawn' ? taken.find((t) => t.number === r.winnerNumber) : undefined;
 
     return {
       raffle: {
@@ -43,10 +42,8 @@ export class GetPublicRaffleUseCase implements UseCase<GetPublicRaffleInput, Pub
         visibility: r.visibility,
       },
       photos: photos.map((p) => this.storage.url(p.filename, r.visibility)),
-      taken: taken.map((t) => [t.number, t.status === 'paid' ? 'p' : 'r', shortName(t.buyerName)]),
-      winner: r.status === 'drawn' && r.winnerNumber != null
-        ? { number: r.winnerNumber, name: shortName(winnerOwner?.buyerName ?? '') }
-        : null,
+      taken: taken.map((t) => [t.number, t.status === 'paid' ? 'p' : 'r']),
+      winner: r.status === 'drawn' && r.winnerNumber != null ? { number: r.winnerNumber } : null,
     };
   }
 }

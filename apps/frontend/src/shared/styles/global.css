@@ -103,14 +103,16 @@ textarea { min-height: 110px; resize: vertical; }
 
 .gallery-main { position: relative; aspect-ratio: 4 / 3; border-radius: var(--radius); overflow: hidden; background: #e9e3d8; border: 1px solid var(--line); }
 .gallery-badge { position: absolute; right: 10px; bottom: 10px; background: rgba(20, 16, 10, .62); color: #fff; font-size: .78rem; font-weight: 600; padding: 3px 10px; border-radius: 99px; pointer-events: none; }
+.share-preview { white-space: pre-wrap; overflow-wrap: anywhere; background: #e7f6ee; border: 1px solid #cde9da; border-radius: 12px 12px 12px 4px; padding: 12px 14px; font-size: .92rem; line-height: 1.5; max-width: 520px; }
 
 .slides { width: 100%; height: 100%; overflow: hidden; touch-action: pan-y; }
 .slides-track { display: flex; height: 100%; transition: transform .35s cubic-bezier(.2, .7, .2, 1); }
-.slide { flex: 0 0 100%; min-width: 0; height: 100%; overflow: hidden; display: grid; place-items: center; }
-.slide img { width: 100%; height: 100%; user-select: none; -webkit-user-drag: none; }
-.slides.fit-cover .slide img { object-fit: cover; }
-.slides.fit-contain .slide img { object-fit: contain; width: auto; height: auto; max-width: 100%; max-height: 100%; }
-.slide-hit { display: block; width: 100%; height: 100%; padding: 0; border: 0; background: none; cursor: zoom-in; }
+.slide { position: relative; flex: 0 0 100%; min-width: 0; height: 100%; overflow: hidden; }
+.slide img { position: absolute; inset: 0; width: 100%; height: 100%; user-select: none; -webkit-user-drag: none; }
+.slides.fit-cover .slide-photo { object-fit: cover; }
+.slides.fit-contain .slide-photo { object-fit: contain; }
+.slide-backdrop { object-fit: cover; filter: blur(22px) saturate(1.1) brightness(.92); transform: scale(1.2); }
+.slide-hit { position: absolute; inset: 0; display: block; width: 100%; height: 100%; padding: 0; border: 0; background: none; cursor: zoom-in; }
 .slide-arrow {
   position: absolute; top: 50%; transform: translateY(-50%); width: 40px; height: 40px; border-radius: 50%;
   border: 0; background: rgba(255, 255, 255, .88); color: var(--ink); font-size: 1.6rem; line-height: 1; cursor: pointer;

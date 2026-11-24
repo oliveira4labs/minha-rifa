@@ -11,7 +11,7 @@ export function Gallery({ photos }) {
   return (
     <div>
       <div className="gallery-main">
-        <SlideTrack photos={photos} index={current} onIndexChange={setIndex} onSlideClick={setZoomIndex} altPrefix="Foto do prêmio" />
+        <SlideTrack photos={photos} index={current} onIndexChange={setIndex} backdrop onSlideClick={setZoomIndex} altPrefix="Foto do prêmio" />
         <SlideArrows count={count} index={current} onIndexChange={setIndex} />
         <span className="gallery-badge num" aria-hidden="true">
           {count > 1 ? `${current + 1} / ${count} · ` : ''}⤢ ampliar

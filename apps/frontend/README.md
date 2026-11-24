@@ -49,7 +49,7 @@ Qualquer pessoa pode criar uma conta e vira administradora **apenas das rifas qu
 |---|---|
 | Título | Obrigatório, até 120 caracteres |
 | Descrição | Opcional, até 5000 caracteres |
-| Fotos | Até **8**; a primeira é a capa. JPG/PNG/WebP. O navegador reduz para no máx. 1400px (JPEG 85%) antes de enviar; o servidor aceita até 5 MB por foto |
+| Fotos | Até **8**; a primeira é a capa. JPG/PNG/WebP. O navegador reduz para no máx. 1600px no lado maior (JPEG 85%, sem cortar) antes de enviar e recusa originais acima de 30 MB; o servidor aceita até 5 MB por foto. Na página pública a foto aparece inteira, com o fundo desfocado da própria foto preenchendo as sobras |
 | Quantidade de números | Entre **2 e 5000**. Números vão de 1 até a quantidade |
 | Valor por número | Maior que zero, até R$ 100.000,00. Digitado em reais (`10,00`, `1.234,50`) e enviado em centavos |
 | Chave PIX | Obrigatória, até 200 caracteres. Texto livre (CPF, celular, e-mail, aleatória) |
@@ -101,11 +101,11 @@ Não há integração com meio de pagamento. O fluxo é manual:
 - Na data, se a rifa não estiver completa, o painel avisa e o administrador pode **adiar a data** ou **sortear só entre os pagos**.
 - Sempre há uma confirmação explicando o que vai acontecer (quantos pagos, quantos pendentes serão cancelados). **O sorteio não pode ser desfeito.**
 - O ganhador é escolhido no servidor, de forma aleatória (criptograficamente segura), **apenas entre os números pagos**.
-- Depois do sorteio: a rifa fica "Sorteada", o painel mostra o número, nome e WhatsApp do ganhador (com botão para avisá-lo), e a página pública mostra o número e o nome abreviado.
+- Depois do sorteio: a rifa fica "Sorteada", o painel mostra o número, nome e WhatsApp do ganhador (com botão para avisá-lo), e a página pública mostra só o número sorteado.
 
 ### Privacidade
 
-- Na página pública aparecem apenas **nomes abreviados** ("Maria S.") e somente ao passar o mouse/tocar num número ocupado.
+- A página pública **não mostra o nome de quem comprou**: um número ocupado aparece só como reservado ou pago, e o ganhador aparece só pelo número.
 - O WhatsApp dos compradores **só o administrador vê**.
 
 ### Comprador sem conta
@@ -117,7 +117,7 @@ Não há integração com meio de pagamento. O fluxo é manual:
 ### Divulgação
 
 - Cada rifa tem um link público `/r/<slug>` (slug aleatório de 10 caracteres).
-- O painel oferece: copiar link, abrir, copiar uma **mensagem pronta** com título, valor, data do sorteio e **lista de números disponíveis**, e enviar essa mensagem pelo WhatsApp.
+- O painel oferece: copiar link, abrir, e uma **mensagem pronta** (com prévia) para copiar ou enviar pelo WhatsApp: título, primeira frase da descrição, valor, quantos números restam, data do sorteio e o link. Quando sobram 10 números ou menos, ela lista quais são.
 - Rodando em `localhost`, o painel avisa que o link só abre naquele computador.
 
 ### Atualização automática
