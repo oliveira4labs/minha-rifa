@@ -66,8 +66,9 @@ export class AuthController {
   }
 
   @Get('me')
-  async me(@SessionToken() token: string | null): Promise<MeDto> {
+  async me(@SessionToken() token: string | null, @Res({ passthrough: true }) res: Response): Promise<MeDto> {
     const user = await this.getSessionUser.execute(token);
+    if (!user && token) clearSessionCookie(res);
     return { user: user ? { name: user.name, email: user.email } : null };
   }
 

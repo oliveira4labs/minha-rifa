@@ -1,6 +1,7 @@
 import { GetSessionUserUseCase } from './auth/use-cases/get-session-user.use-case.js';
 import { GoogleLoginUseCase } from './auth/use-cases/google-login.use-case.js';
 import { LogoutUseCase } from './auth/use-cases/logout.use-case.js';
+import { PurgeExpiredSessionsUseCase } from './auth/use-cases/purge-expired-sessions.use-case.js';
 import { StartGoogleLoginUseCase } from './auth/use-cases/start-google-login.use-case.js';
 import { AuthorizePrivatePhotoUseCase } from './photos/use-cases/authorize-private-photo.use-case.js';
 import { ApproveOrderUseCase } from './orders/use-cases/approve-order.use-case.js';
@@ -22,6 +23,7 @@ export const USE_CASES = [
   GoogleLoginUseCase,
   LogoutUseCase,
   GetSessionUserUseCase,
+  PurgeExpiredSessionsUseCase,
   ListMyRafflesUseCase,
   CreateRaffleUseCase,
   GetRaffleDetailsUseCase,
