@@ -32,6 +32,9 @@ services:
       PORT: 3000
       DATABASE_URL: postgres://${POSTGRES_USER:-rifa}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-minha_rifa}
       DATA_DIR: /data
+      APP_URL: ${APP_URL:-https://minharifa.victorlabs.cloud}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:?defina GOOGLE_CLIENT_ID no Dokploy}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:?defina GOOGLE_CLIENT_SECRET no Dokploy}
     expose:
       - "3000"
     volumes:

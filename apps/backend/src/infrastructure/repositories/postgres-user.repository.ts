@@ -17,11 +17,20 @@ export class PostgresUserRepository extends UserRepository {
     return row ? toUser(row) : null;
   }
 
+  async findByGoogleSub(googleSub: string): Promise<User | null> {
+    const row = await this.db.one<UserRow>('SELECT * FROM users WHERE google_sub = $1', [googleSub]);
+    return row ? toUser(row) : null;
+  }
+
   async create(user: NewUser): Promise<User> {
     const row = await this.db.one<IdRow>(
-      'INSERT INTO users (name, email, pass_hash, salt, created_at) VALUES ($1, $2, $3, $4, $5) RETURNING id',
-      [user.name, user.email, user.passwordHash, user.salt, user.createdAt],
+      'INSERT INTO users (name, email, google_sub, created_at) VALUES ($1, $2, $3, $4) RETURNING id',
+      [user.name, user.email, user.googleSub, user.createdAt],
     );
     return { id: row!.id, ...user };
+  }
+
+  async linkGoogle(userId: number, googleSub: string): Promise<void> {
+    await this.db.query('UPDATE users SET google_sub = $1 WHERE id = $2', [googleSub, userId]);
   }
 }

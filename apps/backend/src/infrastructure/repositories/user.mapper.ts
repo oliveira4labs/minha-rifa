@@ -5,7 +5,6 @@ export const toUser = (r: UserRow): User => ({
   id: r.id,
   name: r.name,
   email: r.email,
-  passwordHash: r.pass_hash,
-  salt: r.salt,
+  googleSub: r.google_sub,
   createdAt: r.created_at,
 });

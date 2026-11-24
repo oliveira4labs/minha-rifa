@@ -1,4 +1,5 @@
 import { Global, Module } from '@nestjs/common';
+import { GoogleIdentityProvider } from '../domain/repositories/google-identity.provider.js';
 import { OrderRepository } from '../domain/repositories/order.repository.js';
 import { PhotoStorage } from '../domain/repositories/photo-storage.js';
 import { PhotoRepository } from '../domain/repositories/photo.repository.js';
@@ -9,6 +10,7 @@ import { UnitOfWork } from '../domain/repositories/unit-of-work.js';
 import { UserRepository } from '../domain/repositories/user.repository.js';
 import { PostgresUnitOfWork } from './database/postgres-unit-of-work.js';
 import { PostgresDatabase } from './database/postgres.database.js';
+import { GoogleOAuthClient } from './google/google-oauth.client.js';
 import { PostgresOrderRepository } from './repositories/postgres-order.repository.js';
 import { PostgresPhotoRepository } from './repositories/postgres-photo.repository.js';
 import { PostgresRaffleRepository } from './repositories/postgres-raffle.repository.js';
@@ -26,6 +28,7 @@ const bindings = [
   { provide: PhotoStorage, useClass: LocalPhotoStorage },
   { provide: RemoteConfigRepository, useClass: PostgresRemoteConfigRepository },
   { provide: UnitOfWork, useClass: PostgresUnitOfWork },
+  { provide: GoogleIdentityProvider, useClass: GoogleOAuthClient },
 ];
 
 @Global()
