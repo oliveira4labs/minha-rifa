@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useToast } from '../../../shared/ui/feedback/ToastProvider';
+import googleLogo from '../../../shared/assets/google-logo.webp';
 import { GOOGLE_LOGIN_URL } from '../api/authApi';
 
 export function AuthForm() {
@@ -22,7 +23,10 @@ export function AuthForm() {
       <div className="tabs" role="tablist" style={{ gridTemplateColumns: '1fr' }}>
         <button type="button" role="tab" aria-selected className="on">Entrar</button>
       </div>
-      <a className="btn primary block" href={GOOGLE_LOGIN_URL}>Entrar com Google</a>
+      <a className="btn-google" href={GOOGLE_LOGIN_URL}>
+        <img className="btn-google-logo" src={googleLogo} alt="" />
+        <span>Entrar com Google</span>
+      </a>
     </div>
   );
 }
