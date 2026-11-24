@@ -13,30 +13,23 @@ export class PostgresSessionRepository extends SessionRepository {
   }
 
   async create(token: string, userId: number, createdAt: number): Promise<void> {
-    await this.db.query(
-      'INSERT INTO sessions (token, user_id, created_at, last_seen_at) VALUES ($1, $2, $3, $3)',
-      [token, userId, createdAt],
-    );
+    await this.db.query('INSERT INTO sessions (token, user_id, created_at) VALUES ($1, $2, $3)', [token, userId, createdAt]);
   }
 
-  async findUserByToken(token: string, activeSince: number): Promise<User | null> {
+  async findUserByToken(token: string, createdAfter: number): Promise<User | null> {
     const row = await this.db.one<UserRow>(
-      'SELECT u.* FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token = $1 AND s.last_seen_at > $2',
-      [token, activeSince],
+      'SELECT u.* FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token = $1 AND s.created_at > $2',
+      [token, createdAfter],
     );
     return row ? toUser(row) : null;
-  }
-
-  async touch(token: string, now: number, staleBefore: number): Promise<void> {
-    await this.db.query('UPDATE sessions SET last_seen_at = $2 WHERE token = $1 AND last_seen_at < $3', [token, now, staleBefore]);
   }
 
   async delete(token: string): Promise<void> {
     await this.db.query('DELETE FROM sessions WHERE token = $1', [token]);
   }
 
-  async deleteIdleSince(cutoff: number): Promise<number> {
-    const rows = await this.db.query<TokenRow>('DELETE FROM sessions WHERE last_seen_at <= $1 RETURNING token', [cutoff]);
+  async deleteCreatedUntil(cutoff: number): Promise<number> {
+    const rows = await this.db.query<TokenRow>('DELETE FROM sessions WHERE created_at <= $1 RETURNING token', [cutoff]);
     return rows.length;
   }
 }

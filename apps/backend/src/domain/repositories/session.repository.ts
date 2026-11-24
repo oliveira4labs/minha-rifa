@@ -3,8 +3,7 @@ import type { ISessionRepository } from './interfaces/session.repository.interfa
 
 export abstract class SessionRepository implements ISessionRepository {
   abstract create(token: string, userId: number, createdAt: number): Promise<void>;
-  abstract findUserByToken(token: string, activeSince: number): Promise<User | null>;
-  abstract touch(token: string, now: number, staleBefore: number): Promise<void>;
+  abstract findUserByToken(token: string, createdAfter: number): Promise<User | null>;
   abstract delete(token: string): Promise<void>;
-  abstract deleteIdleSince(cutoff: number): Promise<number>;
+  abstract deleteCreatedUntil(cutoff: number): Promise<number>;
 }
