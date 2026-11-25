@@ -77,8 +77,8 @@ Cada reserva é um **pedido** com um ou mais números. A regra central:
 > se o PIX caiu, **sem prazo**, e confirma ou recusa. (Antes era o contrário: o admin tinha um prazo para aprovar.)
 
 ```
-        clica no número        informa nome e WhatsApp     clica em "Enviar comprovante"     admin confirma
- (livre) ─────────────▶ guardado ───────────────────────▶ pendente ──────────────────────────▶ comprovante enviado ─────────────▶ pago
+        clica no número        informa nome e WhatsApp     clica em "Avisar o organizador"   admin confirma
+ (livre) ─────────────▶ guardado ───────────────────────▶ pendente ──────────────────────────▶ organizador avisado ─────────────▶ pago
                           │                                  │                                  │  (sem prazo)                    │
            prazo acabou ──┤                   prazo acabou ──┤                    admin recusa ──┤                admin desfaz ──┘
                           ▼                                  ▼                                  ▼                                  ▼
@@ -89,16 +89,16 @@ Cada reserva é um **pedido** com um ou mais números. A regra central:
 | Status | Quem vê | O que significa |
 |---|---|---|
 | `held` (guardado) | Só o próprio comprador (os outros veem "reservado") | Clicou nos números, ainda não informou os dados. Pode soltar um número clicando de novo |
-| `pending` (pendente) | Comprador e admin ("Aguardando pagamento do comprador") | Dados informados; falta pagar e enviar o comprovante |
-| `proof_sent` (comprovante enviado) | Comprador e admin ("Comprovante enviado — confirme o pagamento") | O relógio parou; o número fica ocupado até o admin confirmar ou recusar |
+| `pending` (pendente) | Comprador e admin ("Aguardando pagamento do comprador") | Dados informados; falta pagar e avisar o organizador |
+| `proof_sent` (organizador avisado) | Comprador ("Organizador avisado ✓") e admin ("Avisaram que pagaram — confira no seu banco") | O relógio parou; o número fica ocupado até o admin confirmar ou recusar |
 | `paid` (pago) | Todos | Pagamento confirmado |
 
 - O prazo é contado **a partir do primeiro clique** e vale para todos os números do mesmo carrinho.
 - Um número pertence a **no máximo um pedido ativo** por vez. Se dois compradores clicam no mesmo número, o segundo recebe aviso e a grade é atualizada.
 - O **limite por comprador** vale no carrinho (não deixa clicar além do limite) e, ao informar os dados, também soma os pedidos que aquele WhatsApp já tem na rifa.
 - Pedidos `held` e `pending` expiram sozinhos ao fim do prazo. O servidor libera os números a cada 30s e antes de toda requisição.
-- Não existe comprovante de verdade no sistema: o que para o relógio é o clique no botão do WhatsApp (o sistema não vê se a mensagem saiu). Quem confirma o pagamento é o admin, olhando o próprio extrato. Se o PIX não caiu, ele **recusa** o pedido.
-- Os textos da tela ainda usam a palavra "comprovante" ("Enviar comprovante pelo WhatsApp", "Comprovante enviado").
+- O sistema não recebe comprovante: o que para o relógio é o clique no botão do WhatsApp (o sistema não vê se a mensagem saiu). Quem confirma o pagamento é o admin, olhando o próprio extrato. Se o PIX não caiu, ele **recusa** o pedido.
+- No código e na API o status continua `proof_sent` e a rota `/api/pedido/:token/comprovante` (nomes internos); a tela não fala mais em "comprovante".
 - No sorteio, todos os pedidos ainda não pagos são **cancelados**.
 
 ### Pagamento
@@ -108,7 +108,7 @@ Não há integração com meio de pagamento. O fluxo é manual:
 1. O comprador clica nos números: eles ficam guardados e a barra de baixo mostra o tempo restante.
 2. Em **Continuar**, informa nome e WhatsApp e vê o pedido "Faça o pagamento", com a mesma contagem regressiva.
 3. Copia a chave PIX e paga fora do sistema.
-4. Toca em "Enviar comprovante pelo WhatsApp": o pedido passa a "Comprovante enviado" (o relógio para) e abre a conversa com o administrador já com a mensagem pronta (números, nome e total).
+4. Toca em "Avisar o organizador pelo WhatsApp": o pedido passa a "Organizador avisado" (o relógio para) e abre a conversa com o administrador já com a mensagem pronta ("Quero reservar o número X… Já fiz o PIX, pode conferir?", com nome e total).
 5. O administrador confere no extrato do banco dele, sem prazo, e clica em **Confirmar pagamento** no painel (ou **Recusar**). Ele também pode confirmar um pedido ainda "Aguardando pagamento". Uma venda paga ainda pode ser **desfeita** enquanto a rifa estiver aberta.
 
 ### Sorteio
@@ -316,7 +316,7 @@ A tela de gestão atualiza a cada 15 s, mas o formulário "Editar dados da rifa"
 - [`shared/api/httpClient.js`](src/shared/api/httpClient.js) expõe `http.get/post/put/delete`, envia/recebe JSON e transforma respostas de erro em `ApiError` (`message`, `status`, `busy`).
 - A autenticação usa o cookie `sid` (HttpOnly), enviado automaticamente pelo navegador; o front não manipula token.
 - Mensagens de erro já vêm prontas em português do backend e são exibidas como toast (inclusive o 429 do limite por IP: "Muitas tentativas em pouco tempo…").
-- `http.post(url, body, { keepalive: true })` é usado no aviso de comprovante, para a requisição terminar mesmo se o WhatsApp abrir e a página for para o fundo.
+- `http.post(url, body, { keepalive: true })` é usado no aviso ao organizador, para a requisição terminar mesmo se o WhatsApp abrir e a página for para o fundo.
 
 ### Performance
 

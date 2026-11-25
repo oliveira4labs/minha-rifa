@@ -73,7 +73,7 @@ export function RaffleForm({
         <label>Chave PIX para pagamento
           <input {...field('pix_key')} maxLength={200} required placeholder="CPF, celular, e-mail ou chave aleatória" />
         </label>
-        <label>Seu WhatsApp (com DDD) <span className="hint">Para onde os compradores enviam o comprovante</span>
+        <label>Seu WhatsApp (com DDD) <span className="hint">Para onde os compradores avisam que fizeram o PIX</span>
           <PhoneInput {...maskedField('whatsapp')} required />
         </label>
       </div>

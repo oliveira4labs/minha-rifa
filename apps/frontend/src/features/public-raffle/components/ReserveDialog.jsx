@@ -36,7 +36,7 @@ export function ReserveDialog({ open, numbers, raffle, expiresAt, onClose, onCon
           Números {padNumbers(numbers, raffle.total_numbers).join(', ')} — total {formatMoney(numbers.length * raffle.price_cents)}
         </p>
         {expiresAt && (
-          <p className="small">Os números ficam guardados por <b className="num"><Countdown to={expiresAt} /></b>. Nesse tempo, confirme seus dados, faça o PIX e envie o comprovante.</p>
+          <p className="small">Os números ficam guardados por <b className="num"><Countdown to={expiresAt} /></b>. Nesse tempo, confirme seus dados, faça o PIX e avise o organizador pelo WhatsApp.</p>
         )}
         <label>Seu nome completo
           <input name="name" maxLength={80} required autoComplete="name" value={buyer.name} onChange={update('name')} />

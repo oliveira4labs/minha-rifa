@@ -22,7 +22,7 @@ export class MarkProofSentUseCase implements UseCase<string, OkDto> {
     if (!order || !raffle) throw new NotFoundError('Pedido não encontrado.');
     if (order.status === 'proof_sent' || order.status === 'paid') return OK;
     assertOpen(raffle, 'Esta rifa já foi encerrada.');
-    if (order.status === 'held') throw new BusinessRuleError('Confirme seu nome e WhatsApp antes de enviar o comprovante.');
+    if (order.status === 'held') throw new BusinessRuleError('Confirme seu nome e WhatsApp antes de avisar o organizador.');
     if (order.status !== 'pending' || !isAwaitingBuyer(order) || !await this.orders.markProofSent(order.id, Date.now())) {
       throw new BusinessRuleError('O prazo desta reserva acabou e os números foram liberados.');
     }

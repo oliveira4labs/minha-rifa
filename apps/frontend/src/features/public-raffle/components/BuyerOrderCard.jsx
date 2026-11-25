@@ -5,8 +5,8 @@ import { Chips, CopyBox, Countdown, ExternalLink, Tag } from '../../../shared/ui
 
 function receiptMessage(raffle, order, numbersText) {
   const which = order.numbers.length > 1 ? 'os números' : 'o número';
-  return `Olá! Reservei ${which} ${numbersText} da rifa "${raffle.title}" em nome de ${order.buyer_name}. ` +
-    `Total: ${formatMoney(order.total_cents)}. Segue o comprovante do PIX.`;
+  return `Olá! Quero reservar ${which} ${numbersText} da rifa "${raffle.title}" em nome de ${order.buyer_name}. ` +
+    `Total: ${formatMoney(order.total_cents)}. Já fiz o PIX, pode conferir?`;
 }
 
 function PaidOrder({ order, numbers }) {
@@ -34,17 +34,17 @@ function PendingOrder({ order, numbers, raffle, onProofSent }) {
         <CopyBox value={raffle.pix_key}>
           <button type="button" className="btn sm" onClick={() => copy(raffle.pix_key, 'Chave PIX copiada!')}>Copiar</button>
         </CopyBox>
-        <span className="small"><b>2.</b> Envie o comprovante para o organizador:</span>
+        <span className="small"><b>2.</b> Avise o organizador que você pagou:</span>
         <ExternalLink
           className="btn wa"
           href={whatsappLink(raffle.whatsapp, receiptMessage(raffle, order, numbers.join(', ')))}
           onClick={() => onProofSent(order.token)}
         >
-          Enviar comprovante pelo WhatsApp
+          Avisar o organizador pelo WhatsApp
         </ExternalLink>
       </div>
       <p className="small muted">
-        Se o comprovante não for enviado até o fim do tempo, os números voltam a ficar disponíveis para outras pessoas.
+        Se você não avisar o organizador até o fim do tempo, os números voltam a ficar disponíveis para outras pessoas.
       </p>
     </div>
   );
@@ -54,12 +54,12 @@ function ProofSentOrder({ order, numbers, raffle }) {
   return (
     <div className="order proof_sent">
       <div className="row between">
-        <b>Comprovante enviado ✓</b>
+        <b>Organizador avisado ✓</b>
         <Tag variant="pending">Aguardando o organizador</Tag>
       </div>
       <Chips items={numbers} />
       <p className="small muted">
-        Enviado em {formatDate(order.proof_sent_at)}. Seus números estão guardados até o organizador confirmar o pagamento.
+        Você avisou em {formatDate(order.proof_sent_at)}. Seus números estão guardados até o organizador conferir o PIX e confirmar.
       </p>
       <ExternalLink
         className="small"

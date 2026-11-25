@@ -7,8 +7,8 @@ export function StatsGrid({ raffle, counts }) {
   return (
     <div className="stats">
       <Stat value={counts.paid} label="pagos" />
-      <Stat value={awaiting} label="comprovante enviado" />
-      <Stat value={counts.pending - awaiting} label="reservados, sem comprovante" />
+      <Stat value={awaiting} label="pagamento avisado" />
+      <Stat value={counts.pending - awaiting} label="reservados, sem aviso" />
       <Stat value={free} label="disponíveis" />
       <Stat
         value={formatMoney(counts.paid * raffle.price_cents)}

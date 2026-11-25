@@ -22,7 +22,7 @@ function OrderTiming({ order }) {
   if (order.status === 'pending') {
     return <>Reservado em {formatDate(order.created_at)} · prazo do comprador acaba em <Countdown to={order.expires_at} /></>;
   }
-  if (order.status === 'proof_sent') return <>Comprovante enviado em {formatDate(order.proof_sent_at)}</>;
+  if (order.status === 'proof_sent') return <>Avisou que pagou em {formatDate(order.proof_sent_at)}</>;
   return <>Pago — confirmado em {formatDate(order.paid_at)}</>;
 }
 

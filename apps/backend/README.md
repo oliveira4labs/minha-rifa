@@ -49,7 +49,7 @@ As migrações pendentes também rodam sozinhas quando a aplicação sobe (desli
 | `PRIVATE_UPLOADS_ACCEL_PATH` | — | Opcional. Com nginx na frente, a foto privada é entregue por `X-Accel-Redirect` para esse caminho em vez de `sendFile` |
 | `TRUST_PROXY` | `0` | Quantos proxies ficam na frente da app, para `req.ip` ser o IP real do comprador. No Dokploy (Traefik) é `1`; com Cloudflare em modo proxy, `2` |
 | `CART_ACTIONS_PER_MINUTE` | `120` | Cliques (ocupar/soltar número) por IP por minuto |
-| `BUYER_SUBMITS_PER_MINUTE` | `20` | Envios de dados e de "comprovante enviado" por IP por minuto |
+| `BUYER_SUBMITS_PER_MINUTE` | `20` | Envios de dados e de avisos ao organizador por IP por minuto |
 
 Toda a configuração está em [`src/config/app.config.ts`](src/config/app.config.ts).
 
@@ -417,7 +417,7 @@ O `token` do pedido (16 bytes aleatórios) é a única "credencial" do comprador
 
 ### Reserva
 
-Regra central: **o prazo é do comprador, não do admin.** O número fica ocupado no clique e o comprador tem `reserve_minutes` para informar os dados, pagar e avisar o organizador pelo WhatsApp. Depois do aviso, o admin confere no próprio banco **sem prazo** e confirma ou recusa. (O sistema não recebe comprovante do banco: `proof_sent` significa só "o comprador clicou para avisar o organizador".)
+Regra central: **o prazo é do comprador, não do admin.** O número fica ocupado no clique e o comprador tem `reserve_minutes` para informar os dados, pagar e avisar o organizador pelo WhatsApp. Depois do aviso, o admin confere no próprio banco **sem prazo** e confirma ou recusa. (O sistema não recebe comprovante do banco: `proof_sent` significa só "o comprador clicou para avisar o organizador". O nome `comprovante` na rota é histórico; a tela fala em "avisar o organizador".)
 
 1. **Clique** (`hold`): rifa `open` e pública; número entre 1 e `total_numbers`. Sem carrinho ativo, cria um pedido `held` com `expires_at = agora + reserve_minutes`; com carrinho, só adiciona o número (o prazo não muda). Limite por comprador conta os números do carrinho. Número ocupado → 409 com `busy`.
 2. **Dados** (`reserve`): carrinho `held` dentro do prazo; nome 1–80 caracteres; telefone 10–13 dígitos. Limite por comprador soma os números de outros pedidos com o mesmo telefone. Vira `pending`, mantendo o prazo.

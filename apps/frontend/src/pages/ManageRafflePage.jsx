@@ -70,9 +70,9 @@ function RaffleOverview({ data, actions }) {
       <StatsGrid raffle={raffle} counts={counts} />
       {!winner && drawSection}
       <OrdersSection
-        title="Comprovante enviado — confirme o pagamento"
+        title="Avisaram que pagaram — confira no seu banco"
         orders={proofSent}
-        emptyText="Nenhum comprovante para conferir. Quando um comprador enviar o comprovante pelo WhatsApp, o pedido aparece aqui."
+        emptyText="Nenhum pagamento para conferir. Quando um comprador avisar pelo WhatsApp que fez o PIX, o pedido aparece aqui."
         {...orderProps}
       />
       <OrdersSection
