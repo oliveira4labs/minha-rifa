@@ -32,15 +32,18 @@ Para apontar para outro backend: `BACKEND_URL=http://host:porta npm run dev -w @
 
 | Perfil | Precisa de conta? | O que faz |
 |---|---|---|
-| **Administrador** | Sim (e-mail + senha) | Cria rifas, divulga o link, confirma pagamentos, sorteia |
+| **Administrador** | Sim (conta Google) | Cria rifas, divulga o link, confirma pagamentos, sorteia |
 | **Comprador** | Não | Abre o link, escolhe números, reserva com nome + WhatsApp, paga via PIX |
 
 Qualquer pessoa pode criar uma conta e vira administradora **apenas das rifas que criar**.
 
 ### Conta
 
-- Cadastro: nome (até 80 caracteres), e-mail único (até 160), senha com **mínimo 6 caracteres**.
-- Ao entrar ou se cadastrar, a pessoa vai para `/painel`. Sessão dura **30 dias** (cookie `sid`).
+- Login **só com Google** (botão "Entrar com Google" em `/`). Não existe mais cadastro por e-mail e senha.
+- Primeiro acesso cria a conta com o nome e o e-mail do Google. Uma conta antiga com o mesmo e-mail é ligada ao Google automaticamente.
+- Criar conta nova pode ser desligado sem deploy pela chave `createUser` do remote config (`disabled`): aí só quem já tem conta entra.
+- Erros do login voltam para `/?erro=mensagem` e aparecem como toast.
+- Ao entrar, a pessoa vai para `/painel`. A sessão dura **24h a partir do login, sem renovação** (cookie `sid`); depois disso, entra de novo pelo Google.
 - Quem já está logado e abre `/` é levado direto ao painel; quem não está logado e abre `/painel` ou `/gerenciar` volta para `/`.
 
 ### Rifa
@@ -53,10 +56,11 @@ Qualquer pessoa pode criar uma conta e vira administradora **apenas das rifas qu
 | Quantidade de números | Entre **2 e 5000**. Números vão de 1 até a quantidade |
 | Valor por número | Maior que zero, até R$ 100.000,00. Digitado em reais (`10,00`, `1.234,50`) e enviado em centavos |
 | Chave PIX | Obrigatória, até 200 caracteres. Texto livre (CPF, celular, e-mail, aleatória) |
-| WhatsApp do administrador | Obrigatório, com DDD (10 a 13 dígitos). É para onde o comprador manda o comprovante |
-| Tempo de reserva | Em minutos, horas ou dias. O servidor aceita de **5 minutos a 30 dias**. Padrão: 2 horas |
+| WhatsApp do administrador | Obrigatório, com DDD (10 a 13 dígitos). É para onde o comprador manda a mensagem avisando que pagou |
+| Tempo de reserva | Em minutos, horas ou dias. O servidor aceita de **5 minutos a 30 dias**. Padrão: 2 horas. É o prazo do **comprador** (do clique até avisar o organizador), não do admin |
 | Limite por comprador | Opcional. Máximo de números por WhatsApp na rifa |
 | Data do sorteio | Opcional. Pode ser alterada depois |
+| Visibilidade | **Pública** (qualquer pessoa com o link) ou **Privada** (só o dono vê a página; ninguém mais abre o link nem reserva). Fotos de rifa privada só carregam para o dono logado |
 
 Restrições de edição:
 
@@ -66,8 +70,11 @@ Restrições de edição:
 
 ### Números e reservas (pedidos)
 
-Cada reserva é um **pedido** com um ou mais números. O número fica ocupado **já no clique**, e o prazo
-(tempo de reserva da rifa) corre para o **comprador**: nele, ele informa nome e WhatsApp, paga e envia o comprovante.
+Cada reserva é um **pedido** com um ou mais números. A regra central:
+
+> **O prazo é do comprador, não do admin.** O número fica ocupado **já no clique**. No tempo de reserva da rifa, o comprador
+> informa nome e WhatsApp, paga e manda uma mensagem ao organizador pelo WhatsApp. Depois disso o admin confere no **próprio banco**
+> se o PIX caiu, **sem prazo**, e confirma ou recusa. (Antes era o contrário: o admin tinha um prazo para aprovar.)
 
 ```
         clica no número        informa nome e WhatsApp     clica em "Enviar comprovante"     admin confirma
@@ -90,7 +97,8 @@ Cada reserva é um **pedido** com um ou mais números. O número fica ocupado **
 - Um número pertence a **no máximo um pedido ativo** por vez. Se dois compradores clicam no mesmo número, o segundo recebe aviso e a grade é atualizada.
 - O **limite por comprador** vale no carrinho (não deixa clicar além do limite) e, ao informar os dados, também soma os pedidos que aquele WhatsApp já tem na rifa.
 - Pedidos `held` e `pending` expiram sozinhos ao fim do prazo. O servidor libera os números a cada 30s e antes de toda requisição.
-- O sistema não consegue ver se a mensagem foi realmente enviada no WhatsApp: o que para o relógio é o clique no botão. Se o comprovante não chegar, o admin **recusa** o pedido.
+- Não existe comprovante de verdade no sistema: o que para o relógio é o clique no botão do WhatsApp (o sistema não vê se a mensagem saiu). Quem confirma o pagamento é o admin, olhando o próprio extrato. Se o PIX não caiu, ele **recusa** o pedido.
+- Os textos da tela ainda usam a palavra "comprovante" ("Enviar comprovante pelo WhatsApp", "Comprovante enviado").
 - No sorteio, todos os pedidos ainda não pagos são **cancelados**.
 
 ### Pagamento
@@ -101,7 +109,7 @@ Não há integração com meio de pagamento. O fluxo é manual:
 2. Em **Continuar**, informa nome e WhatsApp e vê o pedido "Faça o pagamento", com a mesma contagem regressiva.
 3. Copia a chave PIX e paga fora do sistema.
 4. Toca em "Enviar comprovante pelo WhatsApp": o pedido passa a "Comprovante enviado" (o relógio para) e abre a conversa com o administrador já com a mensagem pronta (números, nome e total).
-5. O administrador confere e clica em **Confirmar pagamento** no painel (ou **Recusar**). Uma venda paga ainda pode ser **desfeita** enquanto a rifa estiver aberta.
+5. O administrador confere no extrato do banco dele, sem prazo, e clica em **Confirmar pagamento** no painel (ou **Recusar**). Ele também pode confirmar um pedido ainda "Aguardando pagamento". Uma venda paga ainda pode ser **desfeita** enquanto a rifa estiver aberta.
 
 ### Sorteio
 
@@ -117,6 +125,8 @@ Não há integração com meio de pagamento. O fluxo é manual:
 
 - A página pública **não mostra o nome de quem comprou**: um número ocupado aparece só como reservado ou pago, e o ganhador aparece só pelo número.
 - O WhatsApp dos compradores **só o administrador vê**.
+- Rifa **privada**: a página mostra o aviso "só você está vendo" para o dono; para os outros o link dá "Rifa não encontrada".
+- Há uma página pública de **Política de Privacidade** em `/privacidade`.
 
 ### Comprador sem conta
 
@@ -159,10 +169,11 @@ Na página pública, cada clique num número já ocupa (ou solta) o número no s
                │   ├─ /            LoginPage       │
                │   ├─ /painel      DashboardPage   │──┐
                │   ├─ /gerenciar   ManageRafflePage│  │ fetch /api/*
-               │   └─ /r/:slug     PublicRafflePage│  │ (JSON, cookie sid)
+               │   ├─ /r/:slug     PublicRafflePage│  │ (JSON, cookie sid)
+               │   └─ /privacidade PrivacyPage     │  │
                └───────────────────────────────────┘  │
                                                       ▼
-                                       backend (apps/backend/server.js)
+                                       backend NestJS (apps/backend)
                                        serve também o dist/ em produção
 ```
 
@@ -177,7 +188,7 @@ apps/frontend/
 └── src/
     ├── main.jsx             monta <App/> e importa o CSS global
     ├── app/                 composição da aplicação
-    │   ├── App.jsx          BrowserRouter + providers (Toast, Confirm, Auth)
+    │   ├── App.jsx          BrowserRouter + providers (Toast, Confirm, RemoteConfig, Auth)
     │   ├── AppRoutes.jsx    tabela de rotas e guardas
     │   └── AdminLayout.jsx  topo com nome do usuário e "Sair"
     ├── pages/               uma tela por rota; só compõe features
@@ -185,7 +196,8 @@ apps/frontend/
     │   ├── auth/
     │   ├── raffles/
     │   ├── raffle-management/
-    │   └── public-raffle/
+    │   ├── public-raffle/
+    │   └── remote-config/
     └── shared/              reutilizável, sem regra de negócio
         ├── api/             httpClient (fetch + ApiError)
         ├── lib/             funções puras: format, whatsapp, image, clipboard, storage
@@ -217,7 +229,7 @@ Dentro de cada feature, a mesma divisão:
 | `model/` ou `lib/` | Regras puras, conversões, textos, persistência local | Não |
 | `hooks/` | Estado, efeitos, polling, orquestração de ações | Sim |
 | `components/` | Apresentação; recebem dados e callbacks por props | Sim |
-| `context/` | Estado global da feature (só `auth`) | Sim |
+| `context/` | Estado global da feature (`auth` e `remote-config`) | Sim |
 
 ### Features
 
@@ -225,10 +237,17 @@ Dentro de cada feature, a mesma divisão:
 
 | Arquivo | Papel |
 |---|---|
-| `api/authApi.js` | `me`, `login`, `register`, `logout` |
-| `context/AuthContext.jsx` | `AuthProvider` + `useAuth()`: `user` (`undefined` = carregando, `null` = deslogado), `login`, `register`, `logout` |
+| `api/authApi.js` | `me`, `logout` e `GOOGLE_LOGIN_URL` (`/api/auth/google`, link comum, não é fetch) |
+| `context/AuthContext.jsx` | `AuthProvider` + `useAuth()`: `user` (`undefined` = carregando, `null` = deslogado), `loading`, `logout` |
 | `components/RouteGuards.jsx` | `RequireAuth` (rotas do admin) e `GuestOnly` (tela de entrada) |
-| `components/AuthForm.jsx` | Abas Entrar / Criar conta |
+| `components/AuthForm.jsx` | Botão "Entrar com Google" e toast do `?erro=` que volta do login |
+
+#### `remote-config`
+
+| Arquivo | Papel |
+|---|---|
+| `api/remoteConfigApi.js` | `get()` → `GET /api/config` |
+| `context/RemoteConfigContext.jsx` | Carrega as chaves públicas uma vez ao abrir o app (`{}` se falhar) |
 
 #### `raffles` — CRUD e formulário de rifa (usado no painel e na gestão)
 
@@ -255,9 +274,9 @@ Dentro de cada feature, a mesma divisão:
 | Arquivo | Papel |
 |---|---|
 | `api/publicRaffleApi.js` | `get(slug)`, `hold`/`release(slug, { token, number })`, `reserve(slug, { token, name, phone })`, `getOrder(token)`, `proofSent(token)` |
-| `lib/buyerStorage.js` | Tokens de pedidos e dados do comprador no `localStorage` |
+| `lib/buyerStorage.js` | Tokens de pedidos, token do carrinho e dados do comprador no `localStorage` |
 | `hooks/usePublicRaffle.js` | Dados da rifa + pedidos do navegador, polling, `forgetOrder` |
-| `hooks/useNumberSelection.js` | Números selecionados, limite por pessoa, remoção de números "perdidos" |
+| `hooks/useCart.js` | Carrinho no servidor: cada clique chama `hold`/`release` em fila (atualização otimista), limite por pessoa, ressincroniza em erro e esvazia quando o prazo acaba |
 | `components/*` | `RaffleHero`, `Gallery`, `WinnerBanner`, `NumbersSection`/`NumberGrid`, `BuyBar`, `ReserveDialog`, `BuyerOrderCard` |
 
 ### Estado
@@ -267,9 +286,11 @@ Sem Redux/Zustand/React Query. O estado fica onde é usado:
 | Tipo | Onde |
 |---|---|
 | Usuário logado | `AuthContext` |
+| Remote config | `RemoteConfigContext` |
+| Carrinho do comprador | `useCart` (servidor + token em `localStorage`) |
 | Toast e diálogo de confirmação | `ToastProvider` / `ConfirmProvider` (`useToast()`, `useConfirm()`) |
 | Dados de uma tela | Hook da feature (`useManagedRaffle`, `usePublicRaffle`) |
-| Campos de formulário | Estado local do componente (`RaffleForm`, `AuthForm`, `ReserveDialog`, `DrawSection`) |
+| Campos de formulário | Estado local do componente (`RaffleForm`, `ReserveDialog`, `DrawSection`) |
 | Dados do comprador | `localStorage` via `buyerStorage` |
 
 `useConfirm()` devolve `{ confirm, isOpen }`. `confirm(opts)` é uma Promise que resolve `true`/`false`, então as ações podem ser escritas em sequência:
@@ -294,7 +315,8 @@ A tela de gestão atualiza a cada 15 s, mas o formulário "Editar dados da rifa"
 
 - [`shared/api/httpClient.js`](src/shared/api/httpClient.js) expõe `http.get/post/put/delete`, envia/recebe JSON e transforma respostas de erro em `ApiError` (`message`, `status`, `busy`).
 - A autenticação usa o cookie `sid` (HttpOnly), enviado automaticamente pelo navegador; o front não manipula token.
-- Mensagens de erro já vêm prontas em português do backend e são exibidas como toast.
+- Mensagens de erro já vêm prontas em português do backend e são exibidas como toast (inclusive o 429 do limite por IP: "Muitas tentativas em pouco tempo…").
+- `http.post(url, body, { keepalive: true })` é usado no aviso de comprovante, para a requisição terminar mesmo se o WhatsApp abrir e a página for para o fundo.
 
 ### Performance
 
@@ -308,7 +330,8 @@ A tela de gestão atualiza a cada 15 s, mas o formulário "Editar dados da rifa"
 | `/` | `LoginPage` | Só deslogado (`GuestOnly`) |
 | `/painel` | `DashboardPage` | Logado (`RequireAuth` + `AdminLayout`) |
 | `/gerenciar?id=<id>` | `ManageRafflePage` | Logado |
-| `/r/:slug` | `PublicRafflePage` | Público |
+| `/r/:slug` | `PublicRafflePage` | Público (rifa privada: só o dono) |
+| `/privacidade` | `PrivacyPage` | Público |
 | `*` | `NotFoundPage` | Público |
 
 ---
