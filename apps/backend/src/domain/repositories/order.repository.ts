@@ -18,7 +18,7 @@ export abstract class OrderRepository implements IOrderRepository {
   abstract addNumber(order: Order, number: number): Promise<Order>;
   abstract removeNumber(order: Order, number: number): Promise<Order>;
   abstract confirmBuyer(id: number, name: string, phone: string): Promise<void>;
-  abstract markProofSent(id: number, sentAt: number): Promise<void>;
-  abstract markPaid(id: number, paidAt: number): Promise<void>;
+  abstract markProofSent(id: number, sentAt: number): Promise<boolean>;
+  abstract markPaid(id: number, paidAt: number): Promise<boolean>;
   abstract release(id: number, status: ReleaseStatus): Promise<void>;
 }

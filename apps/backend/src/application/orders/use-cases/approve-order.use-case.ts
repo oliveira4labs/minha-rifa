@@ -19,10 +19,9 @@ export class ApproveOrderUseCase implements UseCase<OwnedOrderRefDto, OkDto> {
 
   async execute({ userId, orderId }: OwnedOrderRefDto): Promise<OkDto> {
     const order = await requireManageableOrder(this.orders, this.raffles, userId, orderId);
-    if (!canApprove(order)) {
+    if (!canApprove(order) || !await this.orders.markPaid(order.id, Date.now())) {
       throw new BusinessRuleError('Esta reserva expirou ou já foi tratada. Atualize a página.');
     }
-    await this.orders.markPaid(order.id, Date.now());
     return OK;
   }
 }

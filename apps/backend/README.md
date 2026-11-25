@@ -44,6 +44,9 @@ As migrações pendentes também rodam sozinhas quando a aplicação sobe (desli
 | `MIGRATE_ON_BOOT` | `true` | `false` = a aplicação não migra ao subir (as migrações rodam num passo separado do deploy) |
 | `DATA_DIR` | `apps/backend/data` | Fotos (`uploads/`). Em produção, aponte para um disco/volume persistente |
 | `FRONTEND_DIR` | `apps/frontend/dist` | Build do front servido em produção |
+| `TRUST_PROXY` | `0` | Quantos proxies ficam na frente da app, para `req.ip` ser o IP real do comprador. No Dokploy (Traefik) é `1`; com Cloudflare em modo proxy, `2` |
+| `CART_ACTIONS_PER_MINUTE` | `120` | Cliques (ocupar/soltar número) por IP por minuto |
+| `BUYER_SUBMITS_PER_MINUTE` | `20` | Envios de dados e de "comprovante enviado" por IP por minuto |
 
 Toda a configuração está em [`src/config/app.config.ts`](src/config/app.config.ts).
 
@@ -398,6 +401,8 @@ O `token` do pedido (16 bytes aleatórios) é a única "credencial" do comprador
 2. **Dados** (`reserve`): carrinho `held` dentro do prazo; nome 1–80 caracteres; telefone 10–13 dígitos. Limite por comprador soma os números de outros pedidos com o mesmo telefone. Vira `pending`, mantendo o prazo.
 3. **Comprovante** (`comprovante`): pedido `pending` dentro do prazo → `proof_sent`, que não expira mais.
 4. `held` e `pending` vencidos são liberados (`expired`).
+5. As trocas de status (`proof_sent`, `paid`) repetem a condição no próprio `UPDATE` (`WHERE status = … AND expires_at > agora`). Se o job de expiração liberar o pedido no meio da requisição, a troca não acontece e o comprador/admin recebe erro, em vez de um pedido ativo sem números.
+6. **Limite por IP** (`RateLimitGuard`, em memória): `hold`/`release` dividem um contador (`CART_ACTIONS_PER_MINUTE`); `reserve`/`comprovante` outro (`BUYER_SUBMITS_PER_MINUTE`). Estourou → 429. Os limites são folgados porque operadoras de celular (CGNAT) põem muita gente no mesmo IP: freiam script, não pessoa clicando.
 
 ### Sorteio
 

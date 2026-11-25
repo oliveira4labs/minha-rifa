@@ -13,7 +13,15 @@ import { HoldNumberUseCase } from '../../../application/public-raffle/use-cases/
 import { MarkProofSentUseCase } from '../../../application/public-raffle/use-cases/mark-proof-sent.use-case.js';
 import { ReleaseNumberUseCase } from '../../../application/public-raffle/use-cases/release-number.use-case.js';
 import { ReserveNumbersUseCase } from '../../../application/public-raffle/use-cases/reserve-numbers.use-case.js';
+import { appConfig } from '../../../config/app.config.js';
 import { SessionToken } from '../guards/auth.guard.js';
+import { RateLimit } from '../guards/rate-limit.guard.js';
+import type { RateLimitRule } from '../interfaces/rate-limit.interface.js';
+
+const ONE_MINUTE = 60_000;
+// Clicar e soltar número dividem o mesmo contador: é o que um script usaria para ocupar a rifa inteira.
+const CART_LIMIT: RateLimitRule = { bucket: 'carrinho', limit: appConfig.cartActionsPerMinute, windowMs: ONE_MINUTE };
+const SUBMIT_LIMIT: RateLimitRule = { bucket: 'envio', limit: appConfig.buyerSubmitsPerMinute, windowMs: ONE_MINUTE };
 
 @Controller()
 export class PublicRaffleController {
@@ -35,18 +43,21 @@ export class PublicRaffleController {
 
   @Post('r/:slug/hold')
   @HttpCode(200)
+  @RateLimit(CART_LIMIT)
   hold(@Param('slug') slug: string, @Body() data: HoldNumberDto): Promise<CartDto> {
     return this.holdNumber.execute({ slug, data });
   }
 
   @Post('r/:slug/release')
   @HttpCode(200)
+  @RateLimit(CART_LIMIT)
   release(@Param('slug') slug: string, @Body() data: ReleaseNumberDto): Promise<CartDto> {
     return this.releaseNumber.execute({ slug, data });
   }
 
   @Post('r/:slug/reserve')
   @HttpCode(200)
+  @RateLimit(SUBMIT_LIMIT)
   reserve(@Param('slug') slug: string, @Body() data: ReserveNumbersDto): Promise<ReservationDto> {
     return this.reserveNumbers.execute({ slug, data });
   }
@@ -58,6 +69,7 @@ export class PublicRaffleController {
 
   @Post('pedido/:token/comprovante')
   @HttpCode(200)
+  @RateLimit(SUBMIT_LIMIT)
   proofSent(@Param('token') token: string): Promise<OkDto> {
     return this.markProofSent.execute(token);
   }

@@ -147,12 +147,24 @@ export class PostgresOrderRepository extends OrderRepository {
     );
   }
 
-  async markProofSent(id: number, sentAt: number): Promise<void> {
-    await this.db.query(`UPDATE orders SET status = 'proof_sent', proof_sent_at = $1 WHERE id = $2`, [sentAt, id]);
+  // O WHERE refaz a checagem de status/prazo no próprio UPDATE: se o job de expiração liberou o pedido
+  // entre a leitura no use case e esta escrita, nada muda (senão o pedido ficaria ativo sem tickets).
+  async markProofSent(id: number, sentAt: number): Promise<boolean> {
+    const row = await this.db.one<IdRow>(
+      `UPDATE orders SET status = 'proof_sent', proof_sent_at = $1
+       WHERE id = $2 AND status = 'pending' AND expires_at > $1 RETURNING id`,
+      [sentAt, id],
+    );
+    return row != null;
   }
 
-  async markPaid(id: number, paidAt: number): Promise<void> {
-    await this.db.query(`UPDATE orders SET status = 'paid', paid_at = $1 WHERE id = $2`, [paidAt, id]);
+  async markPaid(id: number, paidAt: number): Promise<boolean> {
+    const row = await this.db.one<IdRow>(
+      `UPDATE orders SET status = 'paid', paid_at = $1
+       WHERE id = $2 AND status IN ('pending', 'proof_sent') RETURNING id`,
+      [paidAt, id],
+    );
+    return row != null;
   }
 
   async release(id: number, status: ReleaseStatus): Promise<void> {
