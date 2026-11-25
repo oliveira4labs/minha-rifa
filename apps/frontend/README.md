@@ -106,7 +106,7 @@ Cada reserva é um **pedido** com um ou mais números. A regra central:
 Não há integração com meio de pagamento. O fluxo é manual:
 
 1. O comprador clica nos números: eles ficam guardados e a barra de baixo mostra o tempo restante.
-2. Em **Continuar**, informa nome e WhatsApp e vê o pedido "Faça o pagamento", com a mesma contagem regressiva.
+2. Em **Continuar**, informa nome e WhatsApp e vê o pedido "Seus números estão guardados!", com a mesma contagem regressiva e os passos (fazer o PIX, avisar o organizador).
 3. Copia a chave PIX e paga fora do sistema.
 4. Toca em "Avisar o organizador pelo WhatsApp": o pedido passa a "Organizador avisado" (o relógio para) e abre a conversa com o administrador já com a mensagem pronta ("Quero reservar o número X… Já fiz o PIX, pode conferir?", com nome e total).
 5. O administrador confere no extrato do banco dele, sem prazo, e clica em **Confirmar pagamento** no painel (ou **Recusar**). Ele também pode confirmar um pedido ainda "Aguardando pagamento". Uma venda paga ainda pode ser **desfeita** enquanto a rifa estiver aberta.

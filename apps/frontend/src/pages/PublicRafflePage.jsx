@@ -47,7 +47,7 @@ export function PublicRafflePage() {
       cart.forget();
       setReserving(false);
       await refresh();
-      toast('Dados confirmados! Agora faça o PIX e avise o organizador pelo WhatsApp antes do tempo acabar.');
+      toast('Prontinho! Seus números estão guardados. Agora é só fazer o PIX e avisar o organizador.');
       scrollToPendingOrder();
     } catch (err) {
       toast(err.message, true);

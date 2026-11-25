@@ -24,17 +24,17 @@ function PendingOrder({ order, numbers, raffle, onProofSent }) {
   return (
     <div className="order pending">
       <div className="row between">
-        <b>Faça o pagamento</b>
-        <Tag variant="pending">Tempo restante: <Countdown to={order.expires_at} /></Tag>
+        <b>Seus números estão guardados!</b>
+        <Tag variant="pending">Por mais <Countdown to={order.expires_at} /></Tag>
       </div>
       <Chips items={numbers} />
       <p>Total: <b className="num">{formatMoney(order.total_cents)}</b></p>
       <div className="stack-sm">
-        <span className="small"><b>1.</b> Pague com PIX usando a chave:</span>
+        <span className="small"><b>1.</b> Faça o PIX para esta chave:</span>
         <CopyBox value={raffle.pix_key}>
           <button type="button" className="btn sm" onClick={() => copy(raffle.pix_key, 'Chave PIX copiada!')}>Copiar</button>
         </CopyBox>
-        <span className="small"><b>2.</b> Avise o organizador que você pagou:</span>
+        <span className="small"><b>2.</b> Depois, é só avisar o organizador:</span>
         <ExternalLink
           className="btn wa"
           href={whatsappLink(raffle.whatsapp, receiptMessage(raffle, order, numbers.join(', ')))}
@@ -44,7 +44,7 @@ function PendingOrder({ order, numbers, raffle, onProofSent }) {
         </ExternalLink>
       </div>
       <p className="small muted">
-        Se você não avisar o organizador até o fim do tempo, os números voltam a ficar disponíveis para outras pessoas.
+        Fique de olho no tempo: se ele acabar antes do aviso, os números voltam a ficar livres para outras pessoas.
       </p>
     </div>
   );
