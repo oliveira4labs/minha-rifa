@@ -51,3 +51,5 @@ export interface NumberCounts {
 }
 
 export type RafflePricing = Pick<Raffle, 'totalNumbers' | 'priceCents'>;
+
+export type RaffleTexts = Pick<Raffle, 'title' | 'description'>;

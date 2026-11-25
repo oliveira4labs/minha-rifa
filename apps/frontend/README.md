@@ -50,7 +50,7 @@ Qualquer pessoa pode criar uma conta e vira administradora **apenas das rifas qu
 
 | Campo | Regra |
 |---|---|
-| Título | Obrigatório, até **60** caracteres. Contador "25/60 caracteres" abaixo do campo |
+| Título | Obrigatório, até **60** caracteres. Contador "25/60 caracteres" abaixo do campo. Rifas antigas com título maior continuam editáveis enquanto o título não for mexido (dá para adiar a data, trocar fotos etc.); se mudar o título, ele precisa caber em 60 |
 | Descrição | Opcional, até **500** caracteres (o estado do prêmio ou o motivo da rifa, em poucas linhas). Contador abaixo do campo. Na página pública aparece cortada em **5 linhas** com "Ver mais"/"Ver menos" quando passa disso |
 | Fotos | Até **8**; a primeira é a capa. JPG/PNG/WebP. O navegador reduz para no máx. 1600px no lado maior (JPEG 85%, sem cortar) antes de enviar e recusa originais acima de 30 MB; o servidor aceita até 5 MB por foto. Na página pública a foto aparece inteira, com o fundo desfocado da própria foto preenchendo as sobras |
 | Quantidade de números | Entre **2 e 5000**. Números vão de 1 até a quantidade |

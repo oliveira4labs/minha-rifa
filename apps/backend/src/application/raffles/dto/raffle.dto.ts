@@ -1,6 +1,6 @@
 import type { NumberCounts, RaffleVisibility } from '../../../domain/interfaces/raffle.interface.js';
 import {
-  MAX_DESCRIPTION_LENGTH, MAX_NUMBERS, MAX_TITLE_LENGTH, RAFFLE_VISIBILITIES,
+  LEGACY_MAX_DESCRIPTION_LENGTH, LEGACY_MAX_TITLE_LENGTH, MAX_NUMBERS, RAFFLE_VISIBILITIES,
 } from '../../../domain/rules/raffle.rules.js';
 import {
   asArray, IntInRange, OneOf, OptionalIntInRange, OptionalText, Phone, Raw, RequiredText,
@@ -12,8 +12,8 @@ export interface PhotoInputDto {
 }
 
 export class RaffleInputDto {
-  @RequiredText('Título', MAX_TITLE_LENGTH) title!: string;
-  @OptionalText('Descrição', MAX_DESCRIPTION_LENGTH) description!: string;
+  @RequiredText('Título', LEGACY_MAX_TITLE_LENGTH) title!: string;
+  @OptionalText('Descrição', LEGACY_MAX_DESCRIPTION_LENGTH) description!: string;
   @RequiredText('Chave PIX', 200) pix_key!: string;
   @Phone('WhatsApp') whatsapp!: string;
   @IntInRange('Tempo de reserva (minutos)', 5, 60 * 24 * 30) reserve_minutes!: number;

@@ -32,7 +32,7 @@ export class UpdateRaffleUseCase implements UseCase<UpdateRaffleInputDto, OkDto>
     assertOpen(raffle, 'Esta rifa já foi sorteada e não pode mais ser alterada.');
 
     const locked = isPricingLocked(await this.orders.countNumbers(raffle.id));
-    const details = toRaffleDetails(data, locked ? raffle : undefined);
+    const details = toRaffleDetails(data, locked ? raffle : undefined, raffle);
     assertPhotoCount(data.photos);
 
     const current = await this.photos.listByRaffle(raffle.id);
