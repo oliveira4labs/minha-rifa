@@ -10,16 +10,14 @@ export function AuthProvider({ children }) {
     authApi.me().then(setUser, () => setUser(null));
   }, []);
 
-  const login = useCallback(async (credentials) => setUser(await authApi.login(credentials)), []);
-  const register = useCallback(async (data) => setUser(await authApi.register(data)), []);
   const logout = useCallback(async () => {
     await authApi.logout();
     setUser(null);
   }, []);
 
   const value = useMemo(
-    () => ({ user, loading: user === undefined, login, register, logout }),
-    [user, login, register, logout],
+    () => ({ user, loading: user === undefined, logout }),
+    [user, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

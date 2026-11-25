@@ -3,10 +3,10 @@ import { padNumber } from '../../../shared/lib/format';
 
 const STATUS = { p: { cls: 'paid', label: 'pago' }, r: { cls: 'res', label: 'reservado' } };
 
-const NumberCell = memo(function NumberCell({ n, total, owner, status, isSelected, isWinner, onClick }) {
+const NumberCell = memo(function NumberCell({ n, total, status, isSelected, isWinner, onClick }) {
   const text = padNumber(n, total);
   const cls = status ? STATUS[status].cls : isSelected ? 'sel' : '';
-  const title = status ? `${text} — ${STATUS[status].label}${owner ? ` por ${owner}` : ''}` : `Número ${text}`;
+  const title = status ? `${text} — ${STATUS[status].label}` : `Número ${text}`;
   return (
     <button
       type="button"
@@ -22,7 +22,7 @@ const NumberCell = memo(function NumberCell({ n, total, owner, status, isSelecte
 });
 
 export function NumberGrid({ total, taken, selected, winnerNumber, onlyFree, onPick }) {
-  const takenMap = useMemo(() => new Map(taken.map(([n, status, owner]) => [n, { status, owner }])), [taken]);
+  const takenMap = useMemo(() => new Map(taken), [taken]);
 
   const onPickRef = useRef(onPick);
   useLayoutEffect(() => {
@@ -32,14 +32,13 @@ export function NumberGrid({ total, taken, selected, winnerNumber, onlyFree, onP
 
   const cells = [];
   for (let n = 1; n <= total; n++) {
-    const t = takenMap.get(n);
+    const status = takenMap.get(n);
     cells.push(
       <NumberCell
         key={n}
         n={n}
         total={total}
-        status={t?.status}
-        owner={t?.owner}
+        status={status}
         isSelected={selected.has(n)}
         isWinner={winnerNumber === n}
         onClick={handleClick}

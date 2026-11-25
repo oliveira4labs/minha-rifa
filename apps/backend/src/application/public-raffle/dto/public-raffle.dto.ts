@@ -57,8 +57,8 @@ export interface PublicRaffleInfoDto {
 export interface PublicRaffleDto {
   raffle: PublicRaffleInfoDto;
   photos: string[];
-  taken: [number, 'p' | 'r', string][];
-  winner: { number: number; name: string } | null;
+  taken: [number, 'p' | 'r'][];
+  winner: { number: number } | null;
 }
 
 export interface CartDto {

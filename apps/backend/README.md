@@ -71,7 +71,7 @@ Toda a configuração está em [`src/config/app.config.ts`](src/config/app.confi
 
 | Camada | Pasta | Responsabilidade | Pode depender de |
 |---|---|---|---|
-| **Domínio** | `src/domain` | Modelos (`interfaces/`), regras puras (`canDraw`, `shortName`, validação de foto, hash de senha), erros de negócio, **interfaces de repositório** (`IXxxRepository`) e a classe abstrata que as implementa (token de injeção) | Nada (só `node:` built-ins). Sem Nest, sem Express |
+| **Domínio** | `src/domain` | Modelos (`interfaces/`), regras puras (`canDraw`, validação de foto, hash de senha), erros de negócio, **interfaces de repositório** (`IXxxRepository`) e a classe abstrata que as implementa (token de injeção) | Nada (só `node:` built-ins). Sem Nest, sem Express |
 | **Aplicação** | `src/application` | **Casos de uso** (um por operação), **DTOs** de entrada/saída e helpers | Domínio + `@nestjs/common` (só para `@Injectable`) + `class-validator`/`class-transformer` nos DTOs |
 | **Infraestrutura** | `src/infrastructure` | Implementações concretas: Postgres (repositórios, migrações, transação) e disco | Domínio + config |
 | **Apresentação** | `src/presentation` | Controllers HTTP, guard de sessão, filtro de erros, validação, interceptor e job agendado | Casos de uso, DTOs e erros do domínio |
@@ -310,7 +310,7 @@ Regras:
 
 1. **Nunca edite nem apague uma migração que já rodou** em algum ambiente compartilhado. Precisa corrigir? Crie outra.
 2. Teste o `down`: `migration:run`, `migration:revert`, `migration:run` de novo.
-3. Mudança que pode perder dados (apagar coluna, mudar tipo) merece backup antes (`pg_dump`, veja o [LEIA-ME](../../LEIA-ME.md)).
+3. Mudança que pode perder dados (apagar coluna, mudar tipo) merece backup antes (`docker compose exec db pg_dump -U rifa minha_rifa > backup.sql`).
 4. Os scripts `migration:*` compilam com `tsc` antes de rodar (eles leem `dist/`). Se renomear ou apagar uma migração ainda não aplicada, rode `npm run build` para limpar o `dist/`.
 
 No Docker:
@@ -364,7 +364,7 @@ Todas as respostas são JSON (`Cache-Control: no-store`). Erros: `{ "error": "me
 
 | Método | Rota | Corpo | Resposta |
 |---|---|---|---|
-| `GET` | `/api/r/:slug` | — | `{ raffle, photos, taken, winner }`. `taken` = `[número, 'p'\|'r', nome abreviado]`. Sem telefones |
+| `GET` | `/api/r/:slug` | — | `{ raffle, photos, taken, winner }`. `taken` = `[número, 'p'\|'r']`, `winner` = `{ number }`. Sem nomes nem telefones |
 | `POST` | `/api/r/:slug/hold` | `{ token?, number }` | `{ token, numbers, expires_at }`. Ocupa o número no carrinho (cria o carrinho `held` se não houver). 409 + `busy` se já foi pego |
 | `POST` | `/api/r/:slug/release` | `{ token, number }` | `{ token, numbers, expires_at }`. Solta o número do carrinho; carrinho vazio vira `cancelled` |
 | `POST` | `/api/r/:slug/reserve` | `{ token, name, phone }` | `{ token }`. Carrinho `held` → `pending` (mesmo prazo). Erro se o prazo acabou |
@@ -408,7 +408,7 @@ O `token` do pedido (16 bytes aleatórios) é a única "credencial" do comprador
 
 ### Privacidade
 
-- Endpoints públicos só expõem o nome abreviado (`shortName`: primeiro nome + inicial do último).
+- Endpoints públicos não expõem nome nem telefone de quem comprou: só o número e se está reservado ou pago. O comprador vê o próprio nome apenas no seu pedido (pelo token).
 - Telefones de compradores só saem em `/api/raffles/:id` (dono da rifa).
 
 ### Sessão e cookies

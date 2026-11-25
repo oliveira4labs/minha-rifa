@@ -2,7 +2,6 @@ export interface UserRow {
   id: number;
   name: string;
   email: string;
-  pass_hash: string;
-  salt: string;
+  google_sub: string | null;
   created_at: number;
 }

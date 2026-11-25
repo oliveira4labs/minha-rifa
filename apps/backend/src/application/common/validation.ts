@@ -54,19 +54,6 @@ export const OptionalIntInRange = (label: string, min: number, max: number) =>
     (n) => (n === null || isIntInRange(n, min, max) ? null : intRangeMessage(label, min, max)),
   );
 
-export const Email = ({ checkFormat }: { checkFormat: boolean }) =>
-  Field('email', (v) => (trimmed(v) as string).toLowerCase(), (v) => {
-    const s = v as string;
-    if (!s) return 'Preencha o campo "E-mail".';
-    if (s.length > 160) return 'O campo "E-mail" é muito longo.';
-    if (checkFormat && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s)) return 'Informe um e-mail válido.';
-    return null;
-  });
-
-export const Password = (minLength: number) =>
-  Field('password', (v) => (typeof v === 'string' ? v : ''), (v) =>
-    ((v as string).length < minLength ? `A senha deve ter pelo menos ${minLength} caracteres.` : null));
-
 export const NonEmptyList = (message: string) =>
   Field('nonEmptyList', (v) => v, (v) => (Array.isArray(v) && v.length > 0 ? null : message));
 

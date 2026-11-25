@@ -80,6 +80,15 @@ textarea { min-height: 110px; resize: vertical; }
 .tabs { display: grid; grid-template-columns: 1fr 1fr; background: #ece6da; border-radius: 10px; padding: 4px; }
 .tabs button { border: 0; background: none; font: inherit; font-weight: 600; padding: 9px; border-radius: 8px; cursor: pointer; color: var(--muted); }
 .tabs button.on { background: var(--card); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+.btn-google {
+  position: relative; display: flex; align-items: center; justify-content: center; width: 100%; min-height: 44px;
+  padding: 0 44px; border: 1px solid #dadce0; border-radius: 6px; background: #fff; color: #1f1f1f;
+  font-family: Roboto, Arial, sans-serif; font-weight: 500; font-size: .95rem; letter-spacing: .25px; text-decoration: none;
+  transition: background-color .15s, border-color .15s, box-shadow .15s;
+}
+.btn-google:hover { background: #f8f9fa; border-color: #d2e3fc; box-shadow: 0 1px 2px rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15); }
+.btn-google:active { background: #f1f3f4; }
+.btn-google-logo { position: absolute; left: 14px; width: 18px; height: 18px; object-fit: contain; }
 
 .thumbs { display: flex; gap: 8px; flex-wrap: wrap; }
 .thumb { position: relative; width: 84px; height: 84px; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); background: #eee; }
@@ -103,14 +112,16 @@ textarea { min-height: 110px; resize: vertical; }
 
 .gallery-main { position: relative; aspect-ratio: 4 / 3; border-radius: var(--radius); overflow: hidden; background: #e9e3d8; border: 1px solid var(--line); }
 .gallery-badge { position: absolute; right: 10px; bottom: 10px; background: rgba(20, 16, 10, .62); color: #fff; font-size: .78rem; font-weight: 600; padding: 3px 10px; border-radius: 99px; pointer-events: none; }
+.share-preview { white-space: pre-wrap; overflow-wrap: anywhere; background: #e7f6ee; border: 1px solid #cde9da; border-radius: 12px 12px 12px 4px; padding: 12px 14px; font-size: .92rem; line-height: 1.5; max-width: 520px; }
 
 .slides { width: 100%; height: 100%; overflow: hidden; touch-action: pan-y; }
 .slides-track { display: flex; height: 100%; transition: transform .35s cubic-bezier(.2, .7, .2, 1); }
-.slide { flex: 0 0 100%; min-width: 0; height: 100%; overflow: hidden; display: grid; place-items: center; }
-.slide img { width: 100%; height: 100%; user-select: none; -webkit-user-drag: none; }
-.slides.fit-cover .slide img { object-fit: cover; }
-.slides.fit-contain .slide img { object-fit: contain; width: auto; height: auto; max-width: 100%; max-height: 100%; }
-.slide-hit { display: block; width: 100%; height: 100%; padding: 0; border: 0; background: none; cursor: zoom-in; }
+.slide { position: relative; flex: 0 0 100%; min-width: 0; height: 100%; overflow: hidden; }
+.slide img { position: absolute; inset: 0; width: 100%; height: 100%; user-select: none; -webkit-user-drag: none; }
+.slides.fit-cover .slide-photo { object-fit: cover; }
+.slides.fit-contain .slide-photo { object-fit: contain; }
+.slide-backdrop { object-fit: cover; filter: blur(22px) saturate(1.1) brightness(.92); transform: scale(1.2); }
+.slide-hit { position: absolute; inset: 0; display: block; width: 100%; height: 100%; padding: 0; border: 0; background: none; cursor: zoom-in; }
 .slide-arrow {
   position: absolute; top: 50%; transform: translateY(-50%); width: 40px; height: 40px; border-radius: 50%;
   border: 0; background: rgba(255, 255, 255, .88); color: var(--ink); font-size: 1.6rem; line-height: 1; cursor: pointer;

@@ -2,8 +2,7 @@ export interface User {
   id: number;
   name: string;
   email: string;
-  passwordHash: string;
-  salt: string;
+  googleSub: string | null;
   createdAt: number;
 }
 

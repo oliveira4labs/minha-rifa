@@ -4,6 +4,7 @@ import { DashboardPage } from '../pages/DashboardPage';
 import { LoginPage } from '../pages/LoginPage';
 import { ManageRafflePage } from '../pages/ManageRafflePage';
 import { NotFoundPage } from '../pages/NotFoundPage';
+import { PrivacyPage } from '../pages/PrivacyPage';
 import { PublicRafflePage } from '../pages/PublicRafflePage';
 import { AdminLayout } from './AdminLayout';
 
@@ -22,6 +23,7 @@ export function AppRoutes() {
       </Route>
 
       <Route path="/r/:slug" element={<PublicRafflePage />} />
+      <Route path="/privacidade" element={<PrivacyPage />} />
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );

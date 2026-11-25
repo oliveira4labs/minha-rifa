@@ -1,5 +1,6 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { SESSION_MAX_AGE_MS } from '../domain/rules/session.rules.js';
 
 const BACKEND_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 
@@ -11,9 +12,17 @@ export const appConfig = {
   frontendDir: path.resolve(process.env.FRONTEND_DIR || path.join(BACKEND_ROOT, '..', 'frontend', 'dist')),
   maxBodySize: '40mb',
   expireOrdersEveryMs: 30_000,
-  sessionMaxAgeSeconds: 60 * 60 * 24 * 30,
+  sessionMaxAgeSeconds: SESSION_MAX_AGE_MS / 1000,
+  purgeExpiredSessionsEveryMs: 60 * 60 * 1000,
   privateUploadsAccelPath: process.env.PRIVATE_UPLOADS_ACCEL_PATH || '',
+  appUrl: (process.env.APP_URL || `http://localhost:${Number(process.env.PORT) || 3000}`).replace(/\/+$/, ''),
+  googleClientId: process.env.GOOGLE_CLIENT_ID || '',
+  googleClientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
+  oauthStateMaxAgeSeconds: 10 * 60,
 };
+
+export const googleRedirectUri = `${appConfig.appUrl}/api/auth/google/callback`;
+export const secureCookies = appConfig.appUrl.startsWith('https://');
 
 export const uploadDir = path.join(appConfig.dataDir, 'uploads');
 export const publicUploadDir = path.join(uploadDir, 'public');
