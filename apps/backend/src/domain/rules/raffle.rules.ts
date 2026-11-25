@@ -2,6 +2,9 @@ import type { NumberCounts, Raffle, RaffleVisibility } from '../interfaces/raffl
 import { BusinessRuleError } from '../errors/domain.errors.js';
 
 export const MAX_NUMBERS = 5000;
+// Curtos de propósito: o título e a descrição aparecem na página pública e na mensagem de divulgação.
+export const MAX_TITLE_LENGTH = 60;
+export const MAX_DESCRIPTION_LENGTH = 500;
 export const MAX_PHOTOS = 8;
 export const MAX_PRICE_CENTS = 100_000_00;
 export const RAFFLE_VISIBILITIES: readonly RaffleVisibility[] = ['public', 'private'];

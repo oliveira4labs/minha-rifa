@@ -403,8 +403,8 @@ O `token` do pedido (16 bytes aleatórios) é a única "credencial" do comprador
 
 | Campo | Regra |
 |---|---|
-| `title` | 1–120 caracteres |
-| `description` | 0–5000 |
+| `title` | 1–60 caracteres (`MAX_TITLE_LENGTH`) |
+| `description` | 0–500 (`MAX_DESCRIPTION_LENGTH`) |
 | `pix_key` | 1–200 |
 | `whatsapp` | 10–13 dígitos (só dígitos são guardados) |
 | `reserve_minutes` | 5 a 43.200 (30 dias). É o prazo do **comprador** (do clique até avisar o organizador) |

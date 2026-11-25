@@ -2,6 +2,9 @@ import { fromDateTimeInput, parseMoney, toDateTimeInput } from '../../../shared/
 import { formatMoneyInput, maskPhone } from '../../../shared/lib/masks';
 
 export const MAX_PHOTOS = 8;
+// Iguais aos do backend (domain/rules/raffle.rules.ts).
+export const MAX_TITLE_LENGTH = 60;
+export const MAX_DESCRIPTION_LENGTH = 500;
 export const RESERVE_UNITS = { min: 1, h: 60, d: 1440 };
 const DEFAULT_RESERVE_MINUTES = 120;
 const DEFAULT_TOTAL_NUMBERS = 100;
