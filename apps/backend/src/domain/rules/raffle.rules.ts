@@ -2,6 +2,19 @@ import type { NumberCounts, Raffle, RaffleVisibility } from '../interfaces/raffl
 import { BusinessRuleError } from '../errors/domain.errors.js';
 
 export const MAX_NUMBERS = 5000;
+// Curtos de propósito: o título e a descrição aparecem na página pública e na mensagem de divulgação.
+export const MAX_TITLE_LENGTH = 60;
+export const MAX_DESCRIPTION_LENGTH = 500;
+// Limites antigos, mantidos só como teto do DTO: rifas criadas antes da redução podem ter textos até aqui
+// e precisam continuar editáveis (ex.: adiar a data do sorteio reenvia o título e a descrição como estão).
+export const LEGACY_MAX_TITLE_LENGTH = 120;
+export const LEGACY_MAX_DESCRIPTION_LENGTH = 5000;
+
+/** Texto novo ou alterado precisa caber em `max`; o texto que já estava salvo (`current`) passa como está. */
+export function assertTextLimit(value: string, max: number, label: string, current?: string): string {
+  if (value.length > max && value !== current) throw new BusinessRuleError(`O campo "${label}" é muito longo (máximo ${max} caracteres).`);
+  return value;
+}
 export const MAX_PHOTOS = 8;
 export const MAX_PRICE_CENTS = 100_000_00;
 export const RAFFLE_VISIBILITIES: readonly RaffleVisibility[] = ['public', 'private'];

@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { BusinessRuleError } from '../../../domain/errors/domain.errors.js';
+import { canApprove } from '../../../domain/rules/order.rules.js';
 import type { UseCase } from '../../common/interfaces/use-case.interface.js';
 import { OK, type OkDto } from '../../common/dto/ok.dto.js';
 import type { OwnedOrderRefDto } from '../dto/order.dto.js';
@@ -18,10 +19,9 @@ export class ApproveOrderUseCase implements UseCase<OwnedOrderRefDto, OkDto> {
 
   async execute({ userId, orderId }: OwnedOrderRefDto): Promise<OkDto> {
     const order = await requireManageableOrder(this.orders, this.raffles, userId, orderId);
-    if (order.status !== 'pending') {
+    if (!canApprove(order) || !await this.orders.markPaid(order.id, Date.now())) {
       throw new BusinessRuleError('Esta reserva expirou ou já foi tratada. Atualize a página.');
     }
-    await this.orders.markPaid(order.id, Date.now());
     return OK;
   }
 }

@@ -70,12 +70,14 @@ input:focus, textarea:focus, select:focus { border-color: var(--primary-focus); 
 
 label { display: grid; gap: 6px; font-weight: 600; font-size: .92rem; }
 label .hint { font-weight: 400; color: var(--muted); font-size: .82rem; }
+.char-count { justify-self: end; margin-top: -2px; font-weight: 400; font-size: .78rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.char-count.over { color: var(--danger); font-weight: 600; }
 input, textarea, select {
   font: inherit; color: inherit; width: 100%; padding: 10px 12px; min-height: 44px;
   border: 1px solid #cfc7b8; border-radius: 10px; background: #fff;
   transition: border-color .15s, box-shadow .15s;
 }
-textarea { min-height: 110px; resize: vertical; }
+textarea { min-height: 160px; resize: none; }
 .grid2 { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
 .tabs { display: grid; grid-template-columns: 1fr 1fr; background: #ece6da; border-radius: 10px; padding: 4px; }
 .tabs button { border: 0; background: none; font: inherit; font-weight: 600; padding: 9px; border-radius: 8px; cursor: pointer; color: var(--muted); }
@@ -158,7 +160,12 @@ dialog.lightbox::backdrop { background: rgba(14, 12, 9, .6); }
 .hero { display: grid; gap: 20px; }
 @media (min-width: 760px) { .hero.has-photos { grid-template-columns: 1fr 1fr; align-items: start; } }
 .price { font-size: 1.7rem; font-weight: 800; letter-spacing: -.02em; }
-.desc { white-space: pre-wrap; overflow-wrap: anywhere; }
+.desc { white-space: pre-wrap; overflow-wrap: anywhere; margin: 0; }
+.clamped { display: grid; gap: 4px; justify-items: start; }
+.clamp { display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; }
+.link-btn { background: none; border: 0; padding: 0; font: inherit; font-size: .9rem; font-weight: 700; color: var(--primary); cursor: pointer; }
+.link-btn:hover { text-decoration: underline; }
+.link-btn:focus-visible { outline: none; box-shadow: var(--focus-ring); border-radius: 4px; }
 
 .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: .85rem; color: var(--muted); }
 .legend span::before { content: ""; display: inline-block; width: 12px; height: 12px; border-radius: 4px; margin-right: 6px; vertical-align: -1px; border: 1px solid var(--line); background: #fff; }
@@ -183,6 +190,7 @@ dialog.lightbox::backdrop { background: rgba(14, 12, 9, .6); }
 
 .order { border: 1px solid var(--line); border-radius: 12px; padding: 14px; display: grid; gap: 10px; background: #fff; }
 .order.pending { border-color: #e7b24a; background: #fffaf0; }
+.order.proof_sent { border-color: #e7b24a; background: #fffaf0; box-shadow: inset 4px 0 0 #e7b24a; }
 .order.paid { border-color: #a9d3c7; background: #f3faf7; }
 .chips { display: flex; gap: 5px; flex-wrap: wrap; }
 .chip { background: #efeae0; border-radius: 7px; padding: 2px 8px; font-weight: 700; font-size: .85rem; font-variant-numeric: tabular-nums; }

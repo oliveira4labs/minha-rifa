@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { formatMoney, padNumbers } from '../../../shared/lib/format';
 import { maskPhone } from '../../../shared/lib/masks';
+import { Countdown } from '../../../shared/ui/components';
 import { PhoneInput } from '../../../shared/ui/components/MaskedInputs';
 import { Dialog } from '../../../shared/ui/feedback/Dialog';
 import { loadBuyer } from '../lib/buyerStorage';
 
-export function ReserveDialog({ open, numbers, raffle, onClose, onConfirm }) {
+export function ReserveDialog({ open, numbers, raffle, expiresAt, onClose, onConfirm }) {
   const [buyer, setBuyer] = useState({ name: '', phone: '' });
   const [submitting, setSubmitting] = useState(false);
 
@@ -30,10 +31,13 @@ export function ReserveDialog({ open, numbers, raffle, onClose, onConfirm }) {
   return (
     <Dialog open={open} onClose={onClose}>
       <form className="stack" onSubmit={handleSubmit}>
-        <h2>Reservar números</h2>
+        <h2>Seus dados</h2>
         <p className="muted small">
           Números {padNumbers(numbers, raffle.total_numbers).join(', ')} — total {formatMoney(numbers.length * raffle.price_cents)}
         </p>
+        {expiresAt && (
+          <p className="small">Os números ficam guardados por <b className="num"><Countdown to={expiresAt} /></b>. Nesse tempo, confirme seus dados, faça o PIX e avise o organizador pelo WhatsApp.</p>
+        )}
         <label>Seu nome completo
           <input name="name" maxLength={80} required autoComplete="name" value={buyer.name} onChange={update('name')} />
         </label>
@@ -48,7 +52,7 @@ export function ReserveDialog({ open, numbers, raffle, onClose, onConfirm }) {
         </label>
         <div className="actions">
           <button type="button" className="btn" onClick={onClose}>Voltar</button>
-          <button type="submit" className="btn primary" disabled={submitting}>Confirmar reserva</button>
+          <button type="submit" className="btn primary" disabled={submitting}>Confirmar dados</button>
         </div>
       </form>
     </Dialog>

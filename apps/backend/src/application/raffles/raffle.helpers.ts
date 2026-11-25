@@ -1,11 +1,11 @@
 import type { TakenNumber } from '../../domain/interfaces/order.interface.js';
 import type {
-  Photo, Raffle, RaffleDetails, RafflePricing, RaffleVisibility,
+  Photo, Raffle, RaffleDetails, RafflePricing, RaffleTexts, RaffleVisibility,
 } from '../../domain/interfaces/raffle.interface.js';
 import { BusinessRuleError, NotFoundError } from '../../domain/errors/domain.errors.js';
 import { decodePhotoDataUrl } from '../../domain/rules/photo.rules.js';
 import {
-  assertIntInRange, MAX_NUMBERS, MAX_PHOTOS, MAX_PRICE_CENTS,
+  assertIntInRange, assertTextLimit, MAX_DESCRIPTION_LENGTH, MAX_NUMBERS, MAX_PHOTOS, MAX_PRICE_CENTS, MAX_TITLE_LENGTH,
 } from '../../domain/rules/raffle.rules.js';
 import type { PhotoInputDto, RaffleInputDto, WinnerDto } from './dto/raffle.dto.js';
 import type { IPhotoStorage } from '../../domain/repositories/interfaces/photo-storage.interface.js';
@@ -17,10 +17,11 @@ export async function requireOwnedRaffle(raffles: IRaffleRepository, userId: num
   return raffle;
 }
 
-export function toRaffleDetails(input: RaffleInputDto, locked?: RafflePricing): RaffleDetails {
+/** `current` = textos já salvos (na edição): só o que mudou precisa caber nos limites novos. */
+export function toRaffleDetails(input: RaffleInputDto, locked?: RafflePricing, current?: RaffleTexts): RaffleDetails {
   return {
-    title: input.title,
-    description: input.description,
+    title: assertTextLimit(input.title, MAX_TITLE_LENGTH, 'Título', current?.title),
+    description: assertTextLimit(input.description, MAX_DESCRIPTION_LENGTH, 'Descrição', current?.description),
     pixKey: input.pix_key,
     whatsapp: input.whatsapp,
     reserveMinutes: input.reserve_minutes,

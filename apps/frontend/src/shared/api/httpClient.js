@@ -9,9 +9,10 @@ export class ApiError extends Error {
   }
 }
 
-async function request(method, url, body) {
+async function request(method, url, body, { keepalive = false } = {}) {
   const res = await fetch(url, {
     method,
+    keepalive,
     headers: body ? { 'Content-Type': 'application/json' } : undefined,
     body: body ? JSON.stringify(body) : undefined,
   });
@@ -27,7 +28,7 @@ async function request(method, url, body) {
 
 export const http = {
   get: (url) => request('GET', url),
-  post: (url, body) => request('POST', url, body),
+  post: (url, body, options) => request('POST', url, body, options),
   put: (url, body) => request('PUT', url, body),
   delete: (url) => request('DELETE', url),
 };

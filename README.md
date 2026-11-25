@@ -34,8 +34,10 @@ O **Minha Rifa** cuida disso por você. Você cria a rifa, compartilha um link e
 
 - 📸 **Rifa caprichada:** até 8 fotos do prêmio, descrição, quantidade de números e valor
 - 📲 **Divulgação pronta:** link exclusivo e mensagem para o WhatsApp que se atualiza conforme os números são vendidos
-- ✅ **Controle dos pagamentos:** confirme ou recuse cada compra quando o comprovante chegar
-- ⏱️ **Do seu jeito:** defina por quanto tempo um número fica reservado e quantos cada pessoa pode comprar
+- ✅ **Controle dos pagamentos:** confira o PIX no seu banco, sem pressa, e confirme ou recuse cada compra com um clique
+- 🔐 **Entrada com Google:** sem senha para criar nem lembrar
+- 🙈 **Rifa privada:** deixe a rifa visível só para você enquanto prepara
+- ⏱️ **Do seu jeito:** defina quanto tempo o comprador tem para pagar e quantos números cada pessoa pode comprar
 - 🎲 **Sorteio justo:** aleatório entre os números pagos, com confirmação antes, para não ter clique sem querer
 
 </td>
@@ -43,9 +45,9 @@ O **Minha Rifa** cuida disso por você. Você cria a rifa, compartilha um link e
 
 ### Para quem compra
 
-- 🔢 **Escolha fácil:** grade com os números livres e ocupados, sempre atualizada
+- 🔢 **Escolha fácil:** clicou, o número já é seu enquanto você paga; a grade mostra os livres e ocupados, sempre atualizada
 - 🙋 **Sem cadastro:** basta informar nome e WhatsApp
-- 💸 **Pagamento simples:** chave PIX para copiar e um botão que já abre o WhatsApp com o comprovante escrito
+- 💸 **Pagamento simples:** chave PIX para copiar e um botão que já abre o WhatsApp do organizador com a mensagem pronta
 - 🔒 **Privacidade:** ninguém vê quem comprou cada número; nome e telefone ficam visíveis só para quem organiza
 - 📱 **Feito para o celular:** funciona direto no navegador, sem instalar nada
 
@@ -59,15 +61,15 @@ O **Minha Rifa** cuida disso por você. Você cria a rifa, compartilha um link e
 flowchart LR
     A[📝 Crie a rifa] --> B[📲 Divulgue o link]
     B --> C[🔢 Compradores escolhem os números]
-    C --> D[💸 Pagam via PIX e enviam o comprovante]
-    D --> E[✅ Você confirma o pagamento]
+    C --> D[💸 Pagam via PIX e avisam pelo WhatsApp]
+    D --> E[✅ Você confere no banco e confirma]
     E --> F[🎉 Sorteio entre os números pagos]
 ```
 
 1. **Crie a rifa:** cadastre fotos, descrição, quantidade de números, valor, sua chave PIX e seu WhatsApp.
 2. **Divulgue:** copie o link ou envie a mensagem pronta direto para os seus grupos.
-3. **Receba as reservas:** cada comprador escolhe os números, e eles ficam guardados por um tempo definido por você. Se a compra não for concluída nesse prazo, os números voltam a ficar livres sozinhos.
-4. **Confirme os pagamentos:** o comprovante chega no seu WhatsApp, e você confirma com um clique no painel.
+3. **Receba as reservas:** o número fica guardado para o comprador assim que ele clica. Nesse prazo (você define), ele informa nome e WhatsApp, paga o PIX e te avisa pelo WhatsApp. Se não avisar a tempo, o número volta a ficar livre sozinho.
+4. **Confirme os pagamentos:** depois do aviso, o número fica guardado até você decidir. Confira no seu banco, com calma, e confirme (ou recuse) com um clique no painel.
 5. **Sorteie:** com todos os números pagos, ou quando chegar a data marcada, faça o sorteio. O ganhador aparece no painel e na página da rifa para todo mundo ver.
 
 ## ❓ Perguntas frequentes
@@ -81,13 +83,13 @@ Não. Basta abrir o link da rifa, escolher os números e informar nome e WhatsAp
 <details>
 <summary><b>Como o dinheiro chega até mim?</b></summary>
 <br>
-Direto na sua conta, pelo PIX. O Minha Rifa não intermedeia pagamentos: o comprador paga para a chave que você cadastrou e envia o comprovante para o seu WhatsApp.
+Direto na sua conta, pelo PIX. O Minha Rifa não intermedeia pagamentos: o comprador paga para a chave que você cadastrou e te avisa pelo WhatsApp. Quem confere se o dinheiro caiu é você, no seu banco.
 </details>
 
 <details>
 <summary><b>E se alguém reservar um número e não pagar?</b></summary>
 <br>
-A reserva vale pelo tempo que você definir na rifa. Se a compra não for concluída nesse prazo, o número volta a ficar disponível automaticamente. Você também pode recusar uma reserva pelo painel.
+O comprador tem o tempo que você definir na rifa para pagar e te avisar. Se não avisar nesse prazo, o número volta a ficar disponível automaticamente. Se ele avisou mas o PIX não caiu, é só recusar a reserva pelo painel.
 </details>
 
 <details>
@@ -124,7 +126,7 @@ Não. A página da rifa mostra apenas quais números já foram escolhidos, sem d
 <summary><b>👩‍💻 Para desenvolvedores</b></summary>
 <br>
 
-Feito com **React 19 + Vite** no front, **NestJS 12 + TypeScript** no back e **PostgreSQL 17**, empacotado em Docker e publicado automaticamente pelo GitHub Actions a cada merge na `main`.
+Feito com **React 19 + Vite** no front, **NestJS 12 + TypeScript** no back e **PostgreSQL 17**, empacotado em Docker e publicado pelo Dokploy. O GitHub Actions roda o lint de arquitetura e o build em cada PR.
 
 - [README do frontend](apps/frontend/README.md): regras de negócio completas, arquitetura e convenções
 - [README do backend](apps/backend/README.md): arquitetura, banco, migrações e API

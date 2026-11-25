@@ -32,7 +32,7 @@ export class DrawRaffleUseCase implements UseCase<OwnedRaffleRefDto, DrawResultD
     await this.unitOfWork.run(async () => {
       const paid = (await this.orders.listTakenNumbers(raffle.id)).filter((t) => t.status === 'paid');
       const winner = paid[secureRandomIndex(paid.length)].number;
-      for (const orderId of await this.orders.listPendingIds(raffle.id)) {
+      for (const orderId of await this.orders.listUnpaidIds(raffle.id)) {
         await this.orders.release(orderId, 'cancelled');
       }
       await this.raffles.markDrawn(raffle.id, winner, Date.now());

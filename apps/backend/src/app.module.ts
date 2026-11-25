@@ -10,6 +10,7 @@ import { PublicRaffleController } from './presentation/http/controllers/public-r
 import { RafflesController } from './presentation/http/controllers/raffles.controller.js';
 import { ApiExceptionFilter } from './presentation/http/filters/api-exception.filter.js';
 import { AuthGuard } from './presentation/http/guards/auth.guard.js';
+import { RateLimitGuard } from './presentation/http/guards/rate-limit.guard.js';
 import { ExpireOrdersInterceptor } from './presentation/http/interceptors/expire-orders.interceptor.js';
 import { dtoValidationPipe } from './presentation/http/pipes/dto-validation.pipe.js';
 import { ExpireOrdersJob } from './presentation/jobs/expire-orders.job.js';
@@ -21,6 +22,7 @@ import { PurgeExpiredSessionsJob } from './presentation/jobs/purge-expired-sessi
   providers: [
     ...USE_CASES,
     AuthGuard,
+    RateLimitGuard,
     ExpireOrdersJob,
     PurgeExpiredSessionsJob,
     { provide: APP_PIPE, useValue: dtoValidationPipe },

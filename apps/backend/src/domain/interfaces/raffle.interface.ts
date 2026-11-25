@@ -47,6 +47,9 @@ export interface Photo {
 export interface NumberCounts {
   paid: number;
   pending: number;
+  awaiting: number;
 }
 
 export type RafflePricing = Pick<Raffle, 'totalNumbers' | 'priceCents'>;
+
+export type RaffleTexts = Pick<Raffle, 'title' | 'description'>;

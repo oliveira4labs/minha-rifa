@@ -25,7 +25,7 @@ export class GetRaffleDetailsUseCase implements UseCase<OwnedRaffleRefDto, Raffl
     const r = await requireOwnedRaffle(this.raffles, userId, raffleId);
     const [counts, orders, taken, photos] = await Promise.all([
       this.orders.countNumbers(r.id),
-      this.orders.listActiveByRaffle(r.id),
+      this.orders.listManageableByRaffle(r.id),
       this.orders.listTakenNumbers(r.id),
       this.photos.listByRaffle(r.id),
     ]);
@@ -55,6 +55,7 @@ export class GetRaffleDetailsUseCase implements UseCase<OwnedRaffleRefDto, Raffl
         status: o.status,
         created_at: o.createdAt,
         expires_at: o.expiresAt,
+        proof_sent_at: o.proofSentAt,
         paid_at: o.paidAt,
       })),
       taken: taken.map((t) => [t.number, t.status === 'paid' ? 'p' : 'r']),

@@ -3,23 +3,30 @@ import { whatsappLink } from '../../../shared/lib/whatsapp';
 import { Chips, Countdown, ExternalLink } from '../../../shared/ui/components';
 
 function OrderActions({ order, onApprove, onCancel }) {
-  if (order.status === 'pending') {
+  if (order.status === 'paid') {
     return (
       <span className="row">
-        <button type="button" className="btn sm danger" onClick={() => onCancel(order)}>Recusar</button>
-        <button type="button" className="btn sm primary" onClick={() => onApprove(order)}>Confirmar pagamento</button>
+        <button type="button" className="btn sm danger" onClick={() => onCancel(order)}>Desfazer venda</button>
       </span>
     );
   }
   return (
     <span className="row">
-      <button type="button" className="btn sm danger" onClick={() => onCancel(order)}>Desfazer venda</button>
+      <button type="button" className="btn sm danger" onClick={() => onCancel(order)}>Recusar</button>
+      <button type="button" className="btn sm primary" onClick={() => onApprove(order)}>Confirmar pagamento</button>
     </span>
   );
 }
 
+function OrderTiming({ order }) {
+  if (order.status === 'pending') {
+    return <>Reservado em {formatDate(order.created_at)} · prazo do comprador acaba em <Countdown to={order.expires_at} /></>;
+  }
+  if (order.status === 'proof_sent') return <>Avisou que pagou em {formatDate(order.proof_sent_at)}</>;
+  return <>Pago — confirmado em {formatDate(order.paid_at)}</>;
+}
+
 export function OrderCard({ order, raffle, onApprove, onCancel }) {
-  const isPending = order.status === 'pending';
   return (
     <div className={`order ${order.status}`}>
       <div className="row between">
@@ -31,11 +38,7 @@ export function OrderCard({ order, raffle, onApprove, onCancel }) {
       </div>
       <Chips items={padNumbers(order.numbers, raffle.total_numbers)} />
       <div className="row between">
-        <span className="small muted">
-          {isPending
-            ? <>Reservado em {formatDate(order.created_at)} · expira em <Countdown to={order.expires_at} /></>
-            : <>Pago — confirmado em {formatDate(order.paid_at)}</>}
-        </span>
+        <span className="small muted"><OrderTiming order={order} /></span>
         {raffle.status === 'open' && <OrderActions order={order} onApprove={onApprove} onCancel={onCancel} />}
       </div>
     </div>

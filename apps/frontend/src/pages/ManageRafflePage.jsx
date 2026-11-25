@@ -43,6 +43,7 @@ export function ManageRafflePage() {
 
 function RaffleOverview({ data, actions }) {
   const { raffle, counts, winner, orders, taken } = data;
+  const proofSent = orders.filter((o) => o.status === 'proof_sent');
   const pending = orders.filter((o) => o.status === 'pending');
   const paid = orders.filter((o) => o.status === 'paid');
   const open = raffle.status === 'open';
@@ -69,9 +70,15 @@ function RaffleOverview({ data, actions }) {
       <StatsGrid raffle={raffle} counts={counts} />
       {!winner && drawSection}
       <OrdersSection
-        title="Aguardando confirmação de pagamento"
+        title="Avisaram que pagaram — confira no seu banco"
+        orders={proofSent}
+        emptyText="Nenhum pagamento para conferir. Quando um comprador avisar pelo WhatsApp que fez o PIX, o pedido aparece aqui."
+        {...orderProps}
+      />
+      <OrdersSection
+        title="Aguardando pagamento do comprador"
         orders={pending}
-        emptyText="Nenhuma reserva pendente. Quando alguém reservar números, aparece aqui para você confirmar depois de receber o comprovante."
+        emptyText="Ninguém está no meio de um pagamento agora."
         {...orderProps}
       />
       <OrdersSection title="Pagos" orders={paid} emptyText="Nenhum pagamento confirmado ainda." {...orderProps} />

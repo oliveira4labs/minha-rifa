@@ -44,6 +44,12 @@ As migrações pendentes também rodam sozinhas quando a aplicação sobe (desli
 | `MIGRATE_ON_BOOT` | `true` | `false` = a aplicação não migra ao subir (as migrações rodam num passo separado do deploy) |
 | `DATA_DIR` | `apps/backend/data` | Fotos (`uploads/`). Em produção, aponte para um disco/volume persistente |
 | `FRONTEND_DIR` | `apps/frontend/dist` | Build do front servido em produção |
+| `APP_URL` | `http://localhost:3000` | URL pública da app. O redirect do Google é `APP_URL/api/auth/google/callback`; com `https://` o cookie ganha `Secure` |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | — | OAuth client "Web application" do Google Cloud. Sem eles o login não funciona |
+| `PRIVATE_UPLOADS_ACCEL_PATH` | — | Opcional. Com nginx na frente, a foto privada é entregue por `X-Accel-Redirect` para esse caminho em vez de `sendFile` |
+| `TRUST_PROXY` | `0` | Quantos proxies ficam na frente da app, para `req.ip` ser o IP real do comprador. No Dokploy (Traefik) é `1`; com Cloudflare em modo proxy, `2` |
+| `CART_ACTIONS_PER_MINUTE` | `120` | Cliques (ocupar/soltar número) por IP por minuto |
+| `BUYER_SUBMITS_PER_MINUTE` | `20` | Envios de dados e de avisos ao organizador por IP por minuto |
 
 Toda a configuração está em [`src/config/app.config.ts`](src/config/app.config.ts).
 
@@ -71,10 +77,10 @@ Toda a configuração está em [`src/config/app.config.ts`](src/config/app.confi
 
 | Camada | Pasta | Responsabilidade | Pode depender de |
 |---|---|---|---|
-| **Domínio** | `src/domain` | Modelos (`interfaces/`), regras puras (`canDraw`, validação de foto, hash de senha), erros de negócio, **interfaces de repositório** (`IXxxRepository`) e a classe abstrata que as implementa (token de injeção) | Nada (só `node:` built-ins). Sem Nest, sem Express |
+| **Domínio** | `src/domain` | Modelos (`interfaces/`), regras puras (`canDraw`, `canView`, regras de pedido, validação de foto, tokens/PKCE, prazo da sessão), erros de negócio, **interfaces de repositório** (`IXxxRepository`) e a classe abstrata que as implementa (token de injeção) | Nada (só `node:` built-ins). Sem Nest, sem Express |
 | **Aplicação** | `src/application` | **Casos de uso** (um por operação), **DTOs** de entrada/saída e helpers | Domínio + `@nestjs/common` (só para `@Injectable`) + `class-validator`/`class-transformer` nos DTOs |
-| **Infraestrutura** | `src/infrastructure` | Implementações concretas: Postgres (repositórios, migrações, transação) e disco | Domínio + config |
-| **Apresentação** | `src/presentation` | Controllers HTTP, guard de sessão, filtro de erros, validação, interceptor e job agendado | Casos de uso, DTOs e erros do domínio |
+| **Infraestrutura** | `src/infrastructure` | Implementações concretas: Postgres (repositórios, migrações, transação), disco e cliente OAuth do Google | Domínio + config |
+| **Apresentação** | `src/presentation` | Controllers HTTP, guards (sessão e limite por IP), filtro de erros, validação, interceptor e jobs agendados | Casos de uso, DTOs e erros do domínio |
 
 ### Regras (verificadas por `npm run lint:arch`)
 
@@ -126,7 +132,7 @@ export abstract class UserRepository implements IUserRepository {
 // infrastructure/repositories/postgres-user.repository.ts  — implementação
 export class PostgresUserRepository extends UserRepository { … }
 
-// application/auth/use-cases/login.use-case.ts  — o use case depende da INTERFACE
+// application/auth/use-cases/google-login.use-case.ts  — o use case depende da INTERFACE
 constructor(@Inject(UserRepository) private readonly users: IUserRepository) {}
 ```
 
@@ -156,48 +162,56 @@ apps/backend/
     ├── app.module.ts              raiz de composição (controllers + casos de uso + infra)
     ├── config/app.config.ts       variáveis de ambiente
     ├── domain/
-    │   ├── interfaces/            modelos: User, Raffle, Photo, Order, TakenNumber, PhotoContent…
+    │   ├── interfaces/            modelos: User, Raffle, Photo, Order, TakenNumber, PhotoContent, GoogleProfile,
+    │   │                          RemoteConfigEntry…
     │   ├── errors/                erros de negócio
     │   ├── repositories/
     │   │   ├── interfaces/        IUserRepository, ISessionRepository, IRaffleRepository, IPhotoRepository,
-    │   │   │                      IPhotoStorage, IOrderRepository, IUnitOfWork  (contratos)
+    │   │   │                      IPhotoStorage, IOrderRepository, IRemoteConfigRepository,
+    │   │   │                      IGoogleIdentityProvider, IUnitOfWork  (contratos)
     │   │   └── *.ts               UserRepository, … (classes abstratas = tokens de injeção)
-    │   └── rules/                 raffle.rules, photo.rules, security.rules
+    │   └── rules/                 raffle, order, photo, security, session, remote-config
     ├── application/
     │   ├── common/                interfaces/ (UseCase, tipos de validação) · dto/ (OkDto) · validation.ts
     │   ├── index.ts               lista de todos os casos de uso (para o módulo)
-    │   ├── auth/                  dto/ · use-cases/ (register, login, logout, get-session-user)
+    │   ├── auth/                  dto/ · use-cases/ (start-google-login, google-login, logout, get-session-user,
+    │   │                          purge-expired-sessions)
     │   ├── raffles/               dto/ · raffle.helpers.ts · use-cases/ (list, create, get-details,
     │   │                          update, delete, draw)
     │   ├── orders/                dto/ · order.helpers.ts · use-cases/ (approve, cancel, expire)
-    │   └── public-raffle/         dto/ · use-cases/ (get-public-raffle, reserve-numbers, get-buyer-order)
+    │   ├── public-raffle/         dto/ · public-raffle.helpers.ts · use-cases/ (get-public-raffle, hold-number,
+    │   │                          release-number, reserve-numbers, mark-proof-sent, get-buyer-order)
+    │   ├── photos/                use-cases/ (authorize-private-photo)
+    │   └── remote-config/         dto/ · use-cases/ (get-public-config)
     ├── infrastructure/
     │   ├── database/              PostgresDatabase (pool, transação), PostgresUnitOfWork, Migrator,
     │   │                          migrations/ (001_initial_schema…), interfaces/ (UserRow, RaffleRow, OrderRow…)
-    │   ├── repositories/          PostgresUser/Session/Raffle/Photo/OrderRepository (um por arquivo)
-    │   ├── storage/               LocalPhotoStorage (DATA_DIR/uploads)
+    │   ├── repositories/          PostgresUser/Session/Raffle/Photo/Order/RemoteConfigRepository (um por arquivo)
+    │   ├── storage/               LocalPhotoStorage (DATA_DIR/uploads/public e /private)
+    │   ├── google/                GoogleOAuthClient (troca o code por perfil, com PKCE)
     │   └── infrastructure.module.ts  liga token (classe abstrata) → implementação
     └── presentation/
         ├── http/
-        │   ├── controllers/       auth, raffles, orders, public-raffle
-        │   ├── guards/            AuthGuard + @CurrentUser / @SessionToken
-        │   ├── interfaces/        AuthenticatedRequest, BodyParserError
+        │   ├── controllers/       auth, raffles, orders, public-raffle, private-photos, remote-config
+        │   ├── guards/            AuthGuard + @CurrentUser / @SessionToken · RateLimitGuard + @RateLimit
+        │   ├── interfaces/        AuthenticatedRequest, BodyParserError, RateLimitRule
         │   ├── filters/           ApiExceptionFilter (formato único de erro)
         │   ├── pipes/             validação dos DTOs (primeira mensagem de erro)
         │   ├── interceptors/      ExpireOrdersInterceptor
-        │   ├── session-cookie.ts  cookie `sid`
+        │   ├── session-cookie.ts  cookie `sid` e cookie temporário do OAuth (`g_oauth`)
         │   └── http-server.ts     prefixo /api, corpo JSON, arquivos estáticos e fallback do SPA
-        └── jobs/                  ExpireOrdersJob (a cada 30 s)
+        └── jobs/                  ExpireOrdersJob (a cada 30 s) · PurgeExpiredSessionsJob (a cada 1 h)
 ```
 
 ### Casos de uso
 
 | Contexto | Caso de uso | Rota |
 |---|---|---|
-| auth | `RegisterUseCase` | `POST /api/register` |
-| | `LoginUseCase` | `POST /api/login` |
+| auth | `StartGoogleLoginUseCase` | `GET /api/auth/google` |
+| | `GoogleLoginUseCase` | `GET /api/auth/google/callback` |
 | | `LogoutUseCase` | `POST /api/logout` |
-| | `GetSessionUserUseCase` | `GET /api/me` e `AuthGuard` |
+| | `GetSessionUserUseCase` | `GET /api/me`, `AuthGuard`, rifa privada e foto privada |
+| | `PurgeExpiredSessionsUseCase` | `PurgeExpiredSessionsJob` (1 h) |
 | raffles | `ListMyRafflesUseCase` | `GET /api/raffles` |
 | | `CreateRaffleUseCase` | `POST /api/raffles` |
 | | `GetRaffleDetailsUseCase` | `GET /api/raffles/:id` |
@@ -208,14 +222,20 @@ apps/backend/
 | | `CancelOrderUseCase` | `POST /api/orders/:id/cancel` |
 | | `ExpireOrdersUseCase` | `ExpireOrdersInterceptor` (toda requisição) e `ExpireOrdersJob` (30 s) |
 | public-raffle | `GetPublicRaffleUseCase` | `GET /api/r/:slug` |
+| | `HoldNumberUseCase` | `POST /api/r/:slug/hold` |
+| | `ReleaseNumberUseCase` | `POST /api/r/:slug/release` |
 | | `ReserveNumbersUseCase` | `POST /api/r/:slug/reserve` |
 | | `GetBuyerOrderUseCase` | `GET /api/pedido/:token` |
+| | `MarkProofSentUseCase` | `POST /api/pedido/:token/comprovante` |
+| photos | `AuthorizePrivatePhotoUseCase` | `GET /uploads/private/:filename` |
+| remote-config | `GetPublicConfigUseCase` | `GET /api/config` |
 
 ### Ciclo de uma requisição
 
 ```
 express.json (40 MB)            erro de corpo → 413/400 { error }
   → AuthGuard (rotas de admin)  GetSessionUserUseCase(cookie sid) → 401 se não houver sessão
+  → RateLimitGuard (comprador)  hold/release/reserve/comprovante → 429 se o IP passou do limite
   → ExpireOrdersInterceptor     ExpireOrdersUseCase(now): libera reservas vencidas
   → ValidationPipe              JSON → DTO (normaliza e valida) → 400 com a 1ª mensagem
   → Controller                  monta o input e chama UM caso de uso
@@ -227,12 +247,13 @@ Expirar reservas fica **fora** dos casos de uso (interceptor + job) justamente p
 
 ### Transações
 
-- `IUnitOfWork.run(fn)` (token `UnitOfWork`) executa várias chamadas de repositório numa transação **`SERIALIZABLE`**. Usado em: criar/editar rifa, reservar, sortear, expirar.
+- `IUnitOfWork.run(fn)` (token `UnitOfWork`) executa várias chamadas de repositório numa transação **`SERIALIZABLE`**. Usado em: criar/editar rifa, ocupar/soltar número, confirmar dados do comprador, sortear, expirar.
 - Em conflito de concorrência (erro `40001`/`40P01`), a transação é **refeita automaticamente** (até 5 vezes). Por isso o `fn` não deve ter efeitos fora do banco.
 - As consultas dentro de `fn` usam a mesma conexão sem precisar passá-la: o `PostgresDatabase` guarda a transação atual em `AsyncLocalStorage`.
-- A transação é reentrante: repositórios que precisam de atomicidade interna (`OrderRepository.create`, `release`, `PhotoRepository.replaceAll`) participam da transação externa quando existe uma.
+- A transação é reentrante: repositórios que precisam de atomicidade interna (`OrderRepository.createHeld`/`addNumber`/`removeNumber`/`release`, `PhotoRepository.replaceAll`) participam da transação externa quando existe uma.
 - A PK `(raffle_id, number)` em `tickets` é a última barreira contra número duplicado: o repositório insere os números num `SAVEPOINT` e converte a violação (`23505`) em `NumbersUnavailableError`.
-- Testado com concorrência real: 30 reservas simultâneas do mesmo número → 1 sucesso, 29 recusadas (409); 10 reservas paralelas da mesma pessoa com limite 3 → exatamente 3.
+- Trocas de status fora de transação (`markProofSent`, `markPaid`) repetem a condição no `WHERE` do `UPDATE` e retornam se mudaram algo, para não reativar um pedido que o job acabou de expirar.
+- Testado com concorrência real (no fluxo antigo de reserva): 30 reservas simultâneas do mesmo número → 1 sucesso, 29 recusadas (409); 10 reservas paralelas da mesma pessoa com limite 3 → exatamente 3.
 
 ---
 
@@ -250,6 +271,8 @@ Expirar reservas fica **fora** dos casos de uso (interceptor + job) justamente p
 ## Banco de dados (PostgreSQL)
 
 ```
+remote_config (solta)
+
 users ─┬─< sessions
        └─< raffles ─┬─< photos
                     ├─< orders ─< tickets
@@ -258,12 +281,13 @@ users ─┬─< sessions
 
 | Tabela | Colunas principais | Observações |
 |---|---|---|
-| `users` | `name`, `email` (único), `pass_hash`, `salt` | Senha com `scrypt` (64 bytes) + salt aleatório |
-| `sessions` | `token` (PK), `user_id` | Token aleatório de 32 bytes, enviado no cookie `sid` |
-| `raffles` | `slug` (único), `user_id`, `title`, `description`, `total_numbers`, `price_cents`, `pix_key`, `whatsapp`, `reserve_minutes`, `max_per_buyer`, `draw_date`, `status` (`open`/`drawn`), `winner_number`, `drawn_at` | Datas em ms (epoch). Valores em centavos |
-| `photos` | `raffle_id`, `filename`, `position` | Arquivo em `DATA_DIR/uploads`; `position` 0 = capa |
-| `orders` | `raffle_id`, `token` (único), `buyer_name`, `buyer_phone`, `numbers` (JSONB), `status`, `created_at`, `expires_at`, `paid_at` | `status`: `pending`, `paid`, `expired`, `cancelled` |
-| `tickets` | PK `(raffle_id, number)`, `order_id` | **Garante que um número só pertence a um pedido ativo.** Linhas existem só para pedidos `pending`/`paid` |
+| `users` | `name`, `email` (único), `google_sub` (único) | Login só pelo Google. `pass_hash`/`salt` são da época do login por senha: ficam nulos em contas novas e não são mais usados |
+| `sessions` | `token` (PK), `user_id`, `created_at` | Token aleatório de 32 bytes, enviado no cookie `sid`. Vale 24h a partir do login, sem renovação; o job apaga as vencidas |
+| `raffles` | `slug` (único), `user_id`, `title`, `description`, `total_numbers`, `price_cents`, `pix_key`, `whatsapp`, `reserve_minutes`, `max_per_buyer`, `draw_date`, `status` (`open`/`drawn`), `visibility` (`public`/`private`), `winner_number`, `drawn_at` | Datas em ms (epoch). Valores em centavos |
+| `photos` | `raffle_id`, `filename`, `position` | Arquivo em `DATA_DIR/uploads/public` ou `/private` (segue a visibilidade da rifa); `position` 0 = capa |
+| `remote_config` | `key` (PK), `value`, `is_public`, `description` | Chaves que mudam o comportamento sem deploy. Hoje: `createUser` (`enabled`/`disabled`) |
+| `orders` | `raffle_id`, `token` (único), `buyer_name`, `buyer_phone`, `numbers` (JSONB), `status`, `created_at`, `expires_at`, `proof_sent_at`, `paid_at` | `status`: `held`, `pending`, `proof_sent`, `paid`, `expired`, `cancelled`. Nome e telefone são vazios só em `held` (e nos expirados/cancelados que vieram dele) |
+| `tickets` | PK `(raffle_id, number)`, `order_id` | **Garante que um número só pertence a um pedido ativo.** Linhas existem só para pedidos `held`/`pending`/`proof_sent`/`paid` |
 
 - Ids `BIGINT GENERATED ALWAYS AS IDENTITY`; datas em ms como `BIGINT` (o driver converte `BIGINT` para `number`).
 - Exclusão em cascata de `photos`, `orders` e `tickets` ao apagar a rifa; `CHECK` nos campos `status`.
@@ -330,22 +354,23 @@ docker compose exec db psql -U rifa -d minha_rifa
 
 Todas as respostas são JSON (`Cache-Control: no-store`). Erros: `{ "error": "mensagem em português" }`, e na reserva também `busy: [números]`.
 
-### Conta
+### Conta (login só com Google)
 
-| Método | Rota | Corpo | Resposta | Regras |
-|---|---|---|---|---|
-| `POST` | `/api/register` | `{ name, email, password }` | `{ name, email }` + cookie | E-mail válido e único; senha ≥ 6 |
-| `POST` | `/api/login` | `{ email, password }` | `{ name, email }` + cookie | 401 se inválido (comparação em tempo constante) |
-| `POST` | `/api/logout` | — | `{ ok }` | Apaga a sessão e o cookie |
-| `GET` | `/api/me` | — | `{ user: { name, email } \| null }` | |
+| Método | Rota | Resposta | Regras |
+|---|---|---|---|
+| `GET` | `/api/auth/google` | 302 para o Google + cookie `g_oauth` (state + PKCE, 10 min) | |
+| `GET` | `/api/auth/google/callback` | 302 para `/painel` + cookie `sid`, ou para `/?erro=mensagem` | Confere o `state`; e-mail do Google precisa estar verificado. Acha a conta pelo `google_sub`; se não achar, liga pelo e-mail; se não existir, cria (só com `createUser` ≠ `disabled`) |
+| `POST` | `/api/logout` | `{ ok }` | Apaga a sessão e o cookie |
+| `GET` | `/api/me` | `{ user: { name, email } \| null }` | Sessão vencida limpa o cookie |
+| `GET` | `/api/config` | `{ chave: valor }` | Só as chaves com `is_public` |
 
 ### Rifas do administrador (exigem login)
 
 | Método | Rota | Resposta / efeito | Regras |
 |---|---|---|---|
-| `GET` | `/api/raffles` | Lista com `paid`, `pending`, `cover` | Só rifas do usuário |
+| `GET` | `/api/raffles` | Lista com `paid`, `pending` (todos os números ocupados e não pagos), `awaiting` (`proof_sent`), `cover` | Só rifas do usuário |
 | `POST` | `/api/raffles` | `{ id, slug }` | Valida campos (`RaffleInputDto` + `CreateRaffleUseCase`), até 8 fotos em data URL |
-| `GET` | `/api/raffles/:id` | `{ raffle, photos, orders, taken, counts, can_draw, winner }` | `orders` só pendentes e pagos; `taken` = `[número, 'p'\|'r']` |
+| `GET` | `/api/raffles/:id` | `{ raffle, photos, orders, taken, counts, can_draw, winner }` | `orders` só `pending`, `proof_sent` e `paid` (carrinhos `held` não aparecem); `taken` = `[número, 'p'\|'r']` |
 | `PUT` | `/api/raffles/:id` | `{ ok }` | Só se `open`. Com números reservados/pagos, `total_numbers` e `price_cents` são ignorados. `photos`: `{ id }` mantém, `{ data }` cria; as ausentes são apagadas |
 | `DELETE` | `/api/raffles/:id` | `{ ok }` | Proibido se houver número pago |
 | `POST` | `/api/raffles/:id/draw` | `{ winner }` | Ver [Sorteio](#sorteio) |
@@ -354,16 +379,19 @@ Todas as respostas são JSON (`Cache-Control: no-store`). Erros: `{ "error": "me
 
 | Método | Rota | Regras |
 |---|---|---|
-| `POST` | `/api/orders/:id/approve` | Só pedido `pending` → `paid` |
-| `POST` | `/api/orders/:id/cancel` | Pedido `pending` ou `paid` → `cancelled`, libera os números |
+| `POST` | `/api/orders/:id/approve` | Pedido `pending` ou `proof_sent` → `paid` |
+| `POST` | `/api/orders/:id/cancel` | Pedido `pending`, `proof_sent` ou `paid` → `cancelled`, libera os números |
 
 ### Público (sem login)
 
 | Método | Rota | Corpo | Resposta |
 |---|---|---|---|
 | `GET` | `/api/r/:slug` | — | `{ raffle, photos, taken, winner }`. `taken` = `[número, 'p'\|'r']`, `winner` = `{ number }`. Sem nomes nem telefones |
-| `POST` | `/api/r/:slug/reserve` | `{ name, phone, numbers }` | `{ token }`. 409 + `busy` se algum número já foi pego |
-| `GET` | `/api/pedido/:token` | — | `{ token, status, buyer_name, numbers, total_cents, expires_at }` |
+| `POST` | `/api/r/:slug/hold` | `{ token?, number }` | `{ token, numbers, expires_at }`. Ocupa o número no carrinho (cria o carrinho `held` se não houver). 409 + `busy` se já foi pego |
+| `POST` | `/api/r/:slug/release` | `{ token, number }` | `{ token, numbers, expires_at }`. Solta o número do carrinho; carrinho vazio vira `cancelled` |
+| `POST` | `/api/r/:slug/reserve` | `{ token, name, phone }` | `{ token }`. Carrinho `held` → `pending` (mesmo prazo). Erro se o prazo acabou |
+| `GET` | `/api/pedido/:token` | — | `{ token, status, buyer_name, numbers, total_cents, expires_at, proof_sent_at }` |
+| `POST` | `/api/pedido/:token/comprovante` | — | `{ ok }`. `pending` → `proof_sent` (para o prazo). Erro se ainda for `held` ou se o prazo acabou |
 
 O `token` do pedido (16 bytes aleatórios) é a única "credencial" do comprador e fica no `localStorage` dele.
 
@@ -375,11 +403,12 @@ O `token` do pedido (16 bytes aleatórios) é a única "credencial" do comprador
 
 | Campo | Regra |
 |---|---|
-| `title` | 1–120 caracteres |
-| `description` | 0–5000 |
+| `title` | 1–60 caracteres (`MAX_TITLE_LENGTH`). Na edição, um título antigo maior (até 120) passa se não for alterado |
+| `description` | 0–500 (`MAX_DESCRIPTION_LENGTH`). Na edição, uma descrição antiga maior (até 5000) passa se não for alterada |
 | `pix_key` | 1–200 |
 | `whatsapp` | 10–13 dígitos (só dígitos são guardados) |
-| `reserve_minutes` | 5 a 43.200 (30 dias) |
+| `reserve_minutes` | 5 a 43.200 (30 dias). É o prazo do **comprador** (do clique até avisar o organizador) |
+| `visibility` | `public` ou `private` |
 | `max_per_buyer` | vazio ou 1–5000 |
 | `draw_date` | vazio ou timestamp em ms |
 | `total_numbers` | 2–5000 (ignorado quando travado) |
@@ -388,34 +417,38 @@ O `token` do pedido (16 bytes aleatórios) é a única "credencial" do comprador
 
 ### Reserva
 
-1. Rifa precisa estar `open`; nome 1–80 caracteres; telefone 10–13 dígitos; pelo menos 1 número; números entre 1 e `total_numbers` (duplicados são removidos).
-2. Limite por comprador: soma os números já em pedidos ativos com o mesmo telefone.
-3. Números ocupados → 409 com `busy`.
-4. Cria o pedido com `expires_at = agora + reserve_minutes`.
+Regra central: **o prazo é do comprador, não do admin.** O número fica ocupado no clique e o comprador tem `reserve_minutes` para informar os dados, pagar e avisar o organizador pelo WhatsApp. Depois do aviso, o admin confere no próprio banco **sem prazo** e confirma ou recusa. (O sistema não recebe comprovante do banco: `proof_sent` significa só "o comprador clicou para avisar o organizador". O nome `comprovante` na rota é histórico; a tela fala em "avisar o organizador".)
+
+1. **Clique** (`hold`): rifa `open` e pública; número entre 1 e `total_numbers`. Sem carrinho ativo, cria um pedido `held` com `expires_at = agora + reserve_minutes`; com carrinho, só adiciona o número (o prazo não muda). Limite por comprador conta os números do carrinho. Número ocupado → 409 com `busy`.
+2. **Dados** (`reserve`): carrinho `held` dentro do prazo; nome 1–80 caracteres; telefone 10–13 dígitos. Limite por comprador soma os números de outros pedidos com o mesmo telefone. Vira `pending`, mantendo o prazo.
+3. **Aviso ao organizador** (`comprovante`): pedido `pending` dentro do prazo → `proof_sent`, que não expira mais. O admin aprova (`pending` ou `proof_sent` → `paid`) ou recusa (→ `cancelled`) quando quiser.
+4. `held` e `pending` vencidos são liberados (`expired`).
+5. As trocas de status (`proof_sent`, `paid`) repetem a condição no próprio `UPDATE` (`WHERE status = … AND expires_at > agora`). Se o job de expiração liberar o pedido no meio da requisição, a troca não acontece e o comprador/admin recebe erro, em vez de um pedido ativo sem números.
+6. **Limite por IP** (`RateLimitGuard`, em memória): `hold`/`release` dividem um contador (`CART_ACTIONS_PER_MINUTE`); `reserve`/`comprovante` outro (`BUYER_SUBMITS_PER_MINUTE`). Estourou → 429. Os limites são folgados porque operadoras de celular (CGNAT) põem muita gente no mesmo IP: freiam script, não pessoa clicando.
 
 ### Sorteio
 
 - `canDraw`: rifa `open`, pelo menos 1 pago, e (todos pagos **ou** `agora ≥ draw_date`).
 - Ganhador: `crypto.randomInt` sobre a lista de números pagos.
-- Na mesma transação: cancela pedidos pendentes, grava `status = 'drawn'`, `winner_number`, `drawn_at`.
+- Na mesma transação: cancela pedidos não pagos (`held`, `pending`, `proof_sent`), grava `status = 'drawn'`, `winner_number`, `drawn_at`.
 - Depois disso, edição, aprovação e cancelamento retornam erro.
 
 ### Privacidade
 
 - Endpoints públicos não expõem nome nem telefone de quem comprou: só o número e se está reservado ou pago. O comprador vê o próprio nome apenas no seu pedido (pelo token).
 - Telefones de compradores só saem em `/api/raffles/:id` (dono da rifa).
+- Rifa `private`: só o dono vê (`canView`); para os outros, `/api/r/:slug` responde 404 e reservar é proibido. As fotos dela ficam em `uploads/private` e só saem por `/uploads/private/:filename` para o dono logado.
 
 ### Sessão e cookies
 
-- Cookie `sid`: `HttpOnly`, `SameSite=Lax`, `Path=/`, 30 dias. Sem `Secure`; em produção use HTTPS na frente.
-- Sessões não expiram no banco (só o cookie). Logout apaga a sessão.
+- Cookie `sid`: `HttpOnly`, `SameSite=Lax`, `Path=/`, 24h. Ganha `Secure` quando `APP_URL` é `https://`.
+- A sessão vale **24h a partir do login, sem renovação**: depois disso, entra de novo pelo Google. A checagem é no banco (`created_at`), e o `PurgeExpiredSessionsJob` apaga as vencidas a cada hora. Logout apaga a sessão.
 
 ---
 
 ## Limitações conhecidas
 
-- Sem rate limit em login/cadastro/reserva.
+- O limite por IP fica em memória: vale para uma instância só e zera quando a app reinicia. Também não impede quem usa muitos IPs de ocupar números (eles expiram no prazo da rifa).
 - Sem testes automatizados (a paridade da API foi verificada com um script externo).
 - Fotos chegam em base64 no JSON (corpo até 40 MB).
-- Sessões não expiram no banco (só o cookie).
 - Fotos ficam em disco local (`DATA_DIR`): com várias instâncias, use um volume compartilhado ou mova para um storage de objetos (S3 etc.) implementando outro `PhotoStorage`.

@@ -1,7 +1,10 @@
 import { useState } from 'react';
+import { CharCount } from '../../../shared/ui/components';
 import { MoneyInput, PhoneInput } from '../../../shared/ui/components/MaskedInputs';
 import { useToast } from '../../../shared/ui/feedback/ToastProvider';
-import { toFormValues, toPayload } from '../model/raffleFormModel';
+import {
+  MAX_DESCRIPTION_LENGTH, MAX_TITLE_LENGTH, toFormValues, toPayload,
+} from '../model/raffleFormModel';
 import { PhotoPicker } from './PhotoPicker';
 
 export function RaffleForm({
@@ -49,10 +52,12 @@ export function RaffleForm({
   return (
     <form className="stack" onSubmit={handleSubmit}>
       <label>Título da rifa
-        <input {...field('title')} maxLength={120} required autoFocus={autoFocus} placeholder="Ex.: Rifa de uma bicicleta aro 29" />
+        <input {...field('title')} maxLength={MAX_TITLE_LENGTH} required autoFocus={autoFocus} placeholder="Ex.: Rifa de uma bicicleta aro 29" />
+        <CharCount value={values.title} max={MAX_TITLE_LENGTH} />
       </label>
-      <label>Descrição <span className="hint">Conte o que é o prêmio, o estado, como será a entrega…</span>
-        <textarea {...field('description')} maxLength={5000} />
+      <label>Descrição <span className="hint">Em poucas linhas: o estado do prêmio ou o motivo da rifa</span>
+        <textarea {...field('description')} maxLength={MAX_DESCRIPTION_LENGTH} />
+        <CharCount value={values.description} max={MAX_DESCRIPTION_LENGTH} />
       </label>
 
       <PhotoPicker photos={photos} onChange={changePhotos} />
@@ -73,7 +78,7 @@ export function RaffleForm({
         <label>Chave PIX para pagamento
           <input {...field('pix_key')} maxLength={200} required placeholder="CPF, celular, e-mail ou chave aleatória" />
         </label>
-        <label>Seu WhatsApp (com DDD) <span className="hint">Para onde os compradores enviam o comprovante</span>
+        <label>Seu WhatsApp (com DDD) <span className="hint">Para onde os compradores avisam que fizeram o PIX</span>
           <PhoneInput {...maskedField('whatsapp')} required />
         </label>
       </div>

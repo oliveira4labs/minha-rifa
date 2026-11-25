@@ -47,6 +47,7 @@ function configureStaticFiles(app: NestExpressApplication): void {
 export function configureHttp(app: NestExpressApplication): void {
   app.setGlobalPrefix(API_PREFIX, { exclude: [{ path: `${PRIVATE_PHOTOS_ROUTE}/:filename`, method: RequestMethod.GET }] });
   app.disable('x-powered-by');
+  if (appConfig.trustProxy) app.set('trust proxy', appConfig.trustProxy);
   app.set('etag', false);
   app.use(`/${API_PREFIX}`, (_req: Request, res: Response, next: NextFunction) => {
     res.setHeader('Cache-Control', 'no-store');

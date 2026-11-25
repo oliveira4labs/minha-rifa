@@ -13,7 +13,7 @@ export class ExpireOrdersUseCase implements UseCase<number, number> {
   ) {}
 
   async execute(now: number = Date.now()): Promise<number> {
-    const expired = await this.orders.listExpiredPendingIds(now);
+    const expired = await this.orders.listExpiredIds(now);
     if (!expired.length) return 0;
     await this.unitOfWork.run(async () => {
       for (const id of expired) await this.orders.release(id, 'expired');
