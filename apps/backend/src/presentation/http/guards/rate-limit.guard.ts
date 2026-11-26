@@ -8,7 +8,6 @@ import type { RateLimitRule, RateLimitWindow } from '../interfaces/rate-limit.in
 const RATE_LIMIT_KEY = 'rateLimit';
 const SWEEP_EVERY_MS = 60_000;
 
-// Em memória: a app roda numa instância só. Com mais de uma, isto precisa ir para o banco/Redis.
 const windows = new Map<string, RateLimitWindow>();
 let nextSweepAt = 0;
 
@@ -18,7 +17,6 @@ function sweep(now: number): void {
   for (const [key, window] of windows) if (window.resetAt <= now) windows.delete(key);
 }
 
-/** Limita quantas vezes o mesmo IP chama a rota por janela de tempo (protege as rotas públicas sem login). */
 @Injectable()
 export class RateLimitGuard implements CanActivate {
   constructor(private readonly reflector: Reflector) {}

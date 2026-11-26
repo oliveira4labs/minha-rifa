@@ -17,9 +17,7 @@ export interface IOrderRepository {
   addNumber(order: Order, number: number): Promise<Order>;
   removeNumber(order: Order, number: number): Promise<Order>;
   confirmBuyer(id: number, name: string, phone: string): Promise<void>;
-  /** `pending` dentro do prazo → `proof_sent`. Retorna `false` se o pedido já não estava nesse estado. */
   markProofSent(id: number, sentAt: number): Promise<boolean>;
-  /** `pending`/`proof_sent` → `paid`. Retorna `false` se o pedido já não estava nesse estado. */
   markPaid(id: number, paidAt: number): Promise<boolean>;
   release(id: number, status: ReleaseStatus): Promise<void>;
 }

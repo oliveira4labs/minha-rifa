@@ -1,9 +1,5 @@
 import { useLayoutEffect, useRef, useState } from 'react';
 
-/**
- * Texto cortado em `lines` linhas (line-clamp). Só mostra "Ver mais" quando o texto realmente passa do limite;
- * mede de novo quando a largura muda (girar o celular, redimensionar a janela).
- */
 export function ClampedText({ text, lines = 5, className = '' }) {
   const ref = useRef(null);
   const [expanded, setExpanded] = useState(false);

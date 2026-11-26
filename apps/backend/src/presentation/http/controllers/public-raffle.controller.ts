@@ -19,7 +19,6 @@ import { RateLimit } from '../guards/rate-limit.guard.js';
 import type { RateLimitRule } from '../interfaces/rate-limit.interface.js';
 
 const ONE_MINUTE = 60_000;
-// Clicar e soltar número dividem o mesmo contador: é o que um script usaria para ocupar a rifa inteira.
 const CART_LIMIT: RateLimitRule = { bucket: 'carrinho', limit: appConfig.cartActionsPerMinute, windowMs: ONE_MINUTE };
 const SUBMIT_LIMIT: RateLimitRule = { bucket: 'envio', limit: appConfig.buyerSubmitsPerMinute, windowMs: ONE_MINUTE };
 
