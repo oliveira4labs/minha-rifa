@@ -91,7 +91,7 @@ Cada reserva é um **pedido** com um ou mais números. A regra central:
 |---|---|---|
 | `held` (guardado) | Só o próprio comprador (os outros veem "reservado") | Clicou nos números, ainda não informou os dados. Pode soltar um número clicando de novo |
 | `pending` (pendente) | Comprador e admin ("Aguardando pagamento do comprador") | Dados informados; falta pagar e avisar o organizador |
-| `proof_sent` (organizador avisado) | Comprador ("Organizador avisado ✓") e admin ("Avisaram que pagaram — confira no seu banco") | O relógio parou; o número fica ocupado até o admin confirmar ou recusar |
+| `proof_sent` (organizador avisado) | Comprador ("Aguardando confirmação", em uma linha com os números e quando avisou) e admin ("Avisaram que pagaram — confira no seu banco") | O relógio parou; o número fica ocupado até o admin confirmar ou recusar |
 | `paid` (pago) | Todos | Pagamento confirmado |
 
 - O prazo é contado **a partir do primeiro clique** e vale para todos os números do mesmo carrinho.
@@ -107,9 +107,9 @@ Cada reserva é um **pedido** com um ou mais números. A regra central:
 Não há integração com meio de pagamento. O fluxo é manual:
 
 1. O comprador clica nos números: eles ficam guardados e a barra de baixo mostra "Finalize em …" com o tempo restante.
-2. Em **Continuar**, informa nome e WhatsApp e vê o pedido "Seus números estão guardados!", com a mesma contagem regressiva e os passos (fazer o PIX, avisar o organizador).
+2. Em **Continuar**, informa nome e WhatsApp e vê o card "Falta o PIX" em "Seus números": "Finalize em …", o valor com os números, a chave PIX para copiar e o botão "Já paguei, avisar o organizador".
 3. Copia a chave PIX e paga fora do sistema.
-4. Toca em "Avisar o organizador pelo WhatsApp": o pedido passa a "Organizador avisado" (o relógio para) e abre a conversa com o administrador já com a mensagem pronta ("Quero reservar o número X… Já fiz o PIX, pode conferir?", com nome e total).
+4. Toca em "Já paguei, avisar o organizador": o pedido vira a linha "Aguardando confirmação" (o relógio para) e abre a conversa com o administrador já com a mensagem pronta (nome, rifa, números, total e "Já fiz o PIX, pode conferir?"). Depois de confirmado, a linha vira "Pagamento confirmado".
 5. O administrador confere no extrato do banco dele, sem prazo, e clica em **Confirmar pagamento** no painel (ou **Recusar**). Ele também pode confirmar um pedido ainda "Aguardando pagamento". Uma venda paga ainda pode ser **desfeita** enquanto a rifa estiver aberta.
 
 ### Sorteio
@@ -131,7 +131,7 @@ Não há integração com meio de pagamento. O fluxo é manual:
 
 ### Comprador sem conta
 
-- Os pedidos do comprador ficam guardados **no próprio navegador** (`localStorage`, chave `rifa:<slug>:pedidos`), e o carrinho com os números guardados em `rifa:<slug>:carrinho` (recarregar a página não perde a seleção). Em outro aparelho ele não verá a seção "Seus pedidos".
+- Os pedidos do comprador ficam guardados **no próprio navegador** (`localStorage`, chave `rifa:<slug>:pedidos`), e o carrinho com os números guardados em `rifa:<slug>:carrinho` (recarregar a página não perde a seleção). Em outro aparelho ele não verá a seção "Seus números".
 - Nome e WhatsApp da última reserva são lembrados (`rifa:comprador`) e preenchem o formulário da próxima.
 - Pedidos expirados ou cancelados **não aparecem**: somem da tela e do `localStorage` sozinhos. Se um pedido que estava na tela vence, aparece o toast "O tempo acabou e os números foram liberados."
 - Número ocupado: "O número 19 já foi reservado. Escolha outro." (ou "já foi vendido", se estiver pago), sempre em toast.

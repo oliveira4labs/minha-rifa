@@ -80,7 +80,7 @@ export function PublicRafflePage() {
         <RaffleHero raffle={raffle} photos={data.photos} taken={data.taken} />
         {orders.length > 0 && (
           <section className="stack-sm">
-            <h2>Seus pedidos</h2>
+            <h2>Seus números</h2>
             {orders.map((o) => (
               <BuyerOrderCard key={o.token} order={o} raffle={raffle} onProofSent={sendProof} />
             ))}

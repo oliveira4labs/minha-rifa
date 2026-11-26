@@ -200,9 +200,14 @@ dialog.lightbox::backdrop { background: rgba(14, 12, 9, .6); }
 .nowrap { white-space: nowrap; }
 
 .order { border: 1px solid var(--line); border-radius: 12px; padding: 14px; display: grid; gap: 10px; background: #fff; }
-.order.pending { border-color: #e7b24a; background: #fffaf0; }
-.order.proof_sent { border-color: #e7b24a; background: #fffaf0; box-shadow: inset 4px 0 0 #e7b24a; }
-.order.paid { border-color: #a9d3c7; background: #f3faf7; }
+.order.pending { border-color: #e7b24a; background: #fffaf0; gap: 14px; }
+.order-head { display: flex; align-items: center; gap: 10px; }
+.order-head .tag { white-space: nowrap; }
+.order-row { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: #fff; }
+.order-row.waiting { box-shadow: inset 4px 0 0 #e7b24a; }
+.order-row.paid { box-shadow: inset 4px 0 0 var(--primary); }
+.order-icon { flex: none; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: var(--amber-soft); font-size: 1.1rem; }
+.order-row.paid .order-icon { background: var(--primary-soft); }
 .chips { display: flex; gap: 5px; flex-wrap: wrap; }
 .chip { background: #efeae0; border-radius: 7px; padding: 2px 8px; font-weight: 700; font-size: .85rem; font-variant-numeric: tabular-nums; }
 .pixbox { display: flex; gap: 8px; align-items: center; background: #fff; border: 1px dashed #b9b0a0; border-radius: 10px; padding: 8px 8px 8px 12px; }
