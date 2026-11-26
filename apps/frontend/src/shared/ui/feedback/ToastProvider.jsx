@@ -1,35 +1,29 @@
-import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { Toaster, toast } from 'sonner';
 
-const ToastContext = createContext(null);
+const DURATION = { info: 3000, error: 5000 };
 
-const DURATION = { info: 3000, error: 6000 };
+// Mesma API de antes (`toast(mensagem, isError)`), agora com o sonner: empilha os avisos, deixa arrastar
+// para fechar e não fica por cima da barra de compra (aparece no topo).
+const show = (message, isError = false) => (isError
+  ? toast.error(message, { duration: DURATION.error })
+  : toast(message, { duration: DURATION.info }));
 
 export function ToastProvider({ children }) {
-  const [toast, setToast] = useState(null);
-  const timer = useRef();
-
-  const show = useCallback((message, isError = false) => {
-    clearTimeout(timer.current);
-    setToast({ message, isError, key: Date.now() });
-    timer.current = setTimeout(() => setToast(null), isError ? DURATION.error : DURATION.info);
-  }, []);
-
-  useEffect(() => () => clearTimeout(timer.current), []);
-
   return (
-    <ToastContext.Provider value={show}>
+    <>
       {children}
-      {toast && (
-        <div key={toast.key} className={`toast${toast.isError ? ' err' : ''}`} role="status">
-          {toast.message}
-        </div>
-      )}
-    </ToastContext.Provider>
+      <Toaster
+        position="top-center"
+        richColors
+        visibleToasts={3}
+        offset={16}
+        mobileOffset={12}
+        toastOptions={{ className: 'app-toast' }}
+      />
+    </>
   );
 }
 
 export function useToast() {
-  const ctx = useContext(ToastContext);
-  if (!ctx) throw new Error('useToast precisa estar dentro de <ToastProvider>.');
-  return ctx;
+  return show;
 }

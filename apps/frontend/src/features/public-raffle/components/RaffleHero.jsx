@@ -30,7 +30,15 @@ export function RaffleHero({ raffle, photos, taken }) {
           />
           <p className="small muted num"><b style={{ color: 'var(--ink)' }}>{free}</b> de {total} números disponíveis</p>
         </div>
-        {raffle.draw_date && <p className="small">🗓️ Sorteio previsto para <b>{formatDate(raffle.draw_date)}</b></p>}
+        {raffle.draw_date && (
+          <div className="draw-date">
+            <span className="draw-date-icon" aria-hidden="true">🗓️</span>
+            <div>
+              <small>{open ? 'Sorteio previsto' : 'Sorteio'}</small>
+              <strong>{formatDate(raffle.draw_date).replace(', ', ' às ')}</strong>
+            </div>
+          </div>
+        )}
         {raffle.description && <ClampedText className="desc" text={raffle.description} lines={5} />}
       </div>
     </section>

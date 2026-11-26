@@ -38,9 +38,7 @@ export function NumbersSection({ raffle, taken, selected, winnerNumber, onPick }
       />
       {open && (
         <p className="small muted">
-          Ao clicar num número, ele fica guardado para você por {formatDuration(raffle.reserve_minutes)}. Nesse tempo,
-          informe seus dados, faça o PIX e avise o organizador pelo WhatsApp; se não der tempo, o número volta a ficar disponível.
-          {raffle.max_per_buyer ? ` Limite de ${raffle.max_per_buyer} número(s) por pessoa.` : ''}
+          Ao clicar num número, ele fica guardado para você por {formatDuration(raffle.reserve_minutes)}.
         </p>
       )}
     </section>

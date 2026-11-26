@@ -70,7 +70,7 @@ function RaffleOverview({ data, actions }) {
       <StatsGrid raffle={raffle} counts={counts} />
       {!winner && drawSection}
       <OrdersSection
-        title="Avisaram que pagaram — confira no seu banco"
+        title="Avisaram que pagaram"
         orders={proofSent}
         emptyText="Nenhum pagamento para conferir. Quando um comprador avisar pelo WhatsApp que fez o PIX, o pedido aparece aqui."
         {...orderProps}

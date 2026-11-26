@@ -40,6 +40,7 @@ Qualquer pessoa pode criar uma conta e vira administradora **apenas das rifas qu
 ### Conta
 
 - Login **só com Google** (botão "Entrar com Google" em `/`). Não existe mais cadastro por e-mail e senha.
+- A tela de entrada (`/`) é um card simples e centralizado: "Entre na sua conta", uma frase sobre o painel, o botão do Google, o link da Política de Privacidade e, abaixo do card, o aviso de que quem compra não precisa de conta.
 - Primeiro acesso cria a conta com o nome e o e-mail do Google. Uma conta antiga com o mesmo e-mail é ligada ao Google automaticamente.
 - Criar conta nova pode ser desligado sem deploy pela chave `createUser` do remote config (`disabled`): aí só quem já tem conta entra.
 - Erros do login voltam para `/?erro=mensagem` e aparecem como toast.
@@ -90,12 +91,12 @@ Cada reserva é um **pedido** com um ou mais números. A regra central:
 |---|---|---|
 | `held` (guardado) | Só o próprio comprador (os outros veem "reservado") | Clicou nos números, ainda não informou os dados. Pode soltar um número clicando de novo |
 | `pending` (pendente) | Comprador e admin ("Aguardando pagamento do comprador") | Dados informados; falta pagar e avisar o organizador |
-| `proof_sent` (organizador avisado) | Comprador ("Organizador avisado ✓") e admin ("Avisaram que pagaram — confira no seu banco") | O relógio parou; o número fica ocupado até o admin confirmar ou recusar |
+| `proof_sent` (organizador avisado) | Comprador ("Aguardando confirmação", em uma linha com os números e quando avisou) e admin ("Avisaram que pagaram — confira no seu banco") | O relógio parou; o número fica ocupado até o admin confirmar ou recusar |
 | `paid` (pago) | Todos | Pagamento confirmado |
 
 - O prazo é contado **a partir do primeiro clique** e vale para todos os números do mesmo carrinho.
 - Um número pertence a **no máximo um pedido ativo** por vez. Se dois compradores clicam no mesmo número, o segundo recebe aviso e a grade é atualizada.
-- O **limite por comprador** vale no carrinho (não deixa clicar além do limite) e, ao informar os dados, também soma os pedidos que aquele WhatsApp já tem na rifa.
+- O **limite por comprador** é contado pelo **WhatsApp** (o comprador não tem conta). No clique, a página já soma o carrinho com os números dos pedidos ativos guardados neste navegador e avisa "Você já tem 2 números nesta rifa. O limite é 2 por pessoa." sem ocupar o número. Ao informar os dados, o servidor confere de novo somando tudo o que aquele WhatsApp tem na rifa (pega quem compra de outro aparelho).
 - Pedidos `held` e `pending` expiram sozinhos ao fim do prazo. O servidor libera os números a cada 30s e antes de toda requisição.
 - O sistema não recebe comprovante: o que para o relógio é o clique no botão do WhatsApp (o sistema não vê se a mensagem saiu). Quem confirma o pagamento é o admin, olhando o próprio extrato. Se o PIX não caiu, ele **recusa** o pedido.
 - No código e na API o status continua `proof_sent` e a rota `/api/pedido/:token/comprovante` (nomes internos); a tela não fala mais em "comprovante".
@@ -105,10 +106,10 @@ Cada reserva é um **pedido** com um ou mais números. A regra central:
 
 Não há integração com meio de pagamento. O fluxo é manual:
 
-1. O comprador clica nos números: eles ficam guardados e a barra de baixo mostra o tempo restante.
-2. Em **Continuar**, informa nome e WhatsApp e vê o pedido "Seus números estão guardados!", com a mesma contagem regressiva e os passos (fazer o PIX, avisar o organizador).
+1. O comprador clica nos números: eles ficam guardados e a barra de baixo mostra "Finalize em …" com o tempo restante.
+2. Em **Continuar**, informa nome e WhatsApp e vê o card "Falta o PIX" em "Seus números": "Finalize em …", o valor com os números, a chave PIX para copiar e o botão "Já paguei, avisar o organizador".
 3. Copia a chave PIX e paga fora do sistema.
-4. Toca em "Avisar o organizador pelo WhatsApp": o pedido passa a "Organizador avisado" (o relógio para) e abre a conversa com o administrador já com a mensagem pronta ("Quero reservar o número X… Já fiz o PIX, pode conferir?", com nome e total).
+4. Toca em "Já paguei, avisar o organizador": o pedido vira a linha "Aguardando confirmação" (o relógio para) e abre a conversa com o administrador já com a mensagem pronta (nome, rifa, números, total e "Já fiz o PIX, pode conferir?"). Depois de confirmado, a linha vira "Pagamento confirmado".
 5. O administrador confere no extrato do banco dele, sem prazo, e clica em **Confirmar pagamento** no painel (ou **Recusar**). Ele também pode confirmar um pedido ainda "Aguardando pagamento". Uma venda paga ainda pode ser **desfeita** enquanto a rifa estiver aberta.
 
 ### Sorteio
@@ -130,9 +131,10 @@ Não há integração com meio de pagamento. O fluxo é manual:
 
 ### Comprador sem conta
 
-- Os pedidos do comprador ficam guardados **no próprio navegador** (`localStorage`, chave `rifa:<slug>:pedidos`), e o carrinho com os números guardados em `rifa:<slug>:carrinho` (recarregar a página não perde a seleção). Em outro aparelho ele não verá a seção "Seus pedidos".
+- Os pedidos do comprador ficam guardados **no próprio navegador** (`localStorage`, chave `rifa:<slug>:pedidos`), e o carrinho com os números guardados em `rifa:<slug>:carrinho` (recarregar a página não perde a seleção). Em outro aparelho ele não verá a seção "Seus números".
 - Nome e WhatsApp da última reserva são lembrados (`rifa:comprador`) e preenchem o formulário da próxima.
-- Pedidos expirados ou cancelados podem ser **dispensados** da lista.
+- Pedidos expirados ou cancelados **não aparecem**: somem da tela e do `localStorage` sozinhos. Se um pedido que estava na tela vence, aparece o toast "O tempo acabou e os números foram liberados."
+- Número ocupado: "O número 19 já foi reservado. Escolha outro." (ou "já foi vendido", se estiver pago), sempre em toast.
 
 ### Divulgação
 
@@ -155,7 +157,8 @@ Na página pública, cada clique num número já ocupa (ou solta) o número no s
 
 - Números exibidos com zeros à esquerda conforme o total (`007` numa rifa de 100).
 - Valores em reais (`R$ 10,00`), datas em `dd/mm/aaaa hh:mm`, telefone `(11) 91234-5678`.
-- Links de WhatsApp assumem DDI 55 quando o número tem até 11 dígitos.
+- Links de WhatsApp assumem DDI 55 quando o número tem até 11 dígitos e usam `api.whatsapp.com/send` (o `wa.me` estragava emojis da mensagem em alguns aparelhos).
+- Campos de formulário têm no mínimo 16px de fonte: abaixo disso o Safari do iPhone dá zoom ao focar e a tela fica ampliada depois.
 
 ---
 
@@ -205,7 +208,7 @@ apps/frontend/
         ├── ui/
         │   ├── components/  Tag, ProgressBar, Chips, CopyBox, Countdown, Stat, Loading, ErrorCard, ExternalLink,
         │   │                CharCount · ClampedText (line-clamp + "Ver mais", mede com ResizeObserver)
-        │   ├── feedback/    ToastProvider, ConfirmProvider, Dialog
+        │   ├── feedback/    ToastProvider (sonner), ConfirmProvider, Dialog
         │   └── layout/      Topbar
         └── styles/global.css
 ```
@@ -241,7 +244,7 @@ Dentro de cada feature, a mesma divisão:
 | `api/authApi.js` | `me`, `logout` e `GOOGLE_LOGIN_URL` (`/api/auth/google`, link comum, não é fetch) |
 | `context/AuthContext.jsx` | `AuthProvider` + `useAuth()`: `user` (`undefined` = carregando, `null` = deslogado), `loading`, `logout` |
 | `components/RouteGuards.jsx` | `RequireAuth` (rotas do admin) e `GuestOnly` (tela de entrada) |
-| `components/AuthForm.jsx` | Botão "Entrar com Google" e toast do `?erro=` que volta do login |
+| `components/AuthForm.jsx` | Botão "Entrar com Google", link da Política de Privacidade e toast do `?erro=` que volta do login (o card fica no `LoginPage`) |
 
 #### `remote-config`
 
@@ -289,7 +292,7 @@ Sem Redux/Zustand/React Query. O estado fica onde é usado:
 | Usuário logado | `AuthContext` |
 | Remote config | `RemoteConfigContext` |
 | Carrinho do comprador | `useCart` (servidor + token em `localStorage`) |
-| Toast e diálogo de confirmação | `ToastProvider` / `ConfirmProvider` (`useToast()`, `useConfirm()`) |
+| Toast e diálogo de confirmação | `ToastProvider` / `ConfirmProvider` (`useToast()`, `useConfirm()`). O toast usa a biblioteca [sonner](https://sonner.emilkowal.ski/), no topo da tela; `useToast()` continua sendo `toast(mensagem, isError)` |
 | Dados de uma tela | Hook da feature (`useManagedRaffle`, `usePublicRaffle`) |
 | Campos de formulário | Estado local do componente (`RaffleForm`, `ReserveDialog`, `DrawSection`) |
 | Dados do comprador | `localStorage` via `buyerStorage` |
