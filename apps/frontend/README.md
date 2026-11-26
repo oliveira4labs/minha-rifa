@@ -96,7 +96,7 @@ Cada reserva é um **pedido** com um ou mais números. A regra central:
 
 - O prazo é contado **a partir do primeiro clique** e vale para todos os números do mesmo carrinho.
 - Um número pertence a **no máximo um pedido ativo** por vez. Se dois compradores clicam no mesmo número, o segundo recebe aviso e a grade é atualizada.
-- O **limite por comprador** vale no carrinho (não deixa clicar além do limite) e, ao informar os dados, também soma os pedidos que aquele WhatsApp já tem na rifa.
+- O **limite por comprador** é contado pelo **WhatsApp** (o comprador não tem conta). No clique, a página já soma o carrinho com os números dos pedidos ativos guardados neste navegador e avisa "Você já tem 2 números nesta rifa. O limite é 2 por pessoa." sem ocupar o número. Ao informar os dados, o servidor confere de novo somando tudo o que aquele WhatsApp tem na rifa (pega quem compra de outro aparelho).
 - Pedidos `held` e `pending` expiram sozinhos ao fim do prazo. O servidor libera os números a cada 30s e antes de toda requisição.
 - O sistema não recebe comprovante: o que para o relógio é o clique no botão do WhatsApp (o sistema não vê se a mensagem saiu). Quem confirma o pagamento é o admin, olhando o próprio extrato. Se o PIX não caiu, ele **recusa** o pedido.
 - No código e na API o status continua `proof_sent` e a rota `/api/pedido/:token/comprovante` (nomes internos); a tela não fala mais em "comprovante".

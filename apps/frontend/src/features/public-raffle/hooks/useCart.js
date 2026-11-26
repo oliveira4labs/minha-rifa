@@ -7,7 +7,15 @@ import { loadCartToken, saveCartToken } from '../lib/buyerStorage';
 const EMPTY = { token: null, numbers: [], expires_at: null };
 const EXPIRED_MESSAGE = 'Seu tempo acabou e os números voltaram a ficar disponíveis. Escolha de novo.';
 
-export function useCart(slug, { maxPerBuyer, onSynced }) {
+const limitMessage = (max, owned) => (owned > 0
+  ? `Você já tem ${owned} número${owned === 1 ? '' : 's'} nesta rifa. O limite é ${max} por pessoa.`
+  : `Limite de ${max} número${max === 1 ? '' : 's'} por pessoa nesta rifa.`);
+
+/**
+ * `ownedCount`: números que esta pessoa já tem na rifa em pedidos ativos guardados neste navegador.
+ * Entram no limite por pessoa para avisar já no clique (o servidor confere de novo pelo WhatsApp).
+ */
+export function useCart(slug, { maxPerBuyer, ownedCount = 0, onSynced }) {
   const toast = useToast();
   const [cart, setCart] = useState({ token: null, numbers: [], expiresAt: null });
   const tokenRef = useRef(null);
@@ -17,6 +25,8 @@ export function useCart(slug, { maxPerBuyer, onSynced }) {
   const lastServer = useRef(null);
   const onSyncedRef = useRef(onSynced);
   onSyncedRef.current = onSynced;
+  const ownedRef = useRef(ownedCount);
+  ownedRef.current = ownedCount;
 
   const apply = useCallback((dto) => {
     tokenRef.current = dto.token;
@@ -77,8 +87,8 @@ export function useCart(slug, { maxPerBuyer, onSynced }) {
       }));
       return;
     }
-    if (maxPerBuyer && current.size >= maxPerBuyer) {
-      toast(`Limite de ${maxPerBuyer} número(s) por pessoa nesta rifa.`, true);
+    if (maxPerBuyer && current.size + ownedRef.current >= maxPerBuyer) {
+      toast(limitMessage(maxPerBuyer, ownedRef.current), true);
       return;
     }
     setOptimistic(new Set(current).add(n));
