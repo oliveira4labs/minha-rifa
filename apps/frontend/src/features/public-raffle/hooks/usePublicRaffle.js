@@ -1,29 +1,45 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useInterval } from '../../../shared/hooks/useInterval';
+import { useToast } from '../../../shared/ui/feedback/ToastProvider';
 import { publicRaffleApi } from '../api/publicRaffleApi';
 import { loadOrderTokens, removeOrderToken } from '../lib/buyerStorage';
 
 const POLL_MS = 20000;
 
-const fetchOrders = (slug) => Promise.all(
-  loadOrderTokens(slug).map((token) => publicRaffleApi.getOrder(token).catch(() => null)),
-).then((orders) => orders.filter(Boolean));
+const INACTIVE = new Set(['expired', 'cancelled']);
+const EXPIRED_MESSAGE = 'O tempo acabou e os números foram liberados.';
+
+// Pedidos vencidos ou cancelados não aparecem: saem do navegador assim que o servidor confirma.
+async function fetchOrders(slug) {
+  const orders = (await Promise.all(
+    loadOrderTokens(slug).map((token) => publicRaffleApi.getOrder(token).catch(() => null)),
+  )).filter(Boolean);
+  const inactive = orders.filter((o) => INACTIVE.has(o.status));
+  inactive.forEach((o) => removeOrderToken(slug, o.token));
+  return { active: orders.filter((o) => !INACTIVE.has(o.status)), inactive };
+}
 
 export function usePublicRaffle(slug, { paused = false } = {}) {
   const [data, setData] = useState(null);
   const [orders, setOrders] = useState([]);
   const [error, setError] = useState(null);
+  const toast = useToast();
+  const shownTokens = useRef(new Set());
 
   const refresh = useCallback(async () => {
     try {
       const raffle = await publicRaffleApi.get(slug);
-      setOrders(await fetchOrders(slug));
+      const { active, inactive } = await fetchOrders(slug);
+      // Só avisa de um pedido que estava na tela e venceu agora (não dos antigos guardados no navegador).
+      if (inactive.some((o) => o.status === 'expired' && shownTokens.current.has(o.token))) toast(EXPIRED_MESSAGE, true);
+      shownTokens.current = new Set(active.map((o) => o.token));
+      setOrders(active);
       setData(raffle);
       setError(null);
     } catch (err) {
       setError(err);
     }
-  }, [slug]);
+  }, [slug, toast]);
 
   useEffect(() => {
     refresh();
@@ -38,10 +54,5 @@ export function usePublicRaffle(slug, { paused = false } = {}) {
     if (someExpired) refresh();
   }, 1000);
 
-  const forgetOrder = useCallback((token) => {
-    removeOrderToken(slug, token);
-    setOrders((list) => list.filter((o) => o.token !== token));
-  }, [slug]);
-
-  return { data, orders, error, refresh, forgetOrder };
+  return { data, orders, error, refresh };
 }

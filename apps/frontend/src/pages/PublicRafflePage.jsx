@@ -23,7 +23,7 @@ export function PublicRafflePage() {
   const { slug } = useParams();
   const toast = useToast();
   const [reserving, setReserving] = useState(false);
-  const { data, orders, error, refresh, forgetOrder } = usePublicRaffle(slug, { paused: reserving });
+  const { data, orders, error, refresh } = usePublicRaffle(slug, { paused: reserving });
   const raffle = data?.raffle;
   const cart = useCart(slug, { maxPerBuyer: raffle?.max_per_buyer, onSynced: refresh });
   useDocumentTitle(raffle?.title ?? 'Rifa');
@@ -82,7 +82,7 @@ export function PublicRafflePage() {
           <section className="stack-sm">
             <h2>Seus pedidos</h2>
             {orders.map((o) => (
-              <BuyerOrderCard key={o.token} order={o} raffle={raffle} onForget={forgetOrder} onProofSent={sendProof} />
+              <BuyerOrderCard key={o.token} order={o} raffle={raffle} onProofSent={sendProof} />
             ))}
           </section>
         )}

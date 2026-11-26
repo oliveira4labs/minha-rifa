@@ -74,6 +74,8 @@ label .hint { font-weight: 400; color: var(--muted); font-size: .82rem; }
 .char-count.over { color: var(--danger); font-weight: 600; }
 input, textarea, select {
   font: inherit; color: inherit; width: 100%; padding: 10px 12px; min-height: 44px;
+  /* 16px no mínimo: abaixo disso o Safari do iPhone dá zoom ao focar o campo e a tela fica "ampliada" depois. */
+  font-size: max(16px, 1rem); font-weight: 400;
   border: 1px solid #cfc7b8; border-radius: 10px; background: #fff;
   transition: border-color .15s, box-shadow .15s;
 }
@@ -186,7 +188,9 @@ dialog.lightbox::backdrop { background: rgba(14, 12, 9, .6); }
 .numbers.static .n { cursor: default; height: 38px; font-size: .85rem; }
 
 .buybar { position: fixed; left: 0; right: 0; bottom: 0; background: var(--card); border-top: 1px solid var(--line); box-shadow: 0 -6px 24px rgba(40,30,10,.1); padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); z-index: 5; }
-.buybar > div { max-width: 920px; margin: 0 auto; display: flex; align-items: center; gap: 12px; }
+.buybar > div { max-width: 920px; margin: 0 auto; display: flex; align-items: center; gap: 10px; }
+.buybar .grow { min-width: 0; }
+.nowrap { white-space: nowrap; }
 
 .order { border: 1px solid var(--line); border-radius: 12px; padding: 14px; display: grid; gap: 10px; background: #fff; }
 .order.pending { border-color: #e7b24a; background: #fffaf0; }
@@ -209,11 +213,14 @@ dialog.lightbox::backdrop { background: rgba(14, 12, 9, .6); }
 .raffle-card .cover { width: 72px; height: 72px; border-radius: 10px; object-fit: cover; background: #e9e3d8; flex: none; display: grid; place-items: center; font-size: 1.6rem; }
 
 .empty { text-align: center; color: var(--muted); padding: 24px 12px; }
+.draw-date { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px; background: var(--primary-soft); border: 1px solid #bfe0d5; color: var(--ink); }
+.draw-date-icon { font-size: 1.6rem; line-height: 1; }
+.draw-date small { display: block; color: var(--primary); font-weight: 700; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+.draw-date strong { font-size: 1.1rem; font-variant-numeric: tabular-nums; }
 .notice { background: var(--amber-soft); border: 1px solid #e7b24a; color: #6b4500; border-radius: 10px; padding: 10px 12px; font-size: .9rem; }
 
 dialog { border: 0; border-radius: 16px; padding: 22px; width: min(440px, calc(100vw - 32px)); box-shadow: 0 20px 60px rgba(0,0,0,.3); color: var(--ink); }
 dialog::backdrop { background: rgba(25, 20, 10, .5); }
 dialog .actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; flex-wrap: wrap; }
 
-.toast { position: fixed; left: 50%; bottom: 96px; transform: translateX(-50%); background: #1d1a16; color: #fff; padding: 10px 16px; border-radius: 10px; z-index: 50; max-width: calc(100vw - 32px); font-size: .92rem; box-shadow: var(--shadow); }
-.toast.err { background: var(--danger); }
+.app-toast { font: inherit; font-size: .92rem; border-radius: 12px; }

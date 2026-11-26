@@ -25,7 +25,7 @@ function PendingOrder({ order, numbers, raffle, onProofSent }) {
     <div className="order pending">
       <div className="row between">
         <b>Seus números estão guardados!</b>
-        <Tag variant="pending">Por mais <Countdown to={order.expires_at} /></Tag>
+        <Tag variant="pending">Finalize em <Countdown to={order.expires_at} /></Tag>
       </div>
       <Chips items={numbers} />
       <p>Total: <b className="num">{formatMoney(order.total_cents)}</b></p>
@@ -71,26 +71,14 @@ function ProofSentOrder({ order, numbers, raffle }) {
   );
 }
 
-function InactiveOrder({ order, numbers, onForget }) {
-  return (
-    <div className="order">
-      <div className="row between">
-        <b>{order.status === 'expired' ? 'O tempo da reserva acabou' : 'A reserva foi cancelada'}</b>
-        <button type="button" className="btn sm" onClick={() => onForget(order.token)}>Dispensar</button>
-      </div>
-      <Chips items={numbers} />
-      <p className="small muted">Esses números voltaram a ficar disponíveis.</p>
-    </div>
-  );
-}
-
-export function BuyerOrderCard({ order, raffle, onForget, onProofSent }) {
+// Pedidos `held` (carrinho), `expired` e `cancelled` não têm card: o carrinho aparece na barra de baixo
+// e os vencidos/cancelados somem da tela (usePublicRaffle tira do navegador).
+export function BuyerOrderCard({ order, raffle, onProofSent }) {
   const numbers = padNumbers(order.numbers, raffle.total_numbers);
   if (order.status === 'paid') return <PaidOrder order={order} numbers={numbers} />;
   if (order.status === 'proof_sent') return <ProofSentOrder order={order} numbers={numbers} raffle={raffle} />;
   if (order.status === 'pending') {
     return <PendingOrder order={order} numbers={numbers} raffle={raffle} onProofSent={onProofSent} />;
   }
-  if (order.status === 'held') return null;
-  return <InactiveOrder order={order} numbers={numbers} onForget={onForget} />;
+  return null;
 }

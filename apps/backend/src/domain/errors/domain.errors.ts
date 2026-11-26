@@ -25,6 +25,8 @@ export class UnauthenticatedError extends DomainError {
 
 export class NumbersUnavailableError extends DomainError {
   constructor(readonly numbers: number[]) {
-    super(`Os números ${numbers.join(', ')} acabaram de ser reservados por outra pessoa. Escolha outros.`);
+    super(numbers.length === 1
+      ? `O número ${numbers[0]} já foi reservado. Escolha outro.`
+      : `Os números ${numbers.join(', ')} já foram reservados. Escolha outros.`);
   }
 }

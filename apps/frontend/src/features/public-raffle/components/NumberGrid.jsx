@@ -3,6 +3,10 @@ import { padNumber } from '../../../shared/lib/format';
 
 const STATUS = { p: { cls: 'paid', label: 'pago' }, r: { cls: 'res', label: 'reservado' } };
 
+const takenMessage = (text, status) => (status === 'p'
+  ? `O número ${text} já foi vendido. Escolha outro.`
+  : `O número ${text} já foi reservado. Escolha outro.`);
+
 const NumberCell = memo(function NumberCell({ n, total, status, isSelected, isWinner, onClick }) {
   const text = padNumber(n, total);
   const cls = status ? STATUS[status].cls : isSelected ? 'sel' : '';
@@ -14,7 +18,7 @@ const NumberCell = memo(function NumberCell({ n, total, status, isSelected, isWi
       aria-disabled={status ? 'true' : undefined}
       aria-pressed={status ? undefined : isSelected}
       title={title}
-      onClick={() => onClick(n, status ? title : null)}
+      onClick={() => onClick(n, status ? takenMessage(text, status) : null)}
     >
       {text}
     </button>

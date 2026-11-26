@@ -105,7 +105,7 @@ Cada reserva é um **pedido** com um ou mais números. A regra central:
 
 Não há integração com meio de pagamento. O fluxo é manual:
 
-1. O comprador clica nos números: eles ficam guardados e a barra de baixo mostra o tempo restante.
+1. O comprador clica nos números: eles ficam guardados e a barra de baixo mostra "Finalize em …" com o tempo restante.
 2. Em **Continuar**, informa nome e WhatsApp e vê o pedido "Seus números estão guardados!", com a mesma contagem regressiva e os passos (fazer o PIX, avisar o organizador).
 3. Copia a chave PIX e paga fora do sistema.
 4. Toca em "Avisar o organizador pelo WhatsApp": o pedido passa a "Organizador avisado" (o relógio para) e abre a conversa com o administrador já com a mensagem pronta ("Quero reservar o número X… Já fiz o PIX, pode conferir?", com nome e total).
@@ -132,7 +132,8 @@ Não há integração com meio de pagamento. O fluxo é manual:
 
 - Os pedidos do comprador ficam guardados **no próprio navegador** (`localStorage`, chave `rifa:<slug>:pedidos`), e o carrinho com os números guardados em `rifa:<slug>:carrinho` (recarregar a página não perde a seleção). Em outro aparelho ele não verá a seção "Seus pedidos".
 - Nome e WhatsApp da última reserva são lembrados (`rifa:comprador`) e preenchem o formulário da próxima.
-- Pedidos expirados ou cancelados podem ser **dispensados** da lista.
+- Pedidos expirados ou cancelados **não aparecem**: somem da tela e do `localStorage` sozinhos. Se um pedido que estava na tela vence, aparece o toast "O tempo acabou e os números foram liberados."
+- Número ocupado: "O número 19 já foi reservado. Escolha outro." (ou "já foi vendido", se estiver pago), sempre em toast.
 
 ### Divulgação
 
@@ -155,7 +156,8 @@ Na página pública, cada clique num número já ocupa (ou solta) o número no s
 
 - Números exibidos com zeros à esquerda conforme o total (`007` numa rifa de 100).
 - Valores em reais (`R$ 10,00`), datas em `dd/mm/aaaa hh:mm`, telefone `(11) 91234-5678`.
-- Links de WhatsApp assumem DDI 55 quando o número tem até 11 dígitos.
+- Links de WhatsApp assumem DDI 55 quando o número tem até 11 dígitos e usam `api.whatsapp.com/send` (o `wa.me` estragava emojis da mensagem em alguns aparelhos).
+- Campos de formulário têm no mínimo 16px de fonte: abaixo disso o Safari do iPhone dá zoom ao focar e a tela fica ampliada depois.
 
 ---
 
@@ -205,7 +207,7 @@ apps/frontend/
         ├── ui/
         │   ├── components/  Tag, ProgressBar, Chips, CopyBox, Countdown, Stat, Loading, ErrorCard, ExternalLink,
         │   │                CharCount · ClampedText (line-clamp + "Ver mais", mede com ResizeObserver)
-        │   ├── feedback/    ToastProvider, ConfirmProvider, Dialog
+        │   ├── feedback/    ToastProvider (sonner), ConfirmProvider, Dialog
         │   └── layout/      Topbar
         └── styles/global.css
 ```
@@ -289,7 +291,7 @@ Sem Redux/Zustand/React Query. O estado fica onde é usado:
 | Usuário logado | `AuthContext` |
 | Remote config | `RemoteConfigContext` |
 | Carrinho do comprador | `useCart` (servidor + token em `localStorage`) |
-| Toast e diálogo de confirmação | `ToastProvider` / `ConfirmProvider` (`useToast()`, `useConfirm()`) |
+| Toast e diálogo de confirmação | `ToastProvider` / `ConfirmProvider` (`useToast()`, `useConfirm()`). O toast usa a biblioteca [sonner](https://sonner.emilkowal.ski/), no topo da tela; `useToast()` continua sendo `toast(mensagem, isError)` |
 | Dados de uma tela | Hook da feature (`useManagedRaffle`, `usePublicRaffle`) |
 | Campos de formulário | Estado local do componente (`RaffleForm`, `ReserveDialog`, `DrawSection`) |
 | Dados do comprador | `localStorage` via `buyerStorage` |
