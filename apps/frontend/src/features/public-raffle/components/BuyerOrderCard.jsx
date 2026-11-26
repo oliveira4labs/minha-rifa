@@ -3,10 +3,18 @@ import { formatDate, formatMoney, padNumbers } from '../../../shared/lib/format'
 import { whatsappLink } from '../../../shared/lib/whatsapp';
 import { Chips, CopyBox, Countdown, ExternalLink, Tag } from '../../../shared/ui/components';
 
+// Mensagem que o comprador manda ao organizador. *texto* = negrito no WhatsApp.
 function receiptMessage(raffle, order, numbersText) {
-  const which = order.numbers.length > 1 ? 'os números' : 'o número';
-  return `Olá! Quero reservar ${which} ${numbersText} da rifa "${raffle.title}" em nome de ${order.buyer_name}. ` +
-    `Total: ${formatMoney(order.total_cents)}. Já fiz o PIX, pode conferir?`;
+  const label = order.numbers.length > 1 ? 'Números' : 'Número';
+  return [
+    `Olá! Aqui é ${order.buyer_name} 👋`,
+    `Quero reservar na rifa *${raffle.title}*:`,
+    '',
+    `🎟️ ${label}: *${numbersText}*`,
+    `💰 Total: *${formatMoney(order.total_cents)}*`,
+    '',
+    'Já fiz o PIX, pode conferir? 🙏',
+  ].join('\n');
 }
 
 function PaidOrder({ order, numbers }) {
