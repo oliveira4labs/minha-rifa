@@ -3,7 +3,6 @@ import { formatDate, formatMoney, padNumbers } from '../../../shared/lib/format'
 import { whatsappLink } from '../../../shared/lib/whatsapp';
 import { CopyBox, Countdown, ExternalLink, Tag } from '../../../shared/ui/components';
 
-// Mensagem que o comprador manda ao organizador. *texto* = negrito no WhatsApp.
 function receiptMessage(raffle, order, numbersText) {
   const label = order.numbers.length > 1 ? 'Números' : 'Número';
   return [
@@ -25,7 +24,6 @@ const capitalize = (text) => text[0].toUpperCase() + text.slice(1);
 
 const shortDate = (ms) => formatDate(ms).replace(/\/\d{4}, /, ' às ');
 
-/** Linha compacta para pedidos em que o comprador não precisa fazer mais nada. */
 function OrderRow({ variant, icon, title, subtitle }) {
   return (
     <div className={`order-row ${variant}`}>
@@ -68,10 +66,6 @@ function PendingOrder({ order, numbers, raffle, onProofSent }) {
 
 const sortedNumbers = (orders) => orders.flatMap((o) => o.numbers).sort((a, b) => a - b);
 
-// Pedidos `held` (carrinho), `expired` e `cancelled` não têm card: o carrinho aparece na barra de baixo
-// e os vencidos/cancelados somem da tela (usePublicRaffle tira do navegador).
-// Pagos e avisados viram uma linha só cada (todas as compras juntas); pendentes ficam separados,
-// porque cada um tem seu valor de PIX e seu prazo.
 export function BuyerOrders({ orders, raffle, onProofSent }) {
   const paid = orders.filter((o) => o.status === 'paid');
   const waiting = orders.filter((o) => o.status === 'proof_sent');

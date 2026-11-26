@@ -147,8 +147,6 @@ export class PostgresOrderRepository extends OrderRepository {
     );
   }
 
-  // O WHERE refaz a checagem de status/prazo no próprio UPDATE: se o job de expiração liberou o pedido
-  // entre a leitura no use case e esta escrita, nada muda (senão o pedido ficaria ativo sem tickets).
   async markProofSent(id: number, sentAt: number): Promise<boolean> {
     const row = await this.db.one<IdRow>(
       `UPDATE orders SET status = 'proof_sent', proof_sent_at = $1

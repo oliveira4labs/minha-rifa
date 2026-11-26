@@ -25,7 +25,6 @@ export function PublicRafflePage() {
   const [reserving, setReserving] = useState(false);
   const { data, orders, error, refresh } = usePublicRaffle(slug, { paused: reserving });
   const raffle = data?.raffle;
-  // Números já comprados neste navegador (a pagar, avisados ou pagos): contam no limite por pessoa.
   const ownedCount = orders.reduce((sum, o) => sum + o.numbers.length, 0);
   const cart = useCart(slug, { maxPerBuyer: raffle?.max_per_buyer, ownedCount, onSynced: refresh });
   useDocumentTitle(raffle?.title ?? 'Rifa');

@@ -9,7 +9,6 @@ const POLL_MS = 20000;
 const INACTIVE = new Set(['expired', 'cancelled']);
 const EXPIRED_MESSAGE = 'O tempo acabou e os números foram liberados.';
 
-// Pedidos vencidos ou cancelados não aparecem: saem do navegador assim que o servidor confirma.
 async function fetchOrders(slug) {
   const orders = (await Promise.all(
     loadOrderTokens(slug).map((token) => publicRaffleApi.getOrder(token).catch(() => null)),
@@ -30,7 +29,6 @@ export function usePublicRaffle(slug, { paused = false } = {}) {
     try {
       const raffle = await publicRaffleApi.get(slug);
       const { active, inactive } = await fetchOrders(slug);
-      // Só avisa de um pedido que estava na tela e venceu agora (não dos antigos guardados no navegador).
       if (inactive.some((o) => o.status === 'expired' && shownTokens.current.has(o.token))) toast(EXPIRED_MESSAGE, true);
       shownTokens.current = new Set(active.map((o) => o.token));
       setOrders(active);

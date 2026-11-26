@@ -19,11 +19,7 @@ export const appConfig = {
   googleClientId: process.env.GOOGLE_CLIENT_ID || '',
   googleClientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
   oauthStateMaxAgeSeconds: 10 * 60,
-  // Quantos proxies confiáveis ficam na frente da app (Traefik do Dokploy = 1). Sem isso, req.ip é o IP do proxy
-  // e o limite por IP valeria para todo mundo junto. 0 = acesso direto (não confia em X-Forwarded-For).
   trustProxy: Number(process.env.TRUST_PROXY) || 0,
-  // Limites por IP nas rotas públicas do comprador. Folgados porque operadora de celular (CGNAT) põe muita gente
-  // no mesmo IP; servem para frear script, não pessoa clicando.
   cartActionsPerMinute: Number(process.env.CART_ACTIONS_PER_MINUTE) || 120,
   buyerSubmitsPerMinute: Number(process.env.BUYER_SUBMITS_PER_MINUTE) || 20,
 };

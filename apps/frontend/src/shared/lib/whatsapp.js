@@ -1,5 +1,3 @@
-// api.whatsapp.com/send em vez de wa.me: o redirecionamento do wa.me estraga emojis (vira "�") em alguns
-// aparelhos, porque decodifica o texto duas vezes.
 const SEND_URL = 'https://api.whatsapp.com/send';
 
 export function whatsappLink(phone, text) {

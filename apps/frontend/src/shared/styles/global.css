@@ -74,14 +74,12 @@ label .hint { font-weight: 400; color: var(--muted); font-size: .82rem; }
 .char-count.over { color: var(--danger); font-weight: 600; }
 input, textarea, select {
   font: inherit; color: inherit; width: 100%; padding: 10px 12px; min-height: 44px;
-  /* 16px no mínimo: abaixo disso o Safari do iPhone dá zoom ao focar o campo e a tela fica "ampliada" depois. */
   font-size: max(16px, 1rem); font-weight: 400;
   border: 1px solid #cfc7b8; border-radius: 10px; background: #fff;
   transition: border-color .15s, box-shadow .15s;
 }
 textarea { min-height: 160px; resize: none; }
 .grid2 { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
-/* Tela de login */
 .login { display: grid; gap: 16px; justify-items: center; align-content: start; padding-top: clamp(32px, 10vh, 96px); }
 .login-card { width: 100%; max-width: 400px; display: grid; gap: 20px; justify-items: center; text-align: center; padding: 32px 24px; }
 .login-card h1 { font-size: 1.6rem; }

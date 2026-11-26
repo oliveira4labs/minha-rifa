@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { formatDuration } from '../../../shared/lib/format';
 import { NumberGrid } from './NumberGrid';
 
-// Só aparece com a rifa aberta: encerrada/sorteada não tem mais número para escolher.
 export function NumbersSection({ raffle, taken, selected, onPick }) {
   const [onlyFree, setOnlyFree] = useState(false);
 

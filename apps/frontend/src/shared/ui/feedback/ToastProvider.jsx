@@ -2,8 +2,6 @@ import { Toaster, toast } from 'sonner';
 
 const DURATION = { info: 3000, error: 5000 };
 
-// Mesma API de antes (`toast(mensagem, isError)`), agora com o sonner: empilha os avisos, deixa arrastar
-// para fechar e não fica por cima da barra de compra (aparece no topo).
 const show = (message, isError = false) => (isError
   ? toast.error(message, { duration: DURATION.error })
   : toast(message, { duration: DURATION.info }));

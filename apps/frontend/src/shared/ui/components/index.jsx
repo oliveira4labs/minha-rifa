@@ -58,7 +58,6 @@ export function ErrorCard({ title, children }) {
   );
 }
 
-/** Contador "12/60 caracteres" para ficar logo abaixo de um campo de texto. Fica vermelho se passar do limite. */
 export function CharCount({ value, max }) {
   const length = (value ?? '').length;
   return (

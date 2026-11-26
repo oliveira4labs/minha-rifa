@@ -11,10 +11,6 @@ const limitMessage = (max, owned) => (owned > 0
   ? `Você já tem ${owned} número${owned === 1 ? '' : 's'} nesta rifa. O limite é ${max} por pessoa.`
   : `Limite de ${max} número${max === 1 ? '' : 's'} por pessoa nesta rifa.`);
 
-/**
- * `ownedCount`: números que esta pessoa já tem na rifa em pedidos ativos guardados neste navegador.
- * Entram no limite por pessoa para avisar já no clique (o servidor confere de novo pelo WhatsApp).
- */
 export function useCart(slug, { maxPerBuyer, ownedCount = 0, onSynced }) {
   const toast = useToast();
   const [cart, setCart] = useState({ token: null, numbers: [], expiresAt: null });

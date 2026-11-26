@@ -4,7 +4,6 @@ import { useToast } from '../../../shared/ui/feedback/ToastProvider';
 import googleLogo from '../../../shared/assets/google-logo.webp';
 import { GOOGLE_LOGIN_URL } from '../api/authApi';
 
-/** Botão "Entrar com Google" + aviso de erro que volta do login em `/?erro=mensagem`. */
 export function AuthForm() {
   const toast = useToast();
   const [params, setParams] = useSearchParams();
