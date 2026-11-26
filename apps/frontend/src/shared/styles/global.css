@@ -81,9 +81,23 @@ input, textarea, select {
 }
 textarea { min-height: 160px; resize: none; }
 .grid2 { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
-.tabs { display: grid; grid-template-columns: 1fr 1fr; background: #ece6da; border-radius: 10px; padding: 4px; }
-.tabs button { border: 0; background: none; font: inherit; font-weight: 600; padding: 9px; border-radius: 8px; cursor: pointer; color: var(--muted); }
-.tabs button.on { background: var(--card); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+/* Tela de login */
+.login { display: grid; gap: 28px; padding-top: 28px; }
+.login-hero { display: grid; gap: 28px; align-items: center; }
+@media (min-width: 760px) { .login-hero { grid-template-columns: 1.1fr .9fr; gap: 40px; } }
+.login-kicker { justify-self: start; background: var(--primary-soft); color: var(--primary); font-weight: 700; font-size: .8rem; padding: 4px 12px; border-radius: 99px; }
+.login-lead { font-size: 1.05rem; margin: 0; max-width: 46ch; }
+.login-action { display: grid; gap: 10px; max-width: 360px; margin-top: 6px; }
+.login-action p { margin: 0; }
+.login-action a:not(.btn-google) { color: var(--primary); font-weight: 600; }
+.login-preview { display: grid; gap: 6px; transform: rotate(1.5deg); max-width: 360px; justify-self: center; width: 100%; }
+.login-preview-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 8px; }
+.login-preview-grid .n { height: 40px; font-size: .9rem; display: grid; place-items: center; cursor: default; }
+.login-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.login-steps li { display: flex; gap: 12px; align-items: flex-start; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px; }
+.login-steps p { margin: 2px 0 0; }
+.login-step-icon { font-size: 1.4rem; line-height: 1; }
+.login-buyer { margin: 0; text-align: center; color: var(--muted); }
 .btn-google {
   position: relative; display: flex; align-items: center; justify-content: center; width: 100%; min-height: 44px;
   padding: 0 44px; border: 1px solid #dadce0; border-radius: 6px; background: #fff; color: #1f1f1f;
