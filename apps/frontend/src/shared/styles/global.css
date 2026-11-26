@@ -190,7 +190,6 @@ dialog.lightbox::backdrop { background: rgba(14, 12, 9, .6); }
 .n.sel { background: var(--primary); border-color: var(--primary); color: #fff; }
 .n.res { background: var(--amber-soft); border-color: #e7b24a; color: var(--amber); cursor: default; }
 .n.paid { background: #e3dfd7; border-color: #d6d0c5; color: var(--paid); text-decoration: line-through; cursor: default; }
-.n.win { background: #f5c84b; border-color: #d9a514; color: #3d2c00; text-decoration: none; box-shadow: 0 0 0 3px rgba(245, 200, 75, .4); }
 .numbers.only-free .n.res, .numbers.only-free .n.paid { display: none; }
 .numbers.static .n { cursor: default; height: 38px; font-size: .85rem; }
 

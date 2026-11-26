@@ -66,26 +66,39 @@ function PendingOrder({ order, numbers, raffle, onProofSent }) {
   );
 }
 
+const sortedNumbers = (orders) => orders.flatMap((o) => o.numbers).sort((a, b) => a - b);
+
 // Pedidos `held` (carrinho), `expired` e `cancelled` não têm card: o carrinho aparece na barra de baixo
 // e os vencidos/cancelados somem da tela (usePublicRaffle tira do navegador).
-export function BuyerOrderCard({ order, raffle, onProofSent }) {
-  const numbers = padNumbers(order.numbers, raffle.total_numbers);
-  if (order.status === 'paid') {
-    const subtitle = `${capitalize(numbersLabel(numbers))} · boa sorte!`;
-    return <OrderRow variant="paid" icon="🍀" title="Pagamento confirmado" subtitle={subtitle} />;
-  }
-  if (order.status === 'proof_sent') {
-    return (
-      <OrderRow
-        variant="waiting"
-        icon="⏳"
-        title="Aguardando confirmação"
-        subtitle={`${capitalize(numbersLabel(numbers))} · avisado em ${shortDate(order.proof_sent_at)}`}
-      />
-    );
-  }
-  if (order.status === 'pending') {
-    return <PendingOrder order={order} numbers={numbers} raffle={raffle} onProofSent={onProofSent} />;
-  }
-  return null;
+// Pagos e avisados viram uma linha só cada (todas as compras juntas); pendentes ficam separados,
+// porque cada um tem seu valor de PIX e seu prazo.
+export function BuyerOrders({ orders, raffle, onProofSent }) {
+  const paid = orders.filter((o) => o.status === 'paid');
+  const waiting = orders.filter((o) => o.status === 'proof_sent');
+  const pending = orders.filter((o) => o.status === 'pending');
+  const label = (list) => capitalize(numbersLabel(padNumbers(sortedNumbers(list), raffle.total_numbers)));
+  return (
+    <>
+      {pending.map((o) => (
+        <PendingOrder
+          key={o.token}
+          order={o}
+          numbers={padNumbers(o.numbers, raffle.total_numbers)}
+          raffle={raffle}
+          onProofSent={onProofSent}
+        />
+      ))}
+      {waiting.length > 0 && (
+        <OrderRow
+          variant="waiting"
+          icon="⏳"
+          title="Aguardando confirmação"
+          subtitle={`${label(waiting)} · avisado em ${shortDate(Math.max(...waiting.map((o) => o.proof_sent_at)))}`}
+        />
+      )}
+      {paid.length > 0 && (
+        <OrderRow variant="paid" icon="🍀" title="Pagamento confirmado" subtitle={`${label(paid)} · boa sorte!`} />
+      )}
+    </>
+  );
 }
