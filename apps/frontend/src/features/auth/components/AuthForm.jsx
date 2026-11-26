@@ -26,7 +26,7 @@ export function AuthForm() {
         <span>Entrar com Google</span>
       </a>
       <p className="small muted">
-        Sem senha para criar: é só usar sua conta Google. Veja a <Link to="/privacidade">Política de Privacidade</Link>.
+        Ao entrar, você concorda com a <Link to="/privacidade">Política de Privacidade</Link>.
       </p>
     </div>
   );

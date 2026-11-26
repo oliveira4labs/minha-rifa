@@ -40,7 +40,7 @@ Qualquer pessoa pode criar uma conta e vira administradora **apenas das rifas qu
 ### Conta
 
 - Login **só com Google** (botão "Entrar com Google" em `/`). Não existe mais cadastro por e-mail e senha.
-- A tela de entrada (`/`) apresenta o produto: chamada, botão do Google, uma grade de números de exemplo (só ilustração), os 4 passos (cadastrar, divulgar, confirmar, sortear) e o aviso de que quem compra não precisa de conta.
+- A tela de entrada (`/`) é um card simples e centralizado: "Entre na sua conta", uma frase sobre o painel, o botão do Google, o link da Política de Privacidade e, abaixo do card, o aviso de que quem compra não precisa de conta.
 - Primeiro acesso cria a conta com o nome e o e-mail do Google. Uma conta antiga com o mesmo e-mail é ligada ao Google automaticamente.
 - Criar conta nova pode ser desligado sem deploy pela chave `createUser` do remote config (`disabled`): aí só quem já tem conta entra.
 - Erros do login voltam para `/?erro=mensagem` e aparecem como toast.
@@ -244,7 +244,7 @@ Dentro de cada feature, a mesma divisão:
 | `api/authApi.js` | `me`, `logout` e `GOOGLE_LOGIN_URL` (`/api/auth/google`, link comum, não é fetch) |
 | `context/AuthContext.jsx` | `AuthProvider` + `useAuth()`: `user` (`undefined` = carregando, `null` = deslogado), `loading`, `logout` |
 | `components/RouteGuards.jsx` | `RequireAuth` (rotas do admin) e `GuestOnly` (tela de entrada) |
-| `components/AuthForm.jsx` | Botão "Entrar com Google" (sem abas nem card), link da Política de Privacidade e toast do `?erro=` que volta do login |
+| `components/AuthForm.jsx` | Botão "Entrar com Google", link da Política de Privacidade e toast do `?erro=` que volta do login (o card fica no `LoginPage`) |
 
 #### `remote-config`
 
