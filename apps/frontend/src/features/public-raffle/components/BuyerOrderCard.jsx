@@ -58,7 +58,7 @@ function PendingOrder({ order, numbers, raffle, onProofSent }) {
   );
 }
 
-function ProofSentOrder({ order, numbers, raffle }) {
+function ProofSentOrder({ order, numbers }) {
   return (
     <div className="order proof_sent">
       <div className="row between">
@@ -69,12 +69,6 @@ function ProofSentOrder({ order, numbers, raffle }) {
       <p className="small muted">
         Você avisou em {formatDate(order.proof_sent_at)}. Seus números estão guardados até o organizador conferir o PIX e confirmar.
       </p>
-      <ExternalLink
-        className="small"
-        href={whatsappLink(raffle.whatsapp, receiptMessage(raffle, order, numbers.join(', ')))}
-      >
-        Abrir a conversa no WhatsApp de novo
-      </ExternalLink>
     </div>
   );
 }
@@ -84,7 +78,7 @@ function ProofSentOrder({ order, numbers, raffle }) {
 export function BuyerOrderCard({ order, raffle, onProofSent }) {
   const numbers = padNumbers(order.numbers, raffle.total_numbers);
   if (order.status === 'paid') return <PaidOrder order={order} numbers={numbers} />;
-  if (order.status === 'proof_sent') return <ProofSentOrder order={order} numbers={numbers} raffle={raffle} />;
+  if (order.status === 'proof_sent') return <ProofSentOrder order={order} numbers={numbers} />;
   if (order.status === 'pending') {
     return <PendingOrder order={order} numbers={numbers} raffle={raffle} onProofSent={onProofSent} />;
   }
