@@ -167,8 +167,8 @@ dialog.lightbox::backdrop { background: rgba(14, 12, 9, .6); }
 .gallery-thumbs button { flex: none; width: 64px; height: 64px; border-radius: 10px; overflow: hidden; border: 2px solid transparent; padding: 0; cursor: pointer; background: none; }
 .gallery-thumbs button.on { border-color: var(--primary); }
 .gallery-thumbs img { width: 100%; height: 100%; object-fit: cover; }
-.hero { display: grid; gap: 20px; }
-@media (min-width: 760px) { .hero.has-photos { grid-template-columns: 1fr 1fr; align-items: start; } }
+.hero { display: grid; gap: 20px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 760px) { .hero.has-photos { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; } }
 .price { font-size: 1.7rem; font-weight: 800; letter-spacing: -.02em; }
 .desc { white-space: pre-wrap; overflow-wrap: anywhere; margin: 0; }
 .clamped { display: grid; gap: 4px; justify-items: start; }
