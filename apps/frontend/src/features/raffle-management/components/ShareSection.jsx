@@ -16,28 +16,31 @@ export function ShareSection({ raffle, taken }) {
   const message = shareMessage(raffle, taken);
 
   return (
-    <section className="card stack">
+    <section className="card stack-sm side-card">
       <h2>Divulgação</h2>
-      <CopyBox value={url}>
+      <CopyBox value={url} />
+      <div className="side-actions">
         <button type="button" className="btn sm" onClick={() => copy(url, 'Link copiado!')}>Copiar link</button>
-        <ExternalLink className="btn sm" href={url}>Abrir</ExternalLink>
-      </CopyBox>
+        <ExternalLink className="btn sm" href={url}>Abrir página</ExternalLink>
+      </div>
       {raffle.status === 'open' && (
-        <div className="stack-sm">
-          <span className="small muted">Mensagem pronta para divulgar (atualiza sozinha conforme os números são vendidos):</span>
-          <WhatsappPreview text={message} />
-          <div className="row">
-            <button type="button" className="btn" onClick={() => copy(message, 'Mensagem copiada! Cole no WhatsApp.')}>
+        <>
+          <hr className="divider" />
+          <p className="small muted">Mensagem pronta para o WhatsApp, atualizada conforme os números são vendidos.</p>
+          <div className="side-actions">
+            <ExternalLink className="btn sm wa" href={whatsappShareLink(message)}>Enviar pelo WhatsApp</ExternalLink>
+            <button type="button" className="btn sm" onClick={() => copy(message, 'Mensagem copiada! Cole no WhatsApp.')}>
               Copiar mensagem
             </button>
-            <ExternalLink className="btn wa" href={whatsappShareLink(message)}>Enviar pelo WhatsApp</ExternalLink>
           </div>
-        </div>
+          <details className="share-details">
+            <summary className="small">Ver a mensagem</summary>
+            <WhatsappPreview text={message} />
+          </details>
+        </>
       )}
       {isLocalHost() && (
-        <p className="small muted">
-          Este link só abre neste computador enquanto o sistema não estiver publicado na internet.
-        </p>
+        <p className="small muted">Este link só abre neste computador enquanto o sistema não estiver publicado na internet.</p>
       )}
     </section>
   );

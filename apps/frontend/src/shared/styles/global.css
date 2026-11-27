@@ -195,6 +195,8 @@ dialog.lightbox::backdrop { background: rgba(14, 12, 9, .6); }
 .buybar > div { max-width: 920px; margin: 0 auto; display: flex; align-items: center; gap: 10px; }
 .buybar .grow { min-width: 0; }
 .nowrap { white-space: nowrap; }
+.support-footer { margin-top: 8px; padding-top: 20px; border-top: 1px solid var(--line); text-align: center; color: var(--muted); font-size: .92rem; }
+.support-footer a { color: var(--primary); font-weight: 700; }
 
 .order { border: 1px solid var(--line); border-radius: 12px; padding: 14px; display: grid; gap: 10px; background: #fff; }
 .order.pending { border-color: #e7b24a; background: #fffaf0; gap: 14px; }
@@ -218,6 +220,73 @@ dialog.lightbox::backdrop { background: rgba(14, 12, 9, .6); }
 .winner { background: linear-gradient(135deg, #fff3c9, #ffe08a); border: 1px solid #e3b93a; border-radius: var(--radius); padding: 20px; text-align: center; }
 .winner .big { font-size: 3rem; font-weight: 800; letter-spacing: -.03em; line-height: 1.1; font-variant-numeric: tabular-nums; }
 
+/* Gestão da rifa (/gerenciar): resumo num card, pedidos em abas e coluna lateral com sorteio e divulgação */
+.summary { display: grid; gap: 16px; }
+.summary-head { display: flex; gap: 14px; align-items: center; }
+.summary-cover { width: 64px; height: 64px; flex: none; border-radius: 12px; object-fit: cover; background: #e9e3d8; display: grid; place-items: center; font-size: 1.6rem; }
+.summary-title { display: flex; align-items: flex-start; justify-content: space-between; gap: 6px 12px; flex-wrap: wrap; }
+.summary-title h1 { min-width: 0; font-size: clamp(1.35rem, 3.5vw, 1.8rem); overflow-wrap: anywhere; }
+.summary-tags { gap: 6px; flex: none; }
+.summary-progress { display: grid; gap: 8px; }
+.summary-money { color: var(--ink); }
+.summary-stats { display: grid; grid-template-columns: repeat(4, 1fr); margin: 0; padding-top: 14px; border-top: 1px solid var(--line); }
+.summary-stats > div { display: flex; flex-direction: column-reverse; justify-content: flex-end; gap: 2px; padding: 0 14px; border-left: 1px solid var(--line); }
+.summary-stats > div:first-child { padding-left: 0; border-left: 0; }
+.summary-stats dt { color: var(--muted); font-size: .82rem; line-height: 1.3; }
+.summary-stats dd { margin: 0; font-size: 1.4rem; font-weight: 800; letter-spacing: -.02em; line-height: 1.2; }
+.summary-stats .warn dd { color: var(--amber); }
+@media (max-width: 600px) {
+  .summary-head { align-items: flex-start; }
+  .summary-cover { width: 52px; height: 52px; }
+  .summary-stats { grid-template-columns: repeat(2, 1fr); row-gap: 14px; }
+  .summary-stats > div:nth-child(odd) { padding-left: 0; border-left: 0; }
+}
+
+.manage-grid { display: grid; gap: 16px; grid-template-areas: "draw" "orders" "share"; }
+.manage-draw { grid-area: draw; }
+.manage-orders { grid-area: orders; min-width: 0; }
+.manage-share { grid-area: share; }
+@media (min-width: 820px) {
+  .manage-grid { grid-template-columns: minmax(0, 1fr) 320px; grid-template-rows: auto 1fr; grid-template-areas: "orders draw" "orders share"; align-items: start; }
+  .manage-grid:not(:has(.manage-draw)) { grid-template-areas: "orders share" "orders share"; }
+}
+
+.side-card { grid-template-columns: minmax(0, 1fr); }
+.side-card h2, .orders-panel h2 { font-size: 1.05rem; }
+.side-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.side-actions .btn { flex: 1 1 auto; }
+.divider { margin: 6px 0; border: 0; border-top: 1px solid var(--line); }
+.share-details summary { cursor: pointer; color: var(--primary); font-weight: 600; }
+.share-details[open] summary { margin-bottom: 8px; }
+.date-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+.date-row input { min-width: 0; }
+.draw-ready { border-color: var(--primary-focus); box-shadow: 0 0 0 3px var(--primary-soft), var(--shadow); }
+
+.orders-panel { display: grid; gap: 14px; }
+.orders-head { display: grid; gap: 12px; }
+.segmented { display: flex; gap: 4px; padding: 4px; border-radius: 12px; background: #efeae0; overflow-x: auto; }
+.segmented button {
+  flex: 1 0 auto; display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 12px; border: 0; border-radius: 9px;
+  background: transparent; font: inherit; font-size: .88rem; font-weight: 600; color: var(--muted); white-space: nowrap; cursor: pointer;
+  transition: background-color .15s ease, color .15s ease;
+}
+.segmented button[aria-selected="true"] { background: var(--card); color: var(--ink); box-shadow: 0 1px 2px rgba(40, 30, 10, .12); }
+.segmented .count { min-width: 22px; padding: 0 6px; border-radius: 99px; background: rgba(40, 30, 10, .07); font-size: .78rem; line-height: 20px; }
+.segmented .attention .count { background: var(--amber); color: #fff; }
+@media (max-width: 600px) {
+  .segmented { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .segmented button { flex-direction: column; gap: 4px; padding: 8px 6px; white-space: normal; line-height: 1.2; font-size: .82rem; }
+}
+.orders-panel .empty { padding: 20px 8px; }
+.order-list { display: grid; margin: 0; padding: 0; list-style: none; }
+.admin-order { display: grid; gap: 8px; padding: 14px 0; border-top: 1px solid var(--line); }
+.admin-order:first-child { padding-top: 0; border-top: 0; }
+.admin-order:last-child { padding-bottom: 0; }
+.admin-order-main { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.admin-order-who { display: flex; align-items: baseline; gap: 4px 10px; flex-wrap: wrap; min-width: 0; }
+.admin-order-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px 12px; flex-wrap: wrap; }
+.admin-order-actions { display: flex; gap: 8px; margin-left: auto; }
+
 .raffle-card { display: flex; gap: 14px; align-items: center; text-decoration: none; color: inherit; }
 .raffle-card .cover { width: 72px; height: 72px; border-radius: 10px; object-fit: cover; background: #e9e3d8; flex: none; display: grid; place-items: center; font-size: 1.6rem; }
 
@@ -231,5 +300,131 @@ dialog.lightbox::backdrop { background: rgba(14, 12, 9, .6); }
 dialog { border: 0; border-radius: 16px; padding: 22px; width: min(440px, calc(100vw - 32px)); box-shadow: 0 20px 60px rgba(0,0,0,.3); color: var(--ink); }
 dialog::backdrop { background: rgba(25, 20, 10, .5); }
 dialog .actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; flex-wrap: wrap; }
+
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+
+/* Sorteio: palco em tela cheia no verde da marca (sem dados do painel, dá para gravar) com caça-níquel.
+   A máquina é um card do sistema, os rolos são as casas de número da grade e o ganhador usa o dourado de .n.win/.winner */
+dialog.draw-stage {
+  --ease-out: cubic-bezier(.23, 1, .32, 1);
+  --stage-ink: #ffffff;
+  --stage-muted: rgba(255, 255, 255, .74);
+  --win: #f5c84b;
+  --win-line: #d9a514;
+  --win-ink: #3d2c00;
+  width: 100vw; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: 0; border-radius: 0; box-shadow: none;
+  background: radial-gradient(ellipse 90% 70% at 50% 42%, #1b8068 0%, var(--primary) 45%, #0d4a3c 100%);
+  color: var(--stage-ink); text-align: center; isolation: isolate; overflow: hidden;
+}
+dialog.draw-stage[open] { display: grid; grid-template-rows: auto 1fr; animation: draw-fade .25s var(--ease-out); }
+/* Fundo opaco desde o primeiro quadro: nem durante o fade o painel aparece na gravação */
+dialog.draw-stage::backdrop { background: #0d4a3c; }
+/* Brilho dourado atrás da máquina na revelação */
+.draw-stage::before { content: ''; position: absolute; inset: 0; z-index: -1; background: radial-gradient(circle at 50% 52%, rgba(255, 224, 138, .5), rgba(255, 224, 138, 0) 55%); opacity: 0; transition: opacity .6s var(--ease-out); }
+.draw-stage[data-phase="revealed"]::before { opacity: 1; }
+.draw-confetti { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 2; }
+
+/* Holofotes suaves varrendo o palco */
+.draw-spotlights { position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+.draw-spotlights i {
+  position: absolute; top: -8%; width: 46vw; height: 125%; transform-origin: 50% 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, .14), rgba(255, 255, 255, 0) 75%);
+  clip-path: polygon(44% 0, 56% 0, 100% 100%, 0 100%); filter: blur(6px); transition: background .6s ease;
+}
+.draw-spotlights i:first-child { left: -4%; transform: rotate(-20deg); animation: draw-sweep-left 6s ease-in-out infinite alternate; }
+.draw-spotlights i:last-child { right: -4%; transform: rotate(20deg); animation: draw-sweep-right 6s ease-in-out infinite alternate; }
+.draw-stage[data-phase="spinning"] .draw-spotlights i { animation-duration: 1.8s; }
+.draw-stage[data-phase="revealed"] .draw-spotlights i { background: linear-gradient(180deg, rgba(255, 224, 138, .28), rgba(255, 224, 138, 0) 80%); }
+
+.draw-stage-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; padding: 12px 16px; position: relative; z-index: 1; }
+.draw-stage-toggles { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; margin-left: auto; }
+.draw-chip { border: 1px solid rgba(255, 255, 255, .22); background: rgba(255, 255, 255, .1); padding: 6px 12px; min-height: 36px; border-radius: 99px; font: inherit; font-size: .85rem; font-weight: 600; color: var(--stage-ink); cursor: pointer; transition: transform 160ms var(--ease-out), background-color .2s ease; }
+.draw-chip:active { transform: scale(.97); }
+@media (hover: hover) and (pointer: fine) { .draw-chip:hover { background: rgba(255, 255, 255, .18); } }
+.draw-stage :focus-visible { box-shadow: 0 0 0 3px rgba(255, 255, 255, .6); }
+
+.draw-stage-body { display: grid; align-content: center; justify-items: center; gap: 10px; padding: 4px 16px calc(36px + env(safe-area-inset-bottom)); min-height: 0; overflow-y: auto; position: relative; z-index: 1; }
+.draw-heading { display: flex; align-items: center; justify-content: center; gap: 12px; max-width: 34rem; margin-bottom: 10px; }
+.draw-cover { width: 56px; height: 56px; flex: none; border-radius: 12px; object-fit: cover; border: 2px solid rgba(255, 255, 255, .3); background: var(--primary-soft); }
+.draw-title { margin: 0; font-size: clamp(1.15rem, 4.2vw, 1.6rem); overflow-wrap: anywhere; text-align: left; }
+.draw-heading:not(:has(img)) .draw-title { text-align: center; }
+.draw-eyebrow { margin: 0; color: var(--primary-soft); font-weight: 700; font-size: .78rem; text-transform: uppercase; letter-spacing: .06em; }
+
+/* Máquina: um card do sistema */
+.slot {
+  --reel-w: min(96px, calc((100vw - 108px - (var(--digits) - 1) * 10px) / var(--digits)));
+  --cell: calc(var(--reel-w) * 1.05);
+  position: relative; display: grid; gap: 10px; padding: 12px 16px; border-radius: 20px;
+  background: var(--card); border: 1px solid var(--line); color: var(--ink);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .08), 0 24px 60px rgba(0, 0, 0, .28);
+  transition: background-color .4s ease, border-color .4s ease;
+}
+.slot::after { content: ''; position: absolute; inset: -4px; border-radius: 24px; box-shadow: 0 0 60px 14px rgba(245, 200, 75, .55); opacity: 0; transition: opacity .5s ease; pointer-events: none; }
+/* Revelação: o mesmo dourado do card do ganhador no painel */
+.slot-revealed { background: linear-gradient(135deg, #fff3c9, #ffe08a); border-color: #e3b93a; animation: draw-bump .5s var(--ease-out); }
+.slot-revealed::after { opacity: 1; animation: draw-glow 1.4s ease-in-out infinite alternate; }
+
+.slot-bulbs { --bulb-speed: 1.4s; display: flex; justify-content: space-between; padding: 0 4px; }
+.slot-bulbs i { width: 7px; height: 7px; border-radius: 50%; background: var(--line); animation: draw-bulb var(--bulb-speed) steps(1) infinite; }
+.slot-bulbs i:nth-child(even) { animation-delay: calc(var(--bulb-speed) / -2); }
+.slot-spinning .slot-bulbs { --bulb-speed: .32s; }
+.slot-revealed .slot-bulbs { --bulb-speed: .6s; }
+.slot-revealed .slot-bulbs i { animation-name: draw-bulb-win; animation-delay: 0s; }
+
+.slot-reels { position: relative; display: flex; justify-content: center; gap: 10px; padding: 8px; border-radius: 14px; background: var(--bg); border: 1px solid var(--line); }
+.slot-revealed .slot-reels { background: rgba(255, 255, 255, .45); border-color: #e3b93a; }
+/* Setas da linha de pagamento */
+.slot-reels::before, .slot-reels::after { content: ''; position: absolute; top: 50%; transform: translateY(-50%); border-top: 8px solid transparent; border-bottom: 8px solid transparent; z-index: 1; }
+.slot-reels::before { left: -13px; border-left: 10px solid var(--primary); }
+.slot-reels::after { right: -13px; border-right: 10px solid var(--primary); }
+
+/* Rolo: igual à casa de número da grade (.n) */
+.reel {
+  position: relative; width: var(--reel-w); height: calc(var(--cell) * 1.6); overflow: hidden; border-radius: 10px;
+  background: #fff; border: 1px solid #cfc7b8; color: var(--ink);
+  font-weight: 800; font-size: calc(var(--cell) * .74); line-height: 1; letter-spacing: -.02em; font-variant-numeric: tabular-nums;
+  transition: background-color .3s ease, border-color .3s ease, color .3s ease, box-shadow .3s ease;
+}
+/* Leve sombra de cilindro em cima e embaixo */
+.reel::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(29, 26, 22, .22), rgba(29, 26, 22, 0) 30%, rgba(29, 26, 22, 0) 70%, rgba(29, 26, 22, .22)); }
+.reel-strip { will-change: transform; transition: filter .2s ease; }
+.reel-strip span { display: flex; align-items: center; justify-content: center; height: var(--cell); }
+.reel.spinning .reel-strip { filter: blur(1.2px); }
+.reel.stopped { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-soft); }
+.reel-static { display: flex; align-items: center; justify-content: center; height: 100%; animation: draw-fade .3s ease; }
+.reel:not(.stopped) .reel-static { color: #cfc7b8; }
+.slot-revealed .reel { background: var(--win); border-color: var(--win-line); color: var(--win-ink); box-shadow: 0 0 0 3px rgba(245, 200, 75, .4); }
+.slot-revealed .reel::after { background: linear-gradient(180deg, rgba(61, 44, 0, .18), rgba(61, 44, 0, 0) 30%, rgba(61, 44, 0, 0) 70%, rgba(61, 44, 0, .18)); }
+
+.draw-pool { margin: 8px 0 0; padding: 4px 12px; border-radius: 99px; background: var(--primary-soft); color: var(--primary); font-size: .85rem; font-weight: 700; }
+
+/* Botões: o .btn branco do sistema, com o texto no verde da marca */
+.draw-stage .btn { border-color: transparent; color: var(--primary); font-weight: 700; box-shadow: 0 8px 24px rgba(0, 0, 0, .18); transition: transform 160ms var(--ease-out); }
+.draw-stage .btn:active { transform: scale(.97); }
+.draw-controls { justify-items: center; margin-top: 14px; }
+.draw-start { min-width: 220px; min-height: 52px; font-size: 1.1rem; }
+.draw-hint { margin: 0; max-width: 320px; color: var(--stage-muted); font-size: .875rem; }
+
+.draw-result { justify-items: center; }
+.draw-name { margin: 14px 0 0; font-size: clamp(1.5rem, 5vw, 2.1rem); font-weight: 800; letter-spacing: -.02em; color: #fff; overflow-wrap: anywhere; animation: draw-fade-up .4s var(--ease-out) .15s both; }
+.draw-when { margin: 0 0 12px; color: var(--stage-muted); font-size: .9rem; animation: draw-fade-up .4s var(--ease-out) .2s both; }
+.draw-stage[data-phase="revealed"] .draw-when:first-child { margin-top: 14px; }
+.draw-result .btn { min-width: 140px; animation: draw-fade-up .4s var(--ease-out) .3s both; }
+
+@keyframes draw-sweep-left { from { transform: rotate(-26deg); } to { transform: rotate(-8deg); } }
+@keyframes draw-sweep-right { from { transform: rotate(26deg); } to { transform: rotate(8deg); } }
+@keyframes draw-bulb { 0% { background: var(--primary); box-shadow: 0 0 6px 1px rgba(20, 112, 91, .45); } 50% { background: var(--line); box-shadow: none; } }
+@keyframes draw-bulb-win { 0% { background: var(--win-line); box-shadow: 0 0 8px 2px rgba(245, 200, 75, .8); } 50% { background: #fff3c9; box-shadow: none; } }
+@keyframes draw-glow { from { opacity: .55; } to { opacity: 1; } }
+@keyframes draw-bump { 0% { transform: scale(1); } 40% { transform: scale(1.05); } 100% { transform: scale(1); } }
+@keyframes draw-fade-up { from { transform: translateY(8px); opacity: 0; } }
+@keyframes draw-fade { from { opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .draw-spotlights i, .slot-revealed, .slot-revealed::after { animation: none; }
+  .slot-bulbs i { animation: none; background: var(--primary); }
+  .slot-revealed .slot-bulbs i { background: var(--win-line); }
+  .draw-name, .draw-when, .draw-result .btn { animation: draw-fade .3s ease both; }
+}
 
 .app-toast { font: inherit; font-size: .92rem; border-radius: 12px; }

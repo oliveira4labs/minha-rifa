@@ -10,6 +10,7 @@ import { BuyerOrders } from '../features/public-raffle/components/BuyerOrderCard
 import { NumbersSection } from '../features/public-raffle/components/NumbersSection';
 import { RaffleHero } from '../features/public-raffle/components/RaffleHero';
 import { ReserveDialog } from '../features/public-raffle/components/ReserveDialog';
+import { SupportFooter } from '../features/public-raffle/components/SupportFooter';
 import { WinnerBanner } from '../features/public-raffle/components/WinnerBanner';
 import { useCart } from '../features/public-raffle/hooks/useCart';
 import { usePublicRaffle } from '../features/public-raffle/hooks/usePublicRaffle';
@@ -95,7 +96,10 @@ export function PublicRafflePage() {
   return (
     <>
       <Topbar />
-      <main className="wrap stack">{content}</main>
+      <main className="wrap stack">
+        {content}
+        {(data || error) && <SupportFooter raffleTitle={raffle?.title} />}
+      </main>
       {raffle?.status === 'open' && cart.numbers.length > 0 && (
         <BuyBar
           count={cart.numbers.length}

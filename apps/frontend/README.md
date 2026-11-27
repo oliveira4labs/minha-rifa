@@ -90,8 +90,8 @@ Cada reserva é um **pedido** com um ou mais números. A regra central:
 | Status | Quem vê | O que significa |
 |---|---|---|
 | `held` (guardado) | Só o próprio comprador (os outros veem "reservado") | Clicou nos números, ainda não informou os dados. Pode soltar um número clicando de novo |
-| `pending` (pendente) | Comprador e admin ("Aguardando pagamento do comprador") | Dados informados; falta pagar e avisar o organizador |
-| `proof_sent` (organizador avisado) | Comprador ("Aguardando confirmação", em uma linha com os números e quando avisou) e admin ("Avisaram que pagaram — confira no seu banco") | O relógio parou; o número fica ocupado até o admin confirmar ou recusar |
+| `pending` (pendente) | Comprador e admin (aba "Aguardando" dos pedidos) | Dados informados; falta pagar e avisar o organizador |
+| `proof_sent` (organizador avisado) | Comprador ("Aguardando confirmação", em uma linha com os números e quando avisou) e admin (aba "Avisaram que pagaram", com contador âmbar) | O relógio parou; o número fica ocupado até o admin confirmar ou recusar |
 | `paid` (pago) | Todos | Pagamento confirmado |
 
 - O prazo é contado **a partir do primeiro clique** e vale para todos os números do mesmo carrinho.
@@ -120,6 +120,12 @@ Não há integração com meio de pagamento. O fluxo é manual:
 - Na data, se a rifa não estiver completa, o painel avisa e o administrador pode **adiar a data** ou **sortear só entre os pagos**.
 - Sempre há uma confirmação explicando o que vai acontecer (quantos pagos, quantos pendentes serão cancelados). **O sorteio não pode ser desfeito.**
 - O ganhador é escolhido no servidor, de forma aleatória (criptograficamente segura), **apenas entre os números pagos**.
+- Depois de confirmar ("Ir para o sorteio"), abre o **palco do sorteio** (`DrawRevealDialog`): tela cheia e opaca no verde da marca, com holofotes suaves, a capa e o título da rifa, uma **máquina de caça-níquel** (um rolo por dígito, com zeros à esquerda) e "N números concorrendo". Segue o visual do app: a máquina é um card branco, cada rolo é igual à casa de número da grade (fica com a borda verde ao parar) e, na revelação, máquina e rolos ganham o dourado do card do ganhador e da casa `.n.win`. **Não mostra valores, arrecadação, pedidos nem WhatsApp**, para o admin poder gravar a tela e mandar aos participantes.
+  - No palco pronto: "← Voltar" (sai sem sortear), o botão **Sortear** e a opção de mostrar o nome do ganhador ou só o número (lembrada em `rifa:sorteio:mostrar-nome`; some depois que o sorteio começa). O sorteio só acontece no servidor no clique em **Sortear**.
+  - Suspense: todos os rolos giram com o rufar por pelo menos ~1,8s (e até o servidor responder); depois param um de cada vez, da esquerda para a direita, com um "clunk" a cada parada. O último gira sozinho por ~0,8s e para mais devagar. Após ~0,45s de silêncio, a máquina fica dourada, com o número, o nome (se escolhido), a data/hora, fanfarra e confete (≈6s no total com 3 dígitos). A requisição sai no clique em **Sortear**: os rolos só mostram o resultado do servidor e não influenciam nada. Se der erro, o palco fecha e aparece o toast.
+  - Esc volta (antes de sortear), não faz nada no meio do suspense e fecha depois da revelação. Ao fechar, a tela recarrega com o card do ganhador. A atualização automática fica pausada com o palco aberto (para não mostrar o ganhador antes da hora).
+  - Som: o rufar é o `public/sounds/rufar_de_tambores.mp3` (2,1s, baixado quando a confirmação abre). Toca a primeira passada inteira e depois repete só o miolo da rolagem (1,0s–1,85s, cortado em cruzamento por zero), para a batida inicial e o decaimento final não se repetirem nos 4s; se trocar o arquivo, ajuste `DRUMROLL_LOOP_START`/`DRUMROLL_LOOP_END` em `useDrawSounds.js`. Se o arquivo não carregar, sai um rufar sintético. A fanfarra é sintetizada. Botão de mudo no diálogo, lembrado em `rifa:sorteio:mudo`.
+  - Com `prefers-reduced-motion`: sem confete, sem giro, sem holofote varrendo e sem lâmpadas piscando; cada dígito aparece com fade no lugar do "?".
 - Depois do sorteio: a rifa fica "Sorteada", o painel mostra o número, nome e WhatsApp do ganhador (com botão para avisá-lo), e a página pública mostra só o número sorteado.
 
 ### Privacidade
@@ -136,6 +142,11 @@ Não há integração com meio de pagamento. O fluxo é manual:
 - Pedidos expirados ou cancelados **não aparecem**: somem da tela e do `localStorage` sozinhos. Se um pedido que estava na tela vence, aparece o toast "O tempo acabou e os números foram liberados."
 - Número ocupado: "O número 19 já foi reservado. Escolha outro." (ou "já foi vendido", se estiver pago), sempre em toast.
 
+### Suporte
+
+- No fim da página pública da rifa (`/r/:slug`), inclusive quando a rifa não é encontrada, aparece "Ficou alguma dúvida? Fale com o **nosso suporte**". O link abre o WhatsApp do suporte do Minha Rifa (`SUPPORT_WHATSAPP` em `features/public-raffle/lib/support.js`, hoje `34999188482`) com uma mensagem pronta: saudação, nome da rifa (quando existe), link da página e "Minha dúvida é: " para o comprador completar.
+- É o suporte do sistema, não o organizador da rifa (o contato com o organizador continua no card "Seus números").
+
 ### Divulgação
 
 - Cada rifa tem um link público `/r/<slug>` (slug aleatório de 10 caracteres).
@@ -146,9 +157,11 @@ Não há integração com meio de pagamento. O fluxo é manual:
 
 | Tela | Intervalo | Pausa quando |
 |---|---|---|
-| Gestão da rifa (`/gerenciar`) | 15 s | Há diálogo de confirmação aberto |
+| Gestão da rifa (`/gerenciar`) | 15 s | Há diálogo de confirmação ou o palco do sorteio aberto |
 | Página pública (`/r/:slug`) | 20 s | O diálogo de reserva está aberto |
 | Página pública, pedido ou carrinho vencido | 1 s | — (atualiza assim que a contagem chega a zero) |
+
+Layout da gestão: resumo no topo; abaixo, no computador (≥ 820px), pedidos à esquerda e uma coluna de 320px com Sorteio (com anel verde quando liberado) e Divulgação. No celular fica tudo numa coluna, na ordem Sorteio → Pedidos → Divulgação, e as abas dos pedidos viram três colunas iguais.
 
 Na gestão, a atualização **não apaga o que o administrador está digitando** no formulário de edição nem na data do sorteio (ver [Estado do formulário de edição](#estado-do-formulário-de-edição)).
 Na página pública, cada clique num número já ocupa (ou solta) o número no servidor. Se outra pessoa pegou antes, aparece o aviso e a grade é atualizada.
@@ -270,8 +283,10 @@ Dentro de cada feature, a mesma divisão:
 | `api/ordersApi.js` | `approve`, `cancel` de pedidos |
 | `model/raffleRules.js` | Regras puras: `drawStatus`, `drawConfirmText`, `shareMessage`, `freeNumbers`, `isLocked`, `publicRaffleUrl`, `winnerMessage` |
 | `hooks/useManagedRaffle.js` | Carrega a rifa, faz polling e controla a "foto" usada pelo formulário de edição |
+| `hooks/useDrawReveal.js` | Palco do sorteio: linha do tempo (fases `ready` → `spinning` → `silence` → `revealed`, com `stoppedCount` dizendo quantos rolos já pararam) e confete (`canvas-confetti` num canvas dentro do diálogo, porque o `<dialog>` modal fica acima de tudo). `open()` resolve `true` (sorteou) ou `false` (voltou sem sortear) ao fechar; `start()` é o botão "Sortear" |
+| `hooks/useDrawSounds.js` | Web Audio: rufar (mp3 com loop no miolo ou sintético) que toca até o `stop()` devolvido, "clunk" de rolo parando, fanfarra e mudo. O `AudioContext` é criado/liberado no clique em "Sortear" e fechado ao sair da tela |
 | `hooks/useRaffleActions.js` | Ações com confirmação + API + recarga + toast: aprovar, recusar/desfazer, salvar data, sortear, salvar edição, excluir |
-| `components/*` | `ShareSection`, `StatsGrid`, `DrawSection`, `WinnerCard`, `OrdersSection`/`OrderCard`, `EditRaffleSection` |
+| `components/*` | `RaffleSummary` (capa, título, etiquetas, preço/total/data, barra de progresso e contagens num card só), `OrdersPanel` (pedidos em abas: Avisaram que pagaram / Aguardando / Pagos; abre na primeira aba com pedido) com `OrderCard` (uma linha por pedido), `DrawSection` e `ShareSection` (coluna lateral; a prévia da mensagem fica recolhida em "Ver a mensagem"), `DrawRevealDialog`/`SlotMachine` (rolos animados com Web Animations API), `WinnerCard`, `EditRaffleSection` |
 
 #### `public-raffle` — tela `/r/:slug`
 
@@ -279,9 +294,10 @@ Dentro de cada feature, a mesma divisão:
 |---|---|
 | `api/publicRaffleApi.js` | `get(slug)`, `hold`/`release(slug, { token, number })`, `reserve(slug, { token, name, phone })`, `getOrder(token)`, `proofSent(token)` |
 | `lib/buyerStorage.js` | Tokens de pedidos, token do carrinho e dados do comprador no `localStorage` |
+| `lib/support.js` | Número do WhatsApp do suporte e o texto da mensagem pronta (`supportMessage`) |
 | `hooks/usePublicRaffle.js` | Dados da rifa + pedidos do navegador, polling, `forgetOrder` |
 | `hooks/useCart.js` | Carrinho no servidor: cada clique chama `hold`/`release` em fila (atualização otimista), limite por pessoa, ressincroniza em erro e esvazia quando o prazo acaba |
-| `components/*` | `RaffleHero`, `Gallery`, `WinnerBanner`, `NumbersSection`/`NumberGrid`, `BuyBar`, `ReserveDialog`, `BuyerOrderCard` |
+| `components/*` | `RaffleHero`, `Gallery`, `WinnerBanner`, `NumbersSection`/`NumberGrid`, `BuyBar`, `ReserveDialog`, `BuyerOrderCard`, `SupportFooter` |
 
 ### Estado
 

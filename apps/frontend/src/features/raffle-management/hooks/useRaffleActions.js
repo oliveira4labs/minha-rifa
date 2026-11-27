@@ -7,7 +7,7 @@ import { toPartialPayload } from '../../raffles/model/raffleFormModel';
 import { ordersApi } from '../api/ordersApi';
 import { drawConfirmText } from '../model/raffleRules';
 
-export function useRaffleActions(id, data, refresh) {
+export function useRaffleActions(id, data, refresh, reveal) {
   const toast = useToast();
   const { confirm } = useConfirm();
   const navigate = useNavigate();
@@ -49,13 +49,21 @@ export function useRaffleActions(id, data, refresh) {
   });
 
   const draw = run(async () => {
+    reveal.preload(); // baixa o rufar enquanto o admin lê a confirmação
     const ok = await confirm({
-      title: 'Realizar o sorteio agora?',
-      text: drawConfirmText(data.raffle, data.counts),
-      ok: 'Sortear agora',
+      title: 'Realizar o sorteio?',
+      text: `${drawConfirmText(data.raffle, data.counts)}\n\n` +
+        'Na próxima tela, sem valores nem dados dos compradores, você clica em "Sortear". Dá para gravar a tela e mandar aos participantes.',
+      ok: 'Ir para o sorteio',
     });
     if (!ok) return;
-    await rafflesApi.draw(id);
+    // O ganhador é sorteado e salvo no servidor só no "Sortear" do palco; a animação roda enquanto a resposta chega
+    const drawn = await reveal.open({
+      poolSize: data.counts.paid,
+      digitCount: String(data.raffle.total_numbers).length,
+      fetchWinner: () => rafflesApi.draw(id).then((result) => result.winner),
+    });
+    if (!drawn) return;
     await refresh({ resetForm: true });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
