@@ -1,13 +1,15 @@
 import { Link, useSearchParams } from 'react-router-dom';
 import { useDocumentTitle } from '../shared/hooks/useDocumentTitle';
-import { ErrorCard, Loading, Tag } from '../shared/ui/components';
+import { ErrorCard, Loading } from '../shared/ui/components';
 import { useConfirm } from '../shared/ui/feedback/ConfirmProvider';
+import { DrawRevealDialog } from '../features/raffle-management/components/DrawRevealDialog';
 import { DrawSection } from '../features/raffle-management/components/DrawSection';
 import { EditRaffleSection } from '../features/raffle-management/components/EditRaffleSection';
-import { OrdersSection } from '../features/raffle-management/components/OrdersSection';
+import { OrdersPanel } from '../features/raffle-management/components/OrdersPanel';
+import { RaffleSummary } from '../features/raffle-management/components/RaffleSummary';
 import { ShareSection } from '../features/raffle-management/components/ShareSection';
-import { StatsGrid } from '../features/raffle-management/components/StatsGrid';
 import { WinnerCard } from '../features/raffle-management/components/WinnerCard';
+import { useDrawReveal } from '../features/raffle-management/hooks/useDrawReveal';
 import { useManagedRaffle } from '../features/raffle-management/hooks/useManagedRaffle';
 import { useRaffleActions } from '../features/raffle-management/hooks/useRaffleActions';
 
@@ -15,8 +17,9 @@ export function ManageRafflePage() {
   const [params] = useSearchParams();
   const id = params.get('id');
   const { isOpen: confirmOpen } = useConfirm();
-  const { data, error, refresh, form, setFormBusy } = useManagedRaffle(id, { paused: confirmOpen });
-  const actions = useRaffleActions(id, data, refresh);
+  const reveal = useDrawReveal();
+  const { data, error, refresh, form, setFormBusy } = useManagedRaffle(id, { paused: confirmOpen || reveal.isOpen });
+  const actions = useRaffleActions(id, data, refresh, reveal);
   useDocumentTitle(data ? `Gerenciar — ${data.raffle.title}` : 'Gerenciar rifa');
 
   return (
@@ -27,6 +30,7 @@ export function ManageRafflePage() {
       {data && (
         <>
           <RaffleOverview data={data} actions={actions} />
+          <DrawRevealDialog reveal={reveal} raffle={data.raffle} coverUrl={data.photos[0]?.url} />
           {data.raffle.status === 'open' && (
             <EditRaffleSection
               form={form}
@@ -43,45 +47,30 @@ export function ManageRafflePage() {
 
 function RaffleOverview({ data, actions }) {
   const { raffle, counts, winner, orders, taken } = data;
-  const proofSent = orders.filter((o) => o.status === 'proof_sent');
-  const pending = orders.filter((o) => o.status === 'pending');
-  const paid = orders.filter((o) => o.status === 'paid');
-  const open = raffle.status === 'open';
-
-  const drawSection = (
-    <DrawSection
-      raffle={raffle}
-      counts={counts}
-      canDraw={data.can_draw}
-      onSaveDate={actions.saveDrawDate}
-      onDraw={actions.draw}
-    />
-  );
-  const orderProps = { raffle, onApprove: actions.approveOrder, onCancel: actions.cancelOrder };
 
   return (
     <div className="stack">
-      <div className="row between">
-        <h1>{raffle.title}</h1>
-        <Tag variant={open ? 'open' : 'done'}>{open ? 'Aberta' : 'Sorteada'}</Tag>
-      </div>
+      <RaffleSummary raffle={raffle} counts={counts} coverUrl={data.photos[0]?.url} />
       {winner && <WinnerCard raffle={raffle} winner={winner} />}
-      <ShareSection raffle={raffle} taken={taken} />
-      <StatsGrid raffle={raffle} counts={counts} />
-      {!winner && drawSection}
-      <OrdersSection
-        title="Avisaram que pagaram"
-        orders={proofSent}
-        emptyText="Nenhum pagamento para conferir. Quando um comprador avisar pelo WhatsApp que fez o PIX, o pedido aparece aqui."
-        {...orderProps}
-      />
-      <OrdersSection
-        title="Aguardando pagamento do comprador"
-        orders={pending}
-        emptyText="Ninguém está no meio de um pagamento agora."
-        {...orderProps}
-      />
-      <OrdersSection title="Pagos" orders={paid} emptyText="Nenhum pagamento confirmado ainda." {...orderProps} />
+      <div className="manage-grid">
+        {!winner && (
+          <div className="manage-draw">
+            <DrawSection
+              raffle={raffle}
+              counts={counts}
+              canDraw={data.can_draw}
+              onSaveDate={actions.saveDrawDate}
+              onDraw={actions.draw}
+            />
+          </div>
+        )}
+        <div className="manage-orders">
+          <OrdersPanel orders={orders} raffle={raffle} onApprove={actions.approveOrder} onCancel={actions.cancelOrder} />
+        </div>
+        <div className="manage-share">
+          <ShareSection raffle={raffle} taken={taken} />
+        </div>
+      </div>
     </div>
   );
 }
