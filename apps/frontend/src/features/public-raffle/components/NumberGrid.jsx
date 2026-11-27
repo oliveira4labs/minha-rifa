@@ -7,14 +7,14 @@ const takenMessage = (text, status) => (status === 'p'
   ? `O número ${text} já foi vendido. Escolha outro.`
   : `O número ${text} já foi reservado. Escolha outro.`);
 
-const NumberCell = memo(function NumberCell({ n, total, status, isSelected, isWinner, onClick }) {
+const NumberCell = memo(function NumberCell({ n, total, status, isSelected, onClick }) {
   const text = padNumber(n, total);
   const cls = status ? STATUS[status].cls : isSelected ? 'sel' : '';
   const title = status ? `${text} — ${STATUS[status].label}` : `Número ${text}`;
   return (
     <button
       type="button"
-      className={`n ${cls}${isWinner ? ' win' : ''}`}
+      className={`n ${cls}`}
       aria-disabled={status ? 'true' : undefined}
       aria-pressed={status ? undefined : isSelected}
       title={title}
@@ -25,7 +25,7 @@ const NumberCell = memo(function NumberCell({ n, total, status, isSelected, isWi
   );
 });
 
-export function NumberGrid({ total, taken, selected, winnerNumber, onlyFree, onPick }) {
+export function NumberGrid({ total, taken, selected, onlyFree, onPick }) {
   const takenMap = useMemo(() => new Map(taken), [taken]);
 
   const onPickRef = useRef(onPick);
@@ -44,7 +44,6 @@ export function NumberGrid({ total, taken, selected, winnerNumber, onlyFree, onP
         total={total}
         status={status}
         isSelected={selected.has(n)}
-        isWinner={winnerNumber === n}
         onClick={handleClick}
       />,
     );

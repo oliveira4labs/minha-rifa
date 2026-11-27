@@ -74,7 +74,6 @@ label .hint { font-weight: 400; color: var(--muted); font-size: .82rem; }
 .char-count.over { color: var(--danger); font-weight: 600; }
 input, textarea, select {
   font: inherit; color: inherit; width: 100%; padding: 10px 12px; min-height: 44px;
-  /* 16px no mínimo: abaixo disso o Safari do iPhone dá zoom ao focar o campo e a tela fica "ampliada" depois. */
   font-size: max(16px, 1rem); font-weight: 400;
   border: 1px solid #cfc7b8; border-radius: 10px; background: #fff;
   transition: border-color .15s, box-shadow .15s;
@@ -84,7 +83,6 @@ textarea { min-height: 160px; resize: none; }
 /* Lado a lado, o campo fica sempre embaixo: se só um dos rótulos tem dica (ou a dica quebra em duas linhas), os campos continuam alinhados. */
 .grid2 > label { grid-template-rows: auto 1fr; }
 .grid2 > label > :last-child { align-self: end; }
-/* Tela de login */
 .login { display: grid; gap: 16px; justify-items: center; align-content: start; padding-top: clamp(32px, 10vh, 96px); }
 .login-card { width: 100%; max-width: 400px; display: grid; gap: 20px; justify-items: center; text-align: center; padding: 32px 24px; }
 .login-card h1 { font-size: 1.6rem; }
@@ -193,7 +191,6 @@ dialog.lightbox::backdrop { background: rgba(14, 12, 9, .6); }
 .n.sel { background: var(--primary); border-color: var(--primary); color: #fff; }
 .n.res { background: var(--amber-soft); border-color: #e7b24a; color: var(--amber); cursor: default; }
 .n.paid { background: #e3dfd7; border-color: #d6d0c5; color: var(--paid); text-decoration: line-through; cursor: default; }
-.n.win { background: #f5c84b; border-color: #d9a514; color: #3d2c00; text-decoration: none; box-shadow: 0 0 0 3px rgba(245, 200, 75, .4); }
 .numbers.only-free .n.res, .numbers.only-free .n.paid { display: none; }
 .numbers.static .n { cursor: default; height: 38px; font-size: .85rem; }
 
@@ -226,7 +223,7 @@ dialog.lightbox::backdrop { background: rgba(14, 12, 9, .6); }
 .winner { background: linear-gradient(135deg, #fff3c9, #ffe08a); border: 1px solid #e3b93a; border-radius: var(--radius); padding: 20px; text-align: center; }
 .winner .big { font-size: 3rem; font-weight: 800; letter-spacing: -.03em; line-height: 1.1; font-variant-numeric: tabular-nums; }
 
-/* Gestão da rifa (/gerenciar): resumo num card, pedidos em abas e coluna lateral com sorteio e divulgação */
+/* Gestão da rifa (/gerenciar): resumo em um card, pedidos e sorteio lado a lado, divulgação na largura toda */
 .summary { display: grid; gap: 16px; }
 .summary-head { display: flex; gap: 14px; align-items: center; }
 .summary-cover { width: 64px; height: 64px; flex: none; border-radius: 12px; object-fit: cover; background: #e9e3d8; display: grid; place-items: center; font-size: 1.6rem; }

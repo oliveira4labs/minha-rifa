@@ -17,7 +17,6 @@ export async function requireOwnedRaffle(raffles: IRaffleRepository, userId: num
   return raffle;
 }
 
-/** `current` = textos já salvos (na edição): só o que mudou precisa caber nos limites novos. */
 export function toRaffleDetails(input: RaffleInputDto, locked?: RafflePricing, current?: RaffleTexts): RaffleDetails {
   return {
     title: assertTextLimit(input.title, MAX_TITLE_LENGTH, 'Título', current?.title),

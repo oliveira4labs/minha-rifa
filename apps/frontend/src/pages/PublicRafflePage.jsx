@@ -6,7 +6,7 @@ import { useToast } from '../shared/ui/feedback/ToastProvider';
 import { Topbar } from '../shared/ui/layout/Topbar';
 import { publicRaffleApi } from '../features/public-raffle/api/publicRaffleApi';
 import { BuyBar } from '../features/public-raffle/components/BuyBar';
-import { BuyerOrderCard } from '../features/public-raffle/components/BuyerOrderCard';
+import { BuyerOrders } from '../features/public-raffle/components/BuyerOrderCard';
 import { NumbersSection } from '../features/public-raffle/components/NumbersSection';
 import { RaffleHero } from '../features/public-raffle/components/RaffleHero';
 import { ReserveDialog } from '../features/public-raffle/components/ReserveDialog';
@@ -26,7 +26,6 @@ export function PublicRafflePage() {
   const [reserving, setReserving] = useState(false);
   const { data, orders, error, refresh } = usePublicRaffle(slug, { paused: reserving });
   const raffle = data?.raffle;
-  // Números já comprados neste navegador (a pagar, avisados ou pagos): contam no limite por pessoa.
   const ownedCount = orders.reduce((sum, o) => sum + o.numbers.length, 0);
   const cart = useCart(slug, { maxPerBuyer: raffle?.max_per_buyer, ownedCount, onSynced: refresh });
   useDocumentTitle(raffle?.title ?? 'Rifa');
@@ -84,18 +83,12 @@ export function PublicRafflePage() {
         {orders.length > 0 && (
           <section className="stack-sm">
             <h2>Seus números</h2>
-            {orders.map((o) => (
-              <BuyerOrderCard key={o.token} order={o} raffle={raffle} onProofSent={sendProof} />
-            ))}
+            <BuyerOrders orders={orders} raffle={raffle} onProofSent={sendProof} />
           </section>
         )}
-        <NumbersSection
-          raffle={raffle}
-          taken={takenByOthers}
-          selected={cart.selected}
-          winnerNumber={data.winner?.number}
-          onPick={pick}
-        />
+        {raffle.status === 'open' && (
+          <NumbersSection raffle={raffle} taken={takenByOthers} selected={cart.selected} onPick={pick} />
+        )}
       </>
     );
   }

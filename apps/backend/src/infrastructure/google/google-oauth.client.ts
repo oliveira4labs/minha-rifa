@@ -58,8 +58,6 @@ export class GoogleOAuthClient extends GoogleIdentityProvider {
     };
   }
 
-  // O id_token vem direto do Google (TLS, troca server-to-server com client_secret),
-  // então basta conferir os claims — a assinatura não precisa ser revalidada (OIDC Core 3.1.3.7).
   private decodeIdToken(idToken: string | undefined): GoogleIdTokenClaims {
     const payload = idToken?.split('.')[1];
     if (!payload) throw new UnauthenticatedError(REJECTED);
