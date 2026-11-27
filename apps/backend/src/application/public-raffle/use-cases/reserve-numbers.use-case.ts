@@ -29,7 +29,7 @@ export class ReserveNumbersUseCase implements UseCase<ReserveNumbersInput, Reser
         const already = await this.orders.countActiveNumbersByPhone(raffle.id, data.phone);
         if (already + cart.numbers.length > raffle.maxPerBuyer) {
           throw new BusinessRuleError(
-            `Esta rifa permite no máximo ${raffle.maxPerBuyer} número(s) por pessoa` +
+            `Esta rifa permite no máximo ${raffle.maxPerBuyer} ${raffle.maxPerBuyer === 1 ? 'número' : 'números'} por pessoa` +
               (already ? ` e você já tem ${already}.` : '.'),
           );
         }

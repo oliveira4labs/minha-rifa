@@ -59,10 +59,12 @@ export function drawStatus(raffle, counts, canDraw) {
     return { highlight: false, text: 'Ainda não há números pagos. O sorteio é feito entre os números com pagamento confirmado.' };
   }
   if (canDraw) {
+    const unpaid = raffle.total_numbers - counts.paid;
+    const unpaidText = unpaid === 1 ? '1 número ainda não foi pago' : `${unpaid} números ainda não foram pagos`;
+    const paidText = counts.paid === 1 ? 'o único número pago' : `os ${counts.paid} números pagos`;
     return {
       highlight: true,
-      text: `A data do sorteio chegou e ${raffle.total_numbers - counts.paid} número(s) ainda não foram pagos. ` +
-        `Você pode adiar a data ou sortear entre os ${counts.paid} números pagos.`,
+      text: `A data do sorteio chegou e ${unpaidText}. Você pode adiar a data ou sortear entre ${paidText}.`,
     };
   }
   if (raffle.draw_date) {
@@ -77,15 +79,16 @@ export function drawStatus(raffle, counts, canDraw) {
   };
 }
 
+// Card de confirmação antes do palco: quem concorre, o que acontece com a rifa e o que a próxima tela mostra
 export function drawConfirmText(raffle, counts) {
-  const intro = isComplete(raffle, counts)
-    ? `Todos os ${raffle.total_numbers} números estão pagos. O sistema vai sortear um deles agora.`
-    : `Apenas ${counts.paid} de ${raffle.total_numbers} números foram pagos. ` +
-      `O sorteio será feito somente entre os ${counts.paid} números pagos.` +
-      (counts.pending
-        ? `\n${counts.pending} número(s) reservado(s) sem pagamento confirmado ficarão de fora e serão cancelados.`
-        : '');
-  return `${intro}\n\nDepois de sorteada, a rifa é encerrada e isso não pode ser desfeito.`;
+  const pool = isComplete(raffle, counts)
+    ? `Todos os ${raffle.total_numbers} números estão pagos e concorrem.`
+    : `Concorrem somente os ${counts.paid} números pagos, de ${raffle.total_numbers}.`;
+  let dropped = '';
+  if (counts.pending === 1) dropped = ' O número reservado sem pagamento confirmado será cancelado.';
+  else if (counts.pending > 1) dropped = ` Os ${counts.pending} números reservados sem pagamento confirmado serão cancelados.`;
+  return `${pool}${dropped}\n\nA rifa será encerrada e o resultado não pode ser desfeito. ` +
+    'A próxima tela mostra apenas a rifa e o sorteio, sem valores nem dados dos compradores.';
 }
 
 export const winnerMessage = (raffle, winner) =>

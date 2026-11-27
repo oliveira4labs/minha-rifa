@@ -2,6 +2,9 @@ import { parseMoney } from './format';
 
 const onlyDigits = (value) => String(value ?? '').replace(/\D/g, '');
 
+// Número inteiro: só dígitos, sem zeros à esquerda e com até `maxLength` dígitos
+export const maskInteger = (value, maxLength) => onlyDigits(value).replace(/^0+(?=\d)/, '').slice(0, maxLength);
+
 export function maskPhone(value) {
   let d = onlyDigits(value);
   if (d.length > 11 && d.startsWith('55')) d = d.slice(2);

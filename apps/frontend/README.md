@@ -58,7 +58,7 @@ Qualquer pessoa pode criar uma conta e vira administradora **apenas das rifas qu
 | Valor por número | Maior que zero, até R$ 100.000,00. Digitado em reais (`10,00`, `1.234,50`) e enviado em centavos |
 | Chave PIX | Obrigatória, até 200 caracteres. Texto livre (CPF, celular, e-mail, aleatória) |
 | WhatsApp do administrador | Obrigatório, com DDD (10 a 13 dígitos). É para onde o comprador manda a mensagem avisando que pagou |
-| Tempo de reserva | Em minutos, horas ou dias. O servidor aceita de **5 minutos a 30 dias**. Padrão: 2 horas. É o prazo do **comprador** (do clique até avisar o organizador), não do admin |
+| Tempo de reserva | Em minutos, horas ou dias. O servidor aceita de **5 minutos a 30 dias**. Padrão em rifa nova: 30 minutos. O campo sempre abre em minutos, também ao editar (uma rifa de 2 horas aparece como 120 minutos). É o prazo do **comprador** (do clique até avisar o organizador), não do admin |
 | Limite por comprador | Opcional. Máximo de números por WhatsApp na rifa |
 | Data do sorteio | Opcional. Pode ser alterada depois |
 | Visibilidade | **Pública** (qualquer pessoa com o link) ou **Privada** (só o dono vê a página; ninguém mais abre o link nem reserva). Fotos de rifa privada só carregam para o dono logado |
@@ -91,7 +91,7 @@ Cada reserva é um **pedido** com um ou mais números. A regra central:
 |---|---|---|
 | `held` (guardado) | Só o próprio comprador (os outros veem "reservado") | Clicou nos números, ainda não informou os dados. Pode soltar um número clicando de novo |
 | `pending` (pendente) | Comprador e admin (aba "Aguardando" dos pedidos) | Dados informados; falta pagar e avisar o organizador |
-| `proof_sent` (organizador avisado) | Comprador ("Aguardando confirmação", em uma linha com os números e quando avisou) e admin (aba "Avisaram que pagaram", com contador âmbar) | O relógio parou; o número fica ocupado até o admin confirmar ou recusar |
+| `proof_sent` (organizador avisado) | Comprador ("Aguardando confirmação", em uma linha com os números e quando avisou) e admin (aba "A conferir", com contador âmbar) | O relógio parou; o número fica ocupado até o admin confirmar ou recusar |
 | `paid` (pago) | Todos | Pagamento confirmado |
 
 - O prazo é contado **a partir do primeiro clique** e vale para todos os números do mesmo carrinho.
@@ -144,7 +144,7 @@ Não há integração com meio de pagamento. O fluxo é manual:
 
 ### Suporte
 
-- No fim da página pública da rifa (`/r/:slug`), inclusive quando a rifa não é encontrada, aparece "Ficou alguma dúvida? Fale com o **nosso suporte**". O link abre o WhatsApp do suporte do Minha Rifa (`SUPPORT_WHATSAPP` em `features/public-raffle/lib/support.js`, hoje `34999188482`) com uma mensagem pronta: saudação, nome da rifa (quando existe), link da página e "Minha dúvida é: " para o comprador completar.
+- No fim da página pública da rifa (`/r/:slug`), inclusive quando a rifa não é encontrada, aparece "Ficou alguma dúvida? Fale com o **nosso suporte**". O link abre um e-mail para o suporte do Minha Rifa (`SUPPORT_EMAIL` em `shared/lib/contact.js`, o mesmo e-mail da Política de Privacidade, hoje `oliveira4labs@gmail.com`) com o assunto `Dúvida sobre a rifa "…"` e uma mensagem pronta: saudação, nome da rifa (quando existe), link da página e "Minha dúvida é: " para o comprador completar.
 - É o suporte do sistema, não o organizador da rifa (o contato com o organizador continua no card "Seus números").
 
 ### Divulgação
@@ -161,16 +161,17 @@ Não há integração com meio de pagamento. O fluxo é manual:
 | Página pública (`/r/:slug`) | 20 s | O diálogo de reserva está aberto |
 | Página pública, pedido ou carrinho vencido | 1 s | — (atualiza assim que a contagem chega a zero) |
 
-Layout da gestão: resumo no topo; abaixo, no computador (≥ 820px), pedidos à esquerda e uma coluna de 320px com Sorteio (com anel verde quando liberado) e Divulgação. No celular fica tudo numa coluna, na ordem Sorteio → Pedidos → Divulgação, e as abas dos pedidos viram três colunas iguais.
+Layout da gestão: resumo no topo; abaixo, no computador (≥ 820px), pedidos à esquerda e Sorteio em uma coluna de 320px (com anel verde quando liberado), os dois cards com a mesma altura; embaixo, Divulgação na largura toda, em duas colunas: o link à esquerda e a mensagem do WhatsApp à direita (depois do sorteio, só o link). Com a rifa sorteada, os pedidos também ocupam a largura toda. No celular fica tudo em uma coluna, na ordem Sorteio → Pedidos → Divulgação, e as abas dos pedidos viram três colunas iguais.
 
 Na gestão, a atualização **não apaga o que o administrador está digitando** no formulário de edição nem na data do sorteio (ver [Estado do formulário de edição](#estado-do-formulário-de-edição)).
-Na página pública, cada clique num número já ocupa (ou solta) o número no servidor. Se outra pessoa pegou antes, aparece o aviso e a grade é atualizada.
+Na página pública, cada clique em um número já ocupa (ou solta) o número no servidor. Se outra pessoa pegou antes, aparece o aviso e a grade é atualizada.
 
 ### Formatação
 
-- Números exibidos com zeros à esquerda conforme o total (`007` numa rifa de 100).
+- Números exibidos com zeros à esquerda conforme o total (`007` em uma rifa de 100).
 - Valores em reais (`R$ 10,00`), datas em `dd/mm/aaaa hh:mm`, telefone `(11) 91234-5678`.
 - Links de WhatsApp assumem DDI 55 quando o número tem até 11 dígitos e usam `api.whatsapp.com/send` (o `wa.me` estragava emojis da mensagem em alguns aparelhos).
+- Quantidade de números, tempo de reserva e limite por pessoa usam `IntegerInput` (`shared/ui/components/MaskedInputs.jsx`): só aceita dígitos, mesmo colando texto. Não usa `type="number"`, que deixa digitar "e", "+", "-" e "," (e qualquer letra no Safari). Fora da faixa (ex.: quantidade menor que 2 ou maior que 5000), o navegador avisa ao enviar.
 - Campos de formulário têm no mínimo 16px de fonte: abaixo disso o Safari do iPhone dá zoom ao focar e a tela fica ampliada depois.
 
 ---
@@ -216,7 +217,7 @@ apps/frontend/
     │   └── remote-config/
     └── shared/              reutilizável, sem regra de negócio
         ├── api/             httpClient (fetch + ApiError)
-        ├── lib/             funções puras: format, whatsapp, image, clipboard, storage
+        ├── lib/             funções puras: format, whatsapp, image, clipboard, storage, masks; contact (e-mail do suporte)
         ├── hooks/           useInterval, useNow, useCopy, useDocumentTitle
         ├── ui/
         │   ├── components/  Tag, ProgressBar, Chips, CopyBox, Countdown, Stat, Loading, ErrorCard, ExternalLink,
@@ -286,7 +287,7 @@ Dentro de cada feature, a mesma divisão:
 | `hooks/useDrawReveal.js` | Palco do sorteio: linha do tempo (fases `ready` → `spinning` → `silence` → `revealed`, com `stoppedCount` dizendo quantos rolos já pararam) e confete (`canvas-confetti` num canvas dentro do diálogo, porque o `<dialog>` modal fica acima de tudo). `open()` resolve `true` (sorteou) ou `false` (voltou sem sortear) ao fechar; `start()` é o botão "Sortear" |
 | `hooks/useDrawSounds.js` | Web Audio: rufar (mp3 com loop no miolo ou sintético) que toca até o `stop()` devolvido, "clunk" de rolo parando, fanfarra e mudo. O `AudioContext` é criado/liberado no clique em "Sortear" e fechado ao sair da tela |
 | `hooks/useRaffleActions.js` | Ações com confirmação + API + recarga + toast: aprovar, recusar/desfazer, salvar data, sortear, salvar edição, excluir |
-| `components/*` | `RaffleSummary` (capa, título, etiquetas, preço/total/data, barra de progresso e contagens num card só), `OrdersPanel` (pedidos em abas: Avisaram que pagaram / Aguardando / Pagos; abre na primeira aba com pedido) com `OrderCard` (uma linha por pedido), `DrawSection` e `ShareSection` (coluna lateral; a prévia da mensagem fica recolhida em "Ver a mensagem"), `DrawRevealDialog`/`SlotMachine` (rolos animados com Web Animations API), `WinnerCard`, `EditRaffleSection` |
+| `components/*` | `RaffleSummary` (capa, título, etiquetas, preço/total/data, barra de progresso e contagens num card só), `OrdersPanel` (pedidos em abas: A conferir / Aguardando / Pagos; abre na primeira aba com pedido) com `OrderCard` (uma linha por pedido), `DrawSection` (coluna lateral), `ShareSection` (largura toda, link e mensagem lado a lado; a prévia da mensagem fica recolhida em "Ver a mensagem"), `DrawRevealDialog`/`SlotMachine` (rolos animados com Web Animations API), `WinnerCard`, `EditRaffleSection` |
 
 #### `public-raffle` — tela `/r/:slug`
 
@@ -294,7 +295,7 @@ Dentro de cada feature, a mesma divisão:
 |---|---|
 | `api/publicRaffleApi.js` | `get(slug)`, `hold`/`release(slug, { token, number })`, `reserve(slug, { token, name, phone })`, `getOrder(token)`, `proofSent(token)` |
 | `lib/buyerStorage.js` | Tokens de pedidos, token do carrinho e dados do comprador no `localStorage` |
-| `lib/support.js` | Número do WhatsApp do suporte e o texto da mensagem pronta (`supportMessage`) |
+| `lib/support.js` | Link de e-mail do suporte com assunto e mensagem prontos (`supportEmailLink`; o e-mail vem de `shared/lib/contact.js`) |
 | `hooks/usePublicRaffle.js` | Dados da rifa + pedidos do navegador, polling, `forgetOrder` |
 | `hooks/useCart.js` | Carrinho no servidor: cada clique chama `hold`/`release` em fila (atualização otimista), limite por pessoa, ressincroniza em erro e esvazia quando o prazo acaba |
 | `components/*` | `RaffleHero`, `Gallery`, `WinnerBanner`, `NumbersSection`/`NumberGrid`, `BuyBar`, `ReserveDialog`, `BuyerOrderCard`, `SupportFooter` |

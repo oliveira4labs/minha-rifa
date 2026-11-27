@@ -4,8 +4,8 @@ import { OrderCard } from './OrderCard';
 const TAB_LIST = [
   {
     status: 'proof_sent',
-    label: 'Avisaram que pagaram',
-    empty: 'Nenhum pagamento para conferir. Quando um comprador avisar pelo WhatsApp que fez o PIX, o pedido aparece aqui.',
+    label: 'A conferir',
+    empty: 'Nenhum pagamento para conferir. Quando um comprador informar pelo WhatsApp que fez o PIX, o pedido aparece aqui.',
   },
   { status: 'pending', label: 'Aguardando', empty: 'Ninguém está no meio de um pagamento agora.' },
   { status: 'paid', label: 'Pagos', empty: 'Nenhum pagamento confirmado ainda.' },
