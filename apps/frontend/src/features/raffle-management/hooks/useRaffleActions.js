@@ -52,8 +52,7 @@ export function useRaffleActions(id, data, refresh, reveal) {
     reveal.preload(); // baixa o rufar enquanto o admin lê a confirmação
     const ok = await confirm({
       title: 'Realizar o sorteio?',
-      text: `${drawConfirmText(data.raffle, data.counts)}\n\n` +
-        'Na próxima tela, sem valores nem dados dos compradores, você clica em "Sortear". Dá para gravar a tela e mandar aos participantes.',
+      text: drawConfirmText(data.raffle, data.counts),
       ok: 'Ir para o sorteio',
     });
     if (!ok) return;

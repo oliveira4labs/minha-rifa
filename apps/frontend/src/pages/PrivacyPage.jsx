@@ -1,7 +1,7 @@
 import { useDocumentTitle } from '../shared/hooks/useDocumentTitle';
+import { SUPPORT_EMAIL as CONTACT_EMAIL } from '../shared/lib/contact';
 import { Topbar } from '../shared/ui/layout/Topbar';
 
-const CONTACT_EMAIL = 'oliveira4labs@gmail.com';
 const UPDATED_AT = '24 de novembro de 2026';
 
 export function PrivacyPage() {

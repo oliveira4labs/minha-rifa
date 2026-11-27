@@ -16,32 +16,36 @@ export function ShareSection({ raffle, taken }) {
   const message = shareMessage(raffle, taken);
 
   return (
-    <section className="card stack-sm side-card">
+    <section className="card stack-sm share-card">
       <h2>Divulgação</h2>
-      <CopyBox value={url} />
-      <div className="side-actions">
-        <button type="button" className="btn sm" onClick={() => copy(url, 'Link copiado!')}>Copiar link</button>
-        <ExternalLink className="btn sm" href={url}>Abrir página</ExternalLink>
-      </div>
-      {raffle.status === 'open' && (
-        <>
-          <hr className="divider" />
-          <p className="small muted">Mensagem pronta para o WhatsApp, atualizada conforme os números são vendidos.</p>
+      <div className="share-grid">
+        <div className="stack-sm">
+          <p className="small muted">Link da página da rifa, para mandar a quem quiser comprar.</p>
+          <CopyBox value={url} />
           <div className="side-actions">
-            <ExternalLink className="btn sm wa" href={whatsappShareLink(message)}>Enviar pelo WhatsApp</ExternalLink>
-            <button type="button" className="btn sm" onClick={() => copy(message, 'Mensagem copiada! Cole no WhatsApp.')}>
-              Copiar mensagem
-            </button>
+            <button type="button" className="btn sm" onClick={() => copy(url, 'Link copiado!')}>Copiar link</button>
+            <ExternalLink className="btn sm" href={url}>Abrir página</ExternalLink>
           </div>
-          <details className="share-details">
-            <summary className="small">Ver a mensagem</summary>
-            <WhatsappPreview text={message} />
-          </details>
-        </>
-      )}
-      {isLocalHost() && (
-        <p className="small muted">Este link só abre neste computador enquanto o sistema não estiver publicado na internet.</p>
-      )}
+          {isLocalHost() && (
+            <p className="small muted">Este link só abre neste computador enquanto o sistema não estiver publicado na internet.</p>
+          )}
+        </div>
+        {raffle.status === 'open' && (
+          <div className="stack-sm share-message">
+            <p className="small muted">Mensagem pronta para o WhatsApp, atualizada conforme os números são vendidos.</p>
+            <div className="side-actions">
+              <ExternalLink className="btn sm wa" href={whatsappShareLink(message)}>Enviar pelo WhatsApp</ExternalLink>
+              <button type="button" className="btn sm" onClick={() => copy(message, 'Mensagem copiada! Cole no WhatsApp.')}>
+                Copiar mensagem
+              </button>
+            </div>
+            <details className="share-details">
+              <summary className="small">Ver a mensagem</summary>
+              <WhatsappPreview text={message} />
+            </details>
+          </div>
+        )}
+      </div>
     </section>
   );
 }

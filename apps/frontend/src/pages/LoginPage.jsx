@@ -13,7 +13,7 @@ export function LoginPage() {
           <span className="login-badge" aria-hidden="true">🎟️</span>
           <div className="stack-sm">
             <h1>Entre na sua conta</h1>
-            <p className="muted">Crie suas rifas, divulgue o link e confirme os pagamentos num lugar só.</p>
+            <p className="muted">Crie suas rifas, divulgue o link e confirme os pagamentos em um só lugar.</p>
           </div>
           <AuthForm />
         </section>

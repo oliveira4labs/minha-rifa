@@ -80,6 +80,9 @@ input, textarea, select {
 }
 textarea { min-height: 160px; resize: none; }
 .grid2 { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
+/* Lado a lado, o campo fica sempre embaixo: se só um dos rótulos tem dica (ou a dica quebra em duas linhas), os campos continuam alinhados. */
+.grid2 > label { grid-template-rows: auto 1fr; }
+.grid2 > label > :last-child { align-self: end; }
 .login { display: grid; gap: 16px; justify-items: center; align-content: start; padding-top: clamp(32px, 10vh, 96px); }
 .login-card { width: 100%; max-width: 400px; display: grid; gap: 20px; justify-items: center; text-align: center; padding: 32px 24px; }
 .login-card h1 { font-size: 1.6rem; }
@@ -220,7 +223,7 @@ dialog.lightbox::backdrop { background: rgba(14, 12, 9, .6); }
 .winner { background: linear-gradient(135deg, #fff3c9, #ffe08a); border: 1px solid #e3b93a; border-radius: var(--radius); padding: 20px; text-align: center; }
 .winner .big { font-size: 3rem; font-weight: 800; letter-spacing: -.03em; line-height: 1.1; font-variant-numeric: tabular-nums; }
 
-/* Gestão da rifa (/gerenciar): resumo num card, pedidos em abas e coluna lateral com sorteio e divulgação */
+/* Gestão da rifa (/gerenciar): resumo em um card, pedidos e sorteio lado a lado, divulgação na largura toda */
 .summary { display: grid; gap: 16px; }
 .summary-head { display: flex; gap: 14px; align-items: center; }
 .summary-cover { width: 64px; height: 64px; flex: none; border-radius: 12px; object-fit: cover; background: #e9e3d8; display: grid; place-items: center; font-size: 1.6rem; }
@@ -247,15 +250,26 @@ dialog.lightbox::backdrop { background: rgba(14, 12, 9, .6); }
 .manage-orders { grid-area: orders; min-width: 0; }
 .manage-share { grid-area: share; }
 @media (min-width: 820px) {
-  .manage-grid { grid-template-columns: minmax(0, 1fr) 320px; grid-template-rows: auto 1fr; grid-template-areas: "orders draw" "orders share"; align-items: start; }
-  .manage-grid:not(:has(.manage-draw)) { grid-template-areas: "orders share" "orders share"; }
+  /* Pedidos e Sorteio lado a lado; Divulgação embaixo, na largura toda */
+  .manage-grid { grid-template-columns: minmax(0, 1fr) 320px; grid-template-areas: "orders draw" "share share"; }
+  .manage-grid:not(:has(.manage-draw)) { grid-template-areas: "orders orders" "share share"; }
+  /* Pedidos e Sorteio com a mesma altura; o conteúdo fica no topo (o "Realizar sorteio" não desce para longe da data) */
+  .manage-orders > .card, .manage-draw > .card { height: 100%; align-content: start; }
 }
 
 .side-card { grid-template-columns: minmax(0, 1fr); }
 .side-card h2, .orders-panel h2 { font-size: 1.05rem; }
 .side-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 .side-actions .btn { flex: 1 1 auto; }
-.divider { margin: 6px 0; border: 0; border-top: 1px solid var(--line); }
+.share-card h2 { font-size: 1.05rem; }
+.share-grid { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); align-items: start; }
+.share-message { padding-top: 16px; border-top: 1px solid var(--line); }
+/* Rifa sorteada: só o link, sem a mensagem; não estica os botões na largura toda */
+.share-grid:not(:has(.share-message)) > * { max-width: 480px; }
+@media (min-width: 820px) {
+  .share-grid:has(.share-message) { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+  .share-message { padding: 0 0 0 24px; border-top: 0; border-left: 1px solid var(--line); }
+}
 .share-details summary { cursor: pointer; color: var(--primary); font-weight: 600; }
 .share-details[open] summary { margin-bottom: 8px; }
 .date-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
@@ -403,7 +417,6 @@ dialog.draw-stage::backdrop { background: #0d4a3c; }
 .draw-stage .btn:active { transform: scale(.97); }
 .draw-controls { justify-items: center; margin-top: 14px; }
 .draw-start { min-width: 220px; min-height: 52px; font-size: 1.1rem; }
-.draw-hint { margin: 0; max-width: 320px; color: var(--stage-muted); font-size: .875rem; }
 
 .draw-result { justify-items: center; }
 .draw-name { margin: 14px 0 0; font-size: clamp(1.5rem, 5vw, 2.1rem); font-weight: 800; letter-spacing: -.02em; color: #fff; overflow-wrap: anywhere; animation: draw-fade-up .4s var(--ease-out) .15s both; }

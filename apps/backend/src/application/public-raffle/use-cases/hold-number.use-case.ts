@@ -31,7 +31,9 @@ export class HoldNumberUseCase implements UseCase<HoldNumberInput, CartDto> {
       if (cart?.numbers.includes(number)) return toCartDto(cart);
 
       if (raffle.maxPerBuyer != null && (cart?.numbers.length ?? 0) >= raffle.maxPerBuyer) {
-        throw new BusinessRuleError(`Limite de ${raffle.maxPerBuyer} número(s) por pessoa nesta rifa.`);
+        throw new BusinessRuleError(
+          `Limite de ${raffle.maxPerBuyer} ${raffle.maxPerBuyer === 1 ? 'número' : 'números'} por pessoa nesta rifa.`,
+        );
       }
 
       if (cart) return toCartDto(await this.orders.addNumber(cart, number));

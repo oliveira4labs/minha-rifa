@@ -13,8 +13,8 @@ export function RaffleSummary({ raffle, counts, coverUrl }) {
   ];
   const statList = [
     { value: counts.paid, label: 'pagos' },
-    { value: awaiting, label: 'avisaram que pagaram', warn: awaiting > 0 },
-    { value: counts.pending - awaiting, label: 'reservados, sem aviso' },
+    { value: awaiting, label: 'pagamentos a conferir', warn: awaiting > 0 },
+    { value: counts.pending - awaiting, label: 'reservados, sem pagamento' },
     { value: free, label: 'disponíveis' },
   ];
 

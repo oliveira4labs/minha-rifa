@@ -33,7 +33,7 @@ export function NumbersSection({ raffle, taken, selected, onPick }) {
         onPick={onPick}
       />
       <p className="small muted">
-        Ao clicar num número, ele fica guardado para você por {formatDuration(raffle.reserve_minutes)}.
+        Ao clicar em um número, ele fica guardado para você por {formatDuration(raffle.reserve_minutes)}.
       </p>
     </section>
   );

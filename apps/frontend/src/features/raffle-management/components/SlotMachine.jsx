@@ -36,7 +36,7 @@ function Reel({ spinning, digit, stopMs, last }) {
         [{ transform: `translateY(${top}px)` }, { transform: `translateY(${top - 10 * cell}px)` }],
         { duration: SPIN_CYCLE_MS, iterations: Infinity, easing: 'linear' },
       );
-      spin.currentTime = Math.random() * SPIN_CYCLE_MS; // cada rolo numa posição diferente
+      spin.currentTime = Math.random() * SPIN_CYCLE_MS; // cada rolo em uma posição diferente
       spinRef.current = spin;
       return;
     }

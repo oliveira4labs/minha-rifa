@@ -91,9 +91,6 @@ export function DrawRevealDialog({ reveal, raffle, coverUrl }) {
           {ready && (
             <div className="draw-controls stack-sm">
               <button ref={startRef} type="button" className="btn draw-start" onClick={start}>Sortear</button>
-              <p className="draw-hint">
-                Esta tela não mostra valores, pedidos nem contatos. Se for gravar para os participantes, comece agora.
-              </p>
             </div>
           )}
 

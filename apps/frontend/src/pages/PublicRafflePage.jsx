@@ -49,7 +49,7 @@ export function PublicRafflePage() {
       cart.forget();
       setReserving(false);
       await refresh();
-      toast('Prontinho! Seus números estão guardados. Agora é só fazer o PIX e avisar o organizador.');
+      toast('Pronto! Seus números estão guardados. Agora é só fazer o PIX e avisar o organizador.');
       scrollToPendingOrder();
     } catch (err) {
       toast(err.message, true);

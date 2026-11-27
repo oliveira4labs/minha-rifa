@@ -5,18 +5,10 @@ export const MAX_PHOTOS = 8;
 export const MAX_TITLE_LENGTH = 60;
 export const MAX_DESCRIPTION_LENGTH = 500;
 export const RESERVE_UNITS = { min: 1, h: 60, d: 1440 };
-const DEFAULT_RESERVE_MINUTES = 120;
+const DEFAULT_RESERVE_MINUTES = 30;
 const DEFAULT_TOTAL_NUMBERS = 100;
 
-function reserveUnitOf(minutes) {
-  if (minutes % RESERVE_UNITS.d === 0) return 'd';
-  if (minutes % RESERVE_UNITS.h === 0) return 'h';
-  return 'min';
-}
-
 export function toFormValues(raffle = {}) {
-  const minutes = raffle.reserve_minutes ?? DEFAULT_RESERVE_MINUTES;
-  const unit = reserveUnitOf(minutes);
   return {
     title: raffle.title ?? '',
     description: raffle.description ?? '',
@@ -24,8 +16,9 @@ export function toFormValues(raffle = {}) {
     price: raffle.price_cents != null ? formatMoneyInput(raffle.price_cents) : '',
     pix_key: raffle.pix_key ?? '',
     whatsapp: maskPhone(raffle.whatsapp),
-    reserve_value: String(minutes / RESERVE_UNITS[unit]),
-    reserve_unit: unit,
+    // Sempre em minutos, na criação e na edição; o admin pode trocar para horas ou dias
+    reserve_value: String(raffle.reserve_minutes ?? DEFAULT_RESERVE_MINUTES),
+    reserve_unit: 'min',
     max_per_buyer: raffle.max_per_buyer != null ? String(raffle.max_per_buyer) : '',
     draw_date: toDateTimeInput(raffle.draw_date),
     visibility: raffle.visibility ?? 'public',

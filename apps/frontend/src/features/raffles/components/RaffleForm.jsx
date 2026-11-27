@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { CharCount } from '../../../shared/ui/components';
-import { MoneyInput, PhoneInput } from '../../../shared/ui/components/MaskedInputs';
+import { IntegerInput, MoneyInput, PhoneInput } from '../../../shared/ui/components/MaskedInputs';
 import { useToast } from '../../../shared/ui/feedback/ToastProvider';
 import {
   MAX_DESCRIPTION_LENGTH, MAX_TITLE_LENGTH, toFormValues, toPayload,
@@ -64,7 +64,7 @@ export function RaffleForm({
 
       <div className="grid2">
         <label>Quantidade de números
-          <input {...field('total_numbers')} type="number" inputMode="numeric" min={2} max={5000} required disabled={locked} />
+          <IntegerInput {...maskedField('total_numbers')} min={2} max={5000} required disabled={locked} />
         </label>
         <label>Valor de cada número
           <MoneyInput {...maskedField('price')} required disabled={locked} />
@@ -75,7 +75,7 @@ export function RaffleForm({
       )}
 
       <div className="grid2">
-        <label>Chave PIX para pagamento
+        <label>Chave PIX para pagamento <span className="hint">Para onde os compradores enviam o PIX</span>
           <input {...field('pix_key')} maxLength={200} required placeholder="CPF, celular, e-mail ou chave aleatória" />
         </label>
         <label>Seu WhatsApp (com DDD) <span className="hint">Para onde os compradores avisam que fizeram o PIX</span>
@@ -86,7 +86,7 @@ export function RaffleForm({
       <div className="grid2">
         <label>Tempo de reserva <span className="hint">Sem confirmação nesse prazo, o número volta a ficar disponível</span>
           <span className="row" style={{ flexWrap: 'nowrap' }}>
-            <input {...field('reserve_value')} type="number" inputMode="numeric" min={1} required />
+            <IntegerInput {...maskedField('reserve_value')} min={1} required />
             <select {...field('reserve_unit')}>
               <option value="min">minutos</option>
               <option value="h">horas</option>
@@ -95,7 +95,7 @@ export function RaffleForm({
           </span>
         </label>
         <label>Limite de números por pessoa <span className="hint">Deixe vazio para não limitar</span>
-          <input {...field('max_per_buyer')} type="number" inputMode="numeric" min={1} placeholder="Sem limite" />
+          <IntegerInput {...maskedField('max_per_buyer')} min={1} max={5000} placeholder="Sem limite" />
         </label>
       </div>
 
